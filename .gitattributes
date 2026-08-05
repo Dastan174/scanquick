@@ -1,0 +1,4 @@
+# LF formating before commit 
+* text=auto eol=lf
+
+.husky/* text eol=lf

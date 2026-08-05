@@ -1,0 +1,14 @@
+.button {
+  background: var(--pink);
+  border: none;
+  border-radius: 20px;
+  padding: 10px 24px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.ghost {
+  background: none;
+  color: var(--pink);
+  border: 1px solid var(--pink);
+}

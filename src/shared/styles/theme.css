@@ -1,0 +1,178 @@
+:root {
+  /* ------------------------------------------------------------------------
+     COLORS
+  ------------------------------------------------------------------------ */
+
+  --color-primary: #d4607a;
+  --color-primary-hover: #c54f69;
+  --color-primary-light: #e78399;
+
+  --color-blush: #fdf0f3;
+  --color-cream: #fefcfb;
+  --color-beige: #f5ede8;
+  --color-black: #1c1412;
+
+  /* Neutral Scale */
+
+  --color-white: #ffffff;
+
+  --color-gray-50: #fcfaf9;
+  --color-gray-100: #f5f1ef;
+  --color-gray-200: #e8dfda;
+  --color-gray-300: #d7cbc5;
+  --color-gray-400: #b8aaa2;
+  --color-gray-500: #95857d;
+  --color-gray-600: #70635d;
+  --color-gray-700: #504540;
+  --color-gray-800: #352d2a;
+  --color-gray-900: #1c1412;
+
+  /* Semantic */
+
+  --color-background: var(--color-cream);
+  --color-surface: var(--color-white);
+  --color-surface-secondary: var(--color-beige);
+
+  --color-text: var(--color-black);
+  --color-text-secondary: var(--color-gray-600);
+  --color-text-muted: var(--color-gray-500);
+
+  --color-border: rgba(28, 20, 18, 0.08);
+  --color-divider: rgba(28, 20, 18, 0.05);
+
+  --color-success: #3e8e5a;
+  --color-warning: #e2a33a;
+  --color-error: #c94c4c;
+  --color-info: #4d7bc8;
+
+  /* ------------------------------------------------------------------------
+     TYPOGRAPHY
+  ------------------------------------------------------------------------ */
+
+  /* Font Sizes */
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+
+  /* Font Weights */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Line Heights */
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.8;
+
+  /* ------------------------------------------------------------------------
+     SPACING
+  ------------------------------------------------------------------------ */
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ------------------------------------------------------------------------
+     BORDER RADIUS
+  ------------------------------------------------------------------------ */
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-phone: 44px;
+  --radius-full: 9999px;
+
+  /* ------------------------------------------------------------------------
+     GLASSMORPHISM
+  ------------------------------------------------------------------------ */
+
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-bg-dark: rgba(28, 20, 18, 0.4);
+
+  --glass-border: rgba(255, 255, 255, 0.35);
+
+  --glass-blur-sm: blur(8px);
+  --glass-blur-md: blur(16px);
+  --glass-blur-lg: blur(24px);
+
+  /* ------------------------------------------------------------------------
+     SHADOWS
+  ------------------------------------------------------------------------ */
+
+  --shadow-xs: 0 2px 6px rgba(0, 0, 0, 0.04);
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.12);
+
+  --shadow-glass: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  /* ------------------------------------------------------------------------
+     TRANSITIONS
+  ------------------------------------------------------------------------ */
+
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* ------------------------------------------------------------------------
+     Z INDEX
+  ------------------------------------------------------------------------ */
+
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-sidebar: 300;
+  --z-navbar: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+  --z-tooltip: 700;
+
+  /* ------------------------------------------------------------------------
+     LAYOUT
+  ------------------------------------------------------------------------ */
+
+  --container-width: 1280px;
+  --section-padding: 96px;
+
+  --sidebar-width: 280px;
+  --sidebar-collapsed: 84px;
+
+  --navbar-height: 72px;
+
+  /* ------------------------------------------------------------------------
+     COMPONENTS
+  ------------------------------------------------------------------------ */
+
+  --button-height: 48px;
+  --button-radius: 16px;
+
+  --card-radius: 24px;
+
+  --input-height: 52px;
+  --input-radius: 16px;
+
+  --phone-frame-radius: 44px;
+}

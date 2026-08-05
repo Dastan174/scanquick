@@ -1,0 +1,24 @@
+.container {
+  padding-block: 10px;
+  .mainContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    .mainContainer {
+      nav {
+        &:nth-child(2) {
+          display: none;
+        }
+      }
+    }
+  }
+}
