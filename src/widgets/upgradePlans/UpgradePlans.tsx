@@ -2,69 +2,43 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import scss from './upgradePlans.module.scss';
 
-const plans = [
-  {
-    id: 'premium',
-    name: 'Premium',
-    tag: 'BEST VALUE',
-    monthly: 12,
-    yearly: 7,
-    yearlyNote: 'Billed yearly ($84/year, save $60)',
-    features: [
-      'Unlimited Projects',
-      'All Templates',
-      'No Watermark',
-      'Custom Slug',
-      'Music Upload',
-      'Priority Support',
-    ],
-  },
-  {
-    id: 'gift',
-    name: 'Gift Plan',
-    monthly: 29,
-    yearly: 29,
-    yearlyNote: 'one-time',
-    features: [
-      'Everything in Premium',
-      'Printed QR Frame',
-      'Gift Box',
-      'Handwritten Card',
-      'Lifetime Access',
-    ],
-  },
+const planMeta = [
+  { id: 'premium', monthly: 990, yearly: 700 },
+  { id: 'gift', monthly: 2490, yearly: 2490 },
 ];
 
-export default function UpgradePlans() {
+export default function UpgradePlans({ t }: { t: Dictionary['upgradePlans'] }) {
   const [billing, setBilling] = useState<'Monthly' | 'Yearly'>('Yearly');
   const [selected, setSelected] = useState<string | null>(null);
 
+  const plans = t.plans.map((p, i) => ({ ...p, ...planMeta[i] }));
   const activePlan = plans.find((p) => p.id === selected);
 
   return (
     <div className={scss.page}>
       <Link href="/dashboard" className={scss.back}>
-        ‹ Back
+        {t.back}
       </Link>
       <h1>
-        Upgrade to <em>Premium</em>
+        {t.title1} <em>{t.titleEm}</em>
       </h1>
-      <p>Unlock your full love story potential.</p>
+      <p>{t.subtitle}</p>
 
       <div className={scss.toggle}>
         <button
           className={billing === 'Monthly' ? scss.toggleActive : ''}
           onClick={() => setBilling('Monthly')}
         >
-          Monthly
+          {t.monthly}
         </button>
         <button
           className={billing === 'Yearly' ? scss.toggleActive : ''}
           onClick={() => setBilling('Yearly')}
         >
-          Yearly <span>-40%</span>
+          {t.yearly} <span>{t.yearlyDiscount}</span>
         </button>
       </div>
 
@@ -79,11 +53,11 @@ export default function UpgradePlans() {
               onClick={() => setSelected(p.id)}
               onKeyDown={(e) => e.key === 'Enter' && setSelected(p.id)}
             >
-              {p.tag && <span className={scss.bestValue}>{p.tag}</span>}
+              {'tag' in p && p.tag && <span className={scss.bestValue}>{p.tag}</span>}
               <strong>{p.name}</strong>
               <div className={scss.price}>
-                <span className={scss.amount}>${billing === 'Monthly' ? p.monthly : p.yearly}</span>
-                <span>{p.id === 'gift' ? 'one-time' : '/mo'}</span>
+                <span className={scss.amount}>{billing === 'Monthly' ? p.monthly : p.yearly} ₽</span>
+                <span>{p.id === 'gift' ? t.oneTime : t.perMonth}</span>
               </div>
               {p.id !== 'gift' && billing === 'Yearly' && (
                 <span className={scss.billedNote}>{p.yearlyNote}</span>
@@ -103,33 +77,35 @@ export default function UpgradePlans() {
           {!activePlan ? (
             <div className={scss.empty}>
               <span>♡</span>
-              <strong>Select a plan</strong>
-              <p>to continue to payment</p>
+              <strong>{t.selectPlan}</strong>
+              <p>{t.selectPlanDescr}</p>
             </div>
           ) : (
             <div className={scss.form}>
-              <h2>Checkout — {activePlan.name}</h2>
+              <h2>
+                {t.checkout} {activePlan.name}
+              </h2>
               <label>
-                Name on card
+                {t.nameOnCard}
                 <input placeholder="Sofia Martinez" />
               </label>
               <label>
-                Card number
+                {t.cardNumber}
                 <input placeholder="4242 4242 4242 4242" />
               </label>
               <div className={scss.fieldRow}>
                 <label>
-                  Expiry
+                  {t.expiry}
                   <input placeholder="12/27" />
                 </label>
                 <label>
-                  CVC
+                  {t.cvc}
                   <input placeholder="123" />
                 </label>
               </div>
               <button className={scss.payBtn}>
-                Pay ${billing === 'Monthly' ? activePlan.monthly : activePlan.yearly}
-                {activePlan.id !== 'gift' ? '/mo' : ''} →
+                {t.pay} {billing === 'Monthly' ? activePlan.monthly : activePlan.yearly} ₽
+                {activePlan.id !== 'gift' ? t.perMonth : ''} →
               </button>
             </div>
           )}

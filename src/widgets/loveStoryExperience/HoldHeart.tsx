@@ -4,17 +4,38 @@ import { useRef, useState } from 'react';
 import scss from './holdHeart.module.scss';
 
 const HOLD_MS = 1400;
+const PARTICLE_COUNT = 16;
 
 interface HoldHeartProps {
   prompt: string;
   revealText: string;
 }
 
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+  rotate: number;
+}
+
+function makeParticles(): Particle[] {
+  return Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
+    id: i,
+    x: (Math.random() - 0.5) * 220,
+    y: (Math.random() - 0.5) * 220,
+    rotate: Math.random() * 360,
+  }));
+}
+
 export default function HoldHeart({ prompt, revealText }: HoldHeartProps) {
   const [progress, setProgress] = useState(0);
+  const [holding, setHolding] = useState(false);
   const [done, setDone] = useState(false);
+  const [burst, setBurst] = useState(false);
+  const [particles, setParticles] = useState<Particle[]>([]);
   const frame = useRef<number | null>(null);
   const start = useRef<number | null>(null);
+  const burstTimer = useRef<number | null>(null);
 
   const tick = (t: number) => {
     if (start.current === null) start.current = t;
@@ -23,6 +44,11 @@ export default function HoldHeart({ prompt, revealText }: HoldHeartProps) {
     setProgress(pct);
     if (pct >= 1) {
       setDone(true);
+      setHolding(false);
+      setBurst(true);
+      setParticles(makeParticles());
+      if ('vibrate' in navigator) navigator.vibrate(100);
+      burstTimer.current = window.setTimeout(() => setBurst(false), 1200);
       return;
     }
     frame.current = requestAnimationFrame(tick);
@@ -30,11 +56,13 @@ export default function HoldHeart({ prompt, revealText }: HoldHeartProps) {
 
   const begin = () => {
     if (done) return;
+    setHolding(true);
     start.current = null;
     frame.current = requestAnimationFrame(tick);
   };
 
   const cancel = () => {
+    setHolding(false);
     if (frame.current) cancelAnimationFrame(frame.current);
     if (!done) setProgress(0);
   };
@@ -42,12 +70,31 @@ export default function HoldHeart({ prompt, revealText }: HoldHeartProps) {
   return (
     <div className={scss.wrap}>
       <button
-        className={scss.heartBtn}
+        className={`${scss.heartBtn} ${!holding && !done ? scss.idle : ''}`}
         onPointerDown={begin}
         onPointerUp={cancel}
         onPointerLeave={cancel}
         aria-label="Hold the heart"
       >
+        {burst && (
+          <span className={scss.particles}>
+            {particles.map((p) => (
+              <span
+                key={p.id}
+                className={scss.particle}
+                style={
+                  {
+                    '--px': `${p.x}px`,
+                    '--py': `${p.y}px`,
+                    '--pr': `${p.rotate}deg`,
+                  } as React.CSSProperties
+                }
+              >
+                ❤️
+              </span>
+            ))}
+          </span>
+        )}
         <svg viewBox="0 0 24 24" className={scss.heartSvg}>
           <defs>
             <clipPath id="holdHeartClip">
@@ -70,7 +117,7 @@ export default function HoldHeart({ prompt, revealText }: HoldHeartProps) {
           />
         </svg>
       </button>
-      <p>{done ? revealText : prompt}</p>
+      <p className={scss.text}>{done ? revealText : prompt}</p>
     </div>
   );
 }

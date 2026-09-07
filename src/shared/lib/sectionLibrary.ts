@@ -22,10 +22,19 @@ export const SECTION_KINDS: SectionKind[] = [
   { kind: 'balloons', icon: '●', label: 'Balloon Game', descr: 'Pop a balloon, reveal a message', repeatable: false },
   { kind: 'video', icon: '▶', label: 'Video Memory', descr: 'An embedded video', repeatable: false },
   { kind: 'photo', icon: '🖼', label: 'Photo', descr: 'A full-width photo, add as many as you like', repeatable: true },
+  {
+    kind: 'divider',
+    icon: '▬',
+    label: 'Photo Divider',
+    descr: 'A tall full-bleed photo break between sections',
+    repeatable: true,
+  },
 ];
 
 export function sectionKindOf(id: string): string {
-  return id.startsWith('photo-') ? 'photo' : id;
+  if (id.startsWith('photo-')) return 'photo';
+  if (id.startsWith('divider-')) return 'divider';
+  return id;
 }
 
 export function sectionMeta(id: string): SectionKind {
@@ -35,4 +44,8 @@ export function sectionMeta(id: string): SectionKind {
 
 export function newPhotoSectionId(): string {
   return `photo-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+export function newDividerSectionId(): string {
+  return `divider-${Math.random().toString(36).slice(2, 9)}`;
 }

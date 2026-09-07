@@ -5,14 +5,16 @@
   gap: 16px;
   padding: 40px 20px;
   text-align: center;
+}
 
-  p {
-    color: var(--color-text-secondary);
-    font-size: var(--text-sm);
-  }
+.text {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  animation: pulseText 1.5s ease-in-out infinite;
 }
 
 .heartBtn {
+  position: relative;
   width: 140px;
   height: 140px;
   padding: 0;
@@ -21,6 +23,10 @@
   cursor: pointer;
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+.idle {
+  animation: idlePulse 1.8s ease-in-out infinite;
 }
 
 .heartSvg {
@@ -36,4 +42,55 @@
 .outline {
   stroke: var(--color-primary);
   stroke-width: 1.2;
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 20px;
+  transform: translate(-50%, -50%);
+  animation: burstOut 1.2s ease-out forwards;
+}
+
+@keyframes idlePulse {
+  0%,
+  100% {
+    transform: scale(1) rotate(-2deg);
+  }
+  50% {
+    transform: scale(1.06) rotate(2deg);
+  }
+}
+
+@keyframes pulseText {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes burstOut {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  40% {
+    transform: translate(calc(-50% + var(--px) * 0.6), calc(-50% + var(--py) * 0.6)) scale(1.2)
+      rotate(var(--pr));
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(0.5) rotate(var(--pr));
+    opacity: 0;
+  }
 }

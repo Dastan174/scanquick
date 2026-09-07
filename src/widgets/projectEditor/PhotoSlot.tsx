@@ -3,18 +3,20 @@
 import { useRef, useState } from 'react';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import type { PhotoTransform } from '@/shared/lib/loveStoryContent';
+import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import scss from './photoSlot.module.scss';
 
 interface PhotoSlotProps {
   projectId: string;
   transform: PhotoTransform | undefined;
   aspectRatio: string; // CSS aspect-ratio value, e.g. '9 / 16'
+  t: Dictionary['photoSlot'];
   onChange: (transform: PhotoTransform) => void;
 }
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
-export default function PhotoSlot({ projectId, transform, aspectRatio, onChange }: PhotoSlotProps) {
+export default function PhotoSlot({ projectId, transform, aspectRatio, t, onChange }: PhotoSlotProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
@@ -32,7 +34,7 @@ export default function PhotoSlot({ projectId, transform, aspectRatio, onChange 
     const result = await uploadSectionPhoto(projectId, file);
     setUploading(false);
     if (result.error || !result.url) {
-      setError(result.error ?? 'Upload failed.');
+      setError(result.error ?? t.uploadFailed);
       return;
     }
     onChange({ url: result.url, x: 50, y: 50, scale: 1 });
@@ -87,7 +89,7 @@ export default function PhotoSlot({ projectId, transform, aspectRatio, onChange 
         ) : (
           <button type="button" className={scss.empty} onClick={() => inputRef.current?.click()}>
             <span>📸</span>
-            <span>{uploading ? 'Uploading…' : 'Upload photo'}</span>
+            <span>{uploading ? t.uploading : t.uploadPhoto}</span>
           </button>
         )}
       </div>
@@ -103,10 +105,10 @@ export default function PhotoSlot({ projectId, transform, aspectRatio, onChange 
       {transform?.url && (
         <div className={scss.controls}>
           <button type="button" className={scss.changeBtn} onClick={() => inputRef.current?.click()}>
-            {uploading ? 'Uploading…' : 'Change Photo'}
+            {uploading ? t.uploading : t.changePhoto}
           </button>
           <label className={scss.zoomRow}>
-            Zoom
+            {t.zoom}
             <input
               type="range"
               min={1}
@@ -116,7 +118,7 @@ export default function PhotoSlot({ projectId, transform, aspectRatio, onChange 
               onChange={(e) => onChange({ ...transform, scale: Number(e.target.value) })}
             />
           </label>
-          <span className={scss.hint}>Drag the photo above to reposition it</span>
+          <span className={scss.hint}>{t.dragHint}</span>
         </div>
       )}
 

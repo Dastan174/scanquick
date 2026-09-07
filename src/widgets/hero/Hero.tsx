@@ -1,27 +1,27 @@
 import Button from '@/shared/ui/button/Button';
 import scss from './hero.module.scss';
 import Image from 'next/image';
+import { getT } from '@/shared/lib/i18n/locale';
 
-export default function Hero() {
+export default async function Hero() {
+  const t = await getT();
+
   return (
     <section className={scss.container}>
       <div className="container">
         <div className={scss.mainContainer}>
           <div className={scss.textContent}>
-            <span className={scss.effect}>✦ The most romantic gift you can give</span>
+            <span className={scss.effect}>{t.hero.eyebrow}</span>
             <h1>
-              Love, <em>Encoded</em>
+              {t.hero.titleLine1} <em>{t.hero.titleEm}</em>
               <br />
-              in a <span>QR Code</span>
+              {t.hero.titleLine2Prefix} <span>{t.hero.titleLine2Em}</span>
             </h1>
-            <p>
-              Create a breathtaking interactive website with your love story — photos, letters,
-              music, memories — then gift it as a single QR code to scan and cherish forever.
-            </p>
+            <p>{t.hero.description}</p>
             <div className={scss.actions}>
-              <Button href="/projects/new">Create Your Love Story →</Button>
+              <Button href="/projects/new">{t.hero.ctaPrimary}</Button>
               <Button variant="ghost" href="/dashboard">
-                ▷ See a Live Example
+                {t.hero.ctaSecondary}
               </Button>
             </div>
             <div className={scss.social}>
@@ -31,8 +31,8 @@ export default function Hero() {
                 <span />
               </div>
               <div>
-                <div className={scss.stars}>★★★★★</div>
-                <p>Loved by 12,000+ couples</p>
+                <div className={scss.stars}>{t.hero.stars}</div>
+                <p>{t.hero.social}</p>
               </div>
             </div>
           </div>
@@ -43,13 +43,13 @@ export default function Hero() {
               </div>
             </div>
             <div className={`${scss.floatCard} ${scss.floatTop}`}>
-              <span className={scss.floatLabel}>New scan</span>
-              <p>♡ Someone is reading...</p>
-              <span className={scss.floatTime}>2 min ago</span>
+              <span className={scss.floatLabel}>{t.hero.floatNewScan}</span>
+              <p>{t.hero.floatReading}</p>
+              <span className={scss.floatTime}>{t.hero.floatTimeAgo}</span>
             </div>
             <div className={`${scss.floatCard} ${scss.floatBottom}`}>
-              <span className={scss.floatLabel}>Your QR is live</span>
-              <p>Copy link ↗</p>
+              <span className={scss.floatLabel}>{t.hero.floatLive}</span>
+              <p>{t.hero.floatCopyLink}</p>
             </div>
           </div>
         </div>

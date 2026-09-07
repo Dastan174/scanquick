@@ -4,10 +4,19 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Project } from '@/shared/lib/mockData';
+import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
+import type { Locale } from '@/shared/lib/i18n/shared';
+import { deleteConfirm } from '@/shared/lib/i18n/format';
 import { updateProjectSlug, setProjectStatus, deleteProject } from '@/app/(admin)/projects/actions';
 import scss from './projectSettings.module.scss';
 
-export default function ProjectSettings({ project }: { project: Project }) {
+interface ProjectSettingsProps {
+  project: Project;
+  locale: Locale;
+  t: Dictionary['projectSettings'];
+}
+
+export default function ProjectSettings({ project, locale, t }: ProjectSettingsProps) {
   const router = useRouter();
   const [slug, setSlug] = useState(project.slug ?? '');
   const [slugStatus, setSlugStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -22,7 +31,7 @@ export default function ProjectSettings({ project }: { project: Project }) {
     const result = await updateProjectSlug(project.id, slug);
     if (result.error || !result.slug) {
       setSlugStatus('error');
-      setSlugError(result.error ?? 'Could not save the slug.');
+      setSlugError(result.error ?? t.slugErrorFallback);
       return;
     }
     setSlug(result.slug);
@@ -37,7 +46,7 @@ export default function ProjectSettings({ project }: { project: Project }) {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Delete "${project.name}"? This cannot be undone.`)) return;
+    if (!confirm(deleteConfirm(locale, project.name))) return;
     setDeleting(true);
     await deleteProject(project.id);
   };
@@ -45,14 +54,14 @@ export default function ProjectSettings({ project }: { project: Project }) {
   return (
     <div className={scss.page}>
       <Link href={`/projects/${project.id}/edit`} className={scss.back}>
-        ‹ Back to Editor
+        {t.backToEditor}
       </Link>
-      <h1>Project Settings</h1>
+      <h1>{t.title}</h1>
       <p>{project.name}</p>
 
       <div className={scss.card}>
-        <h2>Custom URL Slug</h2>
-        <p>The unique path for your love story</p>
+        <h2>{t.slugTitle}</h2>
+        <p>{t.slugDescr}</p>
         <div className={scss.slugRow}>
           <span>loveqr.co/</span>
           <input
@@ -67,19 +76,19 @@ export default function ProjectSettings({ project }: { project: Project }) {
           <span className={scss.slugErrorText}>{slugError}</span>
         ) : (
           <span className={scss.available}>
-            {slugStatus === 'saved' ? '● Saved · ' : '● '}loveqr.co/{slug || 'your-slug'}
+            {slugStatus === 'saved' ? `${t.saved}` : '● '}loveqr.co/{slug || 'your-slug'}
           </span>
         )}
         <button className={scss.saveBtn} onClick={saveSlug} disabled={slugStatus === 'saving'}>
-          {slugStatus === 'saving' ? 'Saving…' : 'Save Slug'}
+          {slugStatus === 'saving' ? t.saving : t.saveSlug}
         </button>
       </div>
 
       <div className={scss.card}>
         <div className={scss.toggleRow}>
           <div>
-            <h2>Password Protection</h2>
-            <p>Only those with the password can view your site</p>
+            <h2>{t.passwordTitle}</h2>
+            <p>{t.passwordDescr}</p>
           </div>
           <button
             className={`${scss.switch} ${passwordOn ? scss.switchOn : ''}`}
@@ -94,9 +103,9 @@ export default function ProjectSettings({ project }: { project: Project }) {
       <div className={scss.card}>
         <div className={scss.toggleRow}>
           <div>
-            <h2>Visibility</h2>
-            <p>Your site is publicly accessible via QR or link</p>
-            <span className={scss.publicTag}>{publicOn ? '● Published' : '○ Draft'}</span>
+            <h2>{t.visibilityTitle}</h2>
+            <p>{t.visibilityDescr}</p>
+            <span className={scss.publicTag}>{publicOn ? t.published : t.draft}</span>
           </div>
           <button
             className={`${scss.switch} ${publicOn ? scss.switchOn : ''}`}
@@ -109,10 +118,10 @@ export default function ProjectSettings({ project }: { project: Project }) {
       </div>
 
       <div className={`${scss.card} ${scss.danger}`}>
-        <h2>Danger Zone</h2>
-        <p>Permanently delete this project and all its content. This cannot be undone.</p>
+        <h2>{t.dangerTitle}</h2>
+        <p>{t.dangerDescr}</p>
         <button className={scss.deleteBtn} onClick={handleDelete} disabled={deleting}>
-          {deleting ? 'Deleting…' : 'Delete Project'}
+          {deleting ? t.deleting : t.deleteBtn}
         </button>
       </div>
     </div>

@@ -12,6 +12,7 @@ import PhotoWipeReveal from './PhotoWipeReveal';
 import { MailIcon, ChatModal } from './ChatMail';
 import QuotesCarousel from './QuotesCarousel';
 import BalloonGame from './BalloonGame';
+import ClickHearts from './ClickHearts';
 import scss from './loveStoryExperience.module.scss';
 
 const FloatingHearts = dynamic(() => import('./FloatingHearts'), { ssr: false });
@@ -33,6 +34,25 @@ function PhotoBlock({ transform }: { transform: LoveStoryContent['photos'][strin
         src={transform.url}
         alt=""
         className={scss.photoBlockImg}
+        style={{
+          objectPosition: `${transform.x}% ${transform.y}%`,
+          transform: `scale(${transform.scale})`,
+          transformOrigin: `${transform.x}% ${transform.y}%`,
+        }}
+      />
+    </div>
+  );
+}
+
+function PhotoDivider({ transform }: { transform: LoveStoryContent['photos'][string] | undefined }) {
+  if (!transform?.url) return <div className={scss.divider} style={{ background: '#e8dfda' }} />;
+  return (
+    <div className={scss.divider}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={transform.url}
+        alt=""
+        className={scss.dividerImg}
         style={{
           objectPosition: `${transform.x}% ${transform.y}%`,
           transform: `scale(${transform.scale})`,
@@ -113,7 +133,21 @@ export default function LoveStoryExperience({
               <span className={scss.avatar} />
               <span className={scss.username}>{content.instagramPost.username}</span>
             </div>
-            <div className={scss.postImage} style={{ background: content.sectionGradients[1] }} />
+            {content.instagramPhoto?.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={content.instagramPhoto.url}
+                alt=""
+                className={scss.postImage}
+                style={{
+                  objectPosition: `${content.instagramPhoto.x}% ${content.instagramPhoto.y}%`,
+                  transform: `scale(${content.instagramPhoto.scale})`,
+                  transformOrigin: `${content.instagramPhoto.x}% ${content.instagramPhoto.y}%`,
+                }}
+              />
+            ) : (
+              <div className={scss.postImage} style={{ background: content.sectionGradients[1] }} />
+            )}
             <div className={scss.postContent}>
               <div className={scss.actions}>
                 <span>❤️</span>
@@ -128,7 +162,13 @@ export default function LoveStoryExperience({
           </div>
         );
       case 'photoReveal':
-        return <PhotoWipeReveal gradient={content.wipeRevealGradient} hint={content.photoRevealHint} />;
+        return (
+          <PhotoWipeReveal
+            gradient={content.wipeRevealGradient}
+            hint={content.photoRevealHint}
+            photo={content.photoRevealPhoto}
+          />
+        );
       case 'chat':
         return (
           <div className={scss.mailWrap}>
@@ -143,6 +183,8 @@ export default function LoveStoryExperience({
         return <VideoMemory />;
       case 'photo':
         return <PhotoBlock transform={content.photos[id]} />;
+      case 'divider':
+        return <PhotoDivider transform={content.photos[id]} />;
       default:
         return null;
     }
@@ -151,6 +193,7 @@ export default function LoveStoryExperience({
   return (
     <div className={scss.page}>
       <FloatingHearts />
+      {opened && <ClickHearts />}
       <audio ref={audioRef} loop preload="auto" muted src="/music.mp3" />
 
       {!opened ? (

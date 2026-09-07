@@ -19,11 +19,25 @@
 .blurred {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   filter: blur(10px) saturate(0.7) brightness(0.85);
   transform: scale(1.1);
 }
 
 .clear {
+  position: absolute;
+  inset: 0;
+}
+
+.clearImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.clearFill {
   position: absolute;
   inset: 0;
 }

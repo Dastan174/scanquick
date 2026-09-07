@@ -1,5 +1,6 @@
 'use client';
 
+import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import scss from './listEditor.module.scss';
 
 interface ChatLine {
@@ -11,10 +12,11 @@ interface ChatLinesEditorProps {
   lines: ChatLine[];
   nameA: string;
   nameB: string;
+  t: Dictionary['listEditor'];
   onChange: (lines: ChatLine[]) => void;
 }
 
-export default function ChatLinesEditor({ lines, nameA, nameB, onChange }: ChatLinesEditorProps) {
+export default function ChatLinesEditor({ lines, nameA, nameB, t, onChange }: ChatLinesEditorProps) {
   return (
     <div className={scss.list}>
       {lines.map((line, i) => (
@@ -37,7 +39,7 @@ export default function ChatLinesEditor({ lines, nameA, nameB, onChange }: ChatL
               type="button"
               className={scss.removeBtn}
               onClick={() => onChange(lines.filter((_, idx) => idx !== i))}
-              aria-label="Remove"
+              aria-label={t.remove}
             >
               ✕
             </button>
@@ -56,7 +58,7 @@ export default function ChatLinesEditor({ lines, nameA, nameB, onChange }: ChatL
         className={scss.addBtn}
         onClick={() => onChange([...lines, { from: lines.length % 2 === 0 ? 'a' : 'b', text: '' }])}
       >
-        + Add message
+        {t.addMessage}
       </button>
     </div>
   );

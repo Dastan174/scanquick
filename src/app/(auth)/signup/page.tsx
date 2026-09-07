@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { signUp } from '../actions';
 import scss from '../auth.module.scss';
+import { getT, translateAuthError } from '@/shared/lib/i18n/locale';
 
 interface SignupPageProps {
   searchParams: Promise<{ error?: string }>;
@@ -8,40 +9,42 @@ interface SignupPageProps {
 
 export default async function SignupPage({ searchParams }: SignupPageProps) {
   const { error } = await searchParams;
+  const t = await getT();
+  const translatedError = error ? await translateAuthError(error) : undefined;
 
   return (
     <>
-      <h1 className={scss.title}>Create your account</h1>
-      <p className={scss.subtitle}>Start your love story — free to try.</p>
+      <h1 className={scss.title}>{t.auth.signup.title}</h1>
+      <p className={scss.subtitle}>{t.auth.signup.subtitle}</p>
 
-      {error && <div className={scss.error}>{error}</div>}
+      {translatedError && <div className={scss.error}>{translatedError}</div>}
 
       <form action={signUp}>
         <label className={scss.field}>
-          Full name
+          {t.auth.signup.fullName}
           <input type="text" name="fullName" placeholder="Sofia Martinez" required />
         </label>
         <label className={scss.field}>
-          Email
+          {t.auth.signup.email}
           <input type="email" name="email" placeholder="you@example.com" required />
         </label>
         <label className={scss.field}>
-          Password
+          {t.auth.signup.password}
           <input
             type="password"
             name="password"
-            placeholder="At least 6 characters"
+            placeholder={t.auth.signup.passwordHint}
             minLength={6}
             required
           />
         </label>
         <button type="submit" className={scss.submit}>
-          Create Account
+          {t.auth.signup.submit}
         </button>
       </form>
 
       <p className={scss.footer}>
-        Already have an account? <Link href="/login">Sign in</Link>
+        {t.auth.signup.haveAccount} <Link href="/login">{t.auth.signup.signIn}</Link>
       </p>
     </>
   );

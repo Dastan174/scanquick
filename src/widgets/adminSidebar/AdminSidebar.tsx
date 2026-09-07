@@ -4,17 +4,25 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from '@/app/(auth)/actions';
+import { useLockBodyScroll } from '@/shared/lib/useLockBodyScroll';
+import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
+import type { Locale } from '@/shared/lib/i18n/shared';
+import LanguageSwitcher from '@/widgets/languageSwitcher/LanguageSwitcher';
 import scss from './adminSidebar.module.scss';
 
 interface AdminSidebarProps {
   userEmail: string;
   latestProjectId: string | null;
+  locale: Locale;
+  t: Dictionary['adminSidebar'];
 }
 
-export default function AdminSidebar({ userEmail, latestProjectId }: AdminSidebarProps) {
+export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: AdminSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useLockBodyScroll(mobileOpen);
 
   // Editor/Preview/QR/Settings need a specific project — send people to
   // their most recently updated one, or to the wizard if they have none yet.
@@ -22,20 +30,20 @@ export default function AdminSidebar({ userEmail, latestProjectId }: AdminSideba
     latestProjectId ? `/projects/${latestProjectId}/${suffix}` : '/projects/new';
 
   const mainNav = [
-    { href: '/dashboard', icon: '◈', label: 'Dashboard' },
-    { href: '/projects', icon: '♡', label: 'Projects' },
-    { href: projectHref('edit'), icon: '◻', label: 'Editor' },
-    { href: projectHref('preview'), icon: '▷', label: 'Preview' },
-    { href: projectHref('qr'), icon: '⊞', label: 'QR Code' },
+    { href: '/dashboard', icon: '◈', label: t.dashboard },
+    { href: '/projects', icon: '♡', label: t.projects },
+    { href: projectHref('edit'), icon: '◻', label: t.editor },
+    { href: projectHref('preview'), icon: '▷', label: t.preview },
+    { href: projectHref('qr'), icon: '⊞', label: t.qrCode },
   ];
 
   const pagesNav = [
-    { href: '/projects/new', icon: '+', label: 'Create Project' },
-    { href: '/upgrade', icon: '◈', label: 'Payment' },
-    { href: projectHref('settings'), icon: '⚙', label: 'Settings' },
-    { href: '/billing', icon: '◉', label: 'Billing' },
-    { href: '/profile', icon: '⊙', label: 'Profile' },
-    { href: '/admin', icon: '⬡', label: 'Admin' },
+    { href: '/projects/new', icon: '+', label: t.createProject },
+    { href: '/upgrade', icon: '◈', label: t.payment },
+    { href: projectHref('settings'), icon: '⚙', label: t.settings },
+    { href: '/billing', icon: '◉', label: t.billing },
+    { href: '/profile', icon: '⊙', label: t.profile },
+    { href: '/admin', icon: '⬡', label: t.admin },
   ];
 
   const isActive = (href: string) => {
@@ -86,7 +94,7 @@ export default function AdminSidebar({ userEmail, latestProjectId }: AdminSideba
           ))}
         </nav>
 
-        {!collapsed && <span className={scss.groupLabel}>Pages</span>}
+        {!collapsed && <span className={scss.groupLabel}>{t.pages}</span>}
         <nav className={scss.nav}>
           {pagesNav.map((item) => (
             <Link
@@ -102,17 +110,22 @@ export default function AdminSidebar({ userEmail, latestProjectId }: AdminSideba
         </nav>
 
         {!collapsed && <span className={scss.userEmail}>{userEmail}</span>}
+        {!collapsed && (
+          <div className={scss.langRow}>
+            <LanguageSwitcher locale={locale} />
+          </div>
+        )}
 
         <form action={signOut}>
           <button type="submit" className={scss.collapseBtn}>
             <span className={scss.linkIcon}>⏻</span>
-            {!collapsed && <span>Sign out</span>}
+            {!collapsed && <span>{t.signOut}</span>}
           </button>
         </form>
 
         <button className={scss.collapseBtn} onClick={() => setCollapsed((c) => !c)}>
           <span className={scss.linkIcon}>{collapsed ? '▸' : '◂'}</span>
-          {!collapsed && <span>Collapse</span>}
+          {!collapsed && <span>{t.collapse}</span>}
         </button>
       </aside>
     </>

@@ -7,15 +7,17 @@ import { templates } from '@/shared/lib/mockData';
 import { createProject, updateProjectContent } from '@/app/(admin)/projects/actions';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import { demoLoveStoryContent } from '@/shared/lib/loveStoryContent';
+import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
+import type { Locale } from '@/shared/lib/i18n/shared';
+import { stepLabel } from '@/shared/lib/i18n/format';
 import scss from './projectWizard.module.scss';
 
-const stepMeta = [
-  { title: 'Name your', em: 'love story' },
-  { title: 'Choose a', em: 'template' },
-  { title: 'Add your', em: 'cover' },
-];
+interface ProjectWizardProps {
+  locale: Locale;
+  t: Dictionary['projectWizard'];
+}
 
-export default function ProjectWizard() {
+export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [projectName, setProjectName] = useState('');
@@ -29,8 +31,8 @@ export default function ProjectWizard() {
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const namesLabel = yourName && partnerName ? `${yourName} & ${partnerName}` : 'Your Names Here';
-  const activeTemplate = templates.find((t) => t.id === templateId) ?? templates[0];
+  const namesLabel = yourName && partnerName ? `${yourName} & ${partnerName}` : t.namesPlaceholder;
+  const activeTemplate = templates.find((tp) => tp.id === templateId) ?? templates[0];
   const canContinueStep1 = projectName.trim() && yourName.trim() && partnerName.trim();
 
   const finish = async () => {
@@ -45,7 +47,7 @@ export default function ProjectWizard() {
     });
     if (result.error || !result.id) {
       setSubmitting(false);
-      setError(result.error ?? 'Could not create the project.');
+      setError(result.error ?? t.errorFallback);
       return;
     }
 
@@ -80,33 +82,33 @@ export default function ProjectWizard() {
             </div>
           ))}
         </div>
-        <span className={scss.stepLabel}>Step {step} of 3</span>
+        <span className={scss.stepLabel}>{stepLabel(locale, step)}</span>
         <h1>
-          {stepMeta[step - 1].title}
+          {t.stepTitles[step - 1].title}
           <br />
-          <em>{stepMeta[step - 1].em}</em>
+          <em>{t.stepTitles[step - 1].em}</em>
         </h1>
 
         <div className={scss.phone} style={{ background: activeTemplate.gradient }}>
           <span>{namesLabel}</span>
         </div>
-        <p className={scss.livePreview}>Live preview as you type</p>
+        <p className={scss.livePreview}>{t.livePreview}</p>
       </div>
 
       <div className={scss.right}>
         <Link href="/projects" className={scss.back}>
-          ‹ Back to Projects
+          {t.backToProjects}
         </Link>
 
         {step === 1 && (
           <div className={scss.step}>
-            <h2>Your love story begins</h2>
-            <p>Give your project a name and tell us who this is for.</p>
+            <h2>{t.step1Title}</h2>
+            <p>{t.step1Descr}</p>
 
             <label className={scss.field}>
-              Project name
+              {t.projectName}
               <input
-                placeholder="e.g. Our Anniversary 2024"
+                placeholder={t.projectNamePlaceholder}
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
               />
@@ -114,7 +116,7 @@ export default function ProjectWizard() {
 
             <div className={scss.fieldRow}>
               <label className={scss.field}>
-                Your name
+                {t.yourName}
                 <input
                   placeholder="Sofia"
                   value={yourName}
@@ -122,7 +124,7 @@ export default function ProjectWizard() {
                 />
               </label>
               <label className={scss.field}>
-                Partner&apos;s name
+                {t.partnerName}
                 <input
                   placeholder="James"
                   value={partnerName}
@@ -132,7 +134,7 @@ export default function ProjectWizard() {
             </div>
 
             <label className={scss.field}>
-              Anniversary date <span>(optional)</span>
+              {t.anniversaryDate} <span>{t.optional}</span>
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </label>
 
@@ -141,37 +143,37 @@ export default function ProjectWizard() {
               disabled={!canContinueStep1}
               onClick={() => setStep(2)}
             >
-              Continue →
+              {t.continue}
             </button>
           </div>
         )}
 
         {step === 2 && (
           <div className={scss.step}>
-            <h2>Choose your canvas</h2>
-            <p>Pick a template that matches the mood of your love story.</p>
+            <h2>{t.step2Title}</h2>
+            <p>{t.step2Descr}</p>
 
             <div className={scss.templateGrid}>
-              {templates.map((t, i) => (
+              {templates.map((tpl, i) => (
                 <button
-                  key={t.id}
-                  className={`${scss.templateCard} ${templateId === t.id ? scss.templateActive : ''}`}
-                  onClick={() => setTemplateId(t.id)}
+                  key={tpl.id}
+                  className={`${scss.templateCard} ${templateId === tpl.id ? scss.templateActive : ''}`}
+                  onClick={() => setTemplateId(tpl.id)}
                 >
-                  {i === 0 && <span className={scss.popularTag}>Popular</span>}
-                  <span className={scss.templateSwatch} style={{ background: t.gradient }} />
-                  <strong>{t.name}</strong>
-                  <span>{t.mood}</span>
+                  {i === 0 && <span className={scss.popularTag}>{t.popular}</span>}
+                  <span className={scss.templateSwatch} style={{ background: tpl.gradient }} />
+                  <strong>{tpl.name}</strong>
+                  <span>{tpl.mood}</span>
                 </button>
               ))}
             </div>
 
             <div className={scss.stepActions}>
               <button className={scss.backBtn} onClick={() => setStep(1)}>
-                ← Back
+                {t.back}
               </button>
               <button className={scss.continueBtn} onClick={() => setStep(3)}>
-                Continue →
+                {t.continue}
               </button>
             </div>
           </div>
@@ -179,8 +181,8 @@ export default function ProjectWizard() {
 
         {step === 3 && (
           <div className={scss.step}>
-            <h2>Add your cover photo</h2>
-            <p>The first thing they will see. Choose a photo that captures your love.</p>
+            <h2>{t.step3Title}</h2>
+            <p>{t.step3Descr}</p>
 
             <button
               type="button"
@@ -195,9 +197,9 @@ export default function ProjectWizard() {
               {!coverPreview && (
                 <>
                   <span>📸</span>
-                  <strong>Upload cover photo</strong>
-                  <span>JPG, PNG, HEIC · Up to 20MB</span>
-                  <span>or click to browse</span>
+                  <strong>{t.uploadCover}</strong>
+                  <span>{t.uploadHint}</span>
+                  <span>{t.orClickToBrowse}</span>
                 </>
               )}
             </button>
@@ -209,30 +211,27 @@ export default function ProjectWizard() {
               onChange={(e) => handleCoverFile(e.target.files?.[0])}
             />
 
-            <span className={scss.orUse}>or use sample</span>
+            <span className={scss.orUse}>{t.orUseSample}</span>
             <div className={scss.samples}>
-              {templates.slice(0, 3).map((t) => (
-                <span key={t.id} style={{ background: t.gradient }} />
+              {templates.slice(0, 3).map((tpl) => (
+                <span key={tpl.id} style={{ background: tpl.gradient }} />
               ))}
             </div>
 
-            <div className={scss.note}>
-              ✓ You can skip this step and add your cover later in the editor. You won&apos;t lose
-              any progress.
-            </div>
+            <div className={scss.note}>{t.skipNote}</div>
 
             {error && <div className={scss.error}>{error}</div>}
 
             <div className={scss.stepActions}>
               <button className={scss.backBtn} onClick={() => setStep(2)} disabled={submitting}>
-                ← Back
+                {t.back}
               </button>
               <button className={scss.continueBtn} onClick={finish} disabled={submitting}>
-                {submitting ? 'Creating…' : 'Open Editor →'}
+                {submitting ? t.creating : t.openEditor}
               </button>
             </div>
             <button className={scss.skipBtn} onClick={finish} disabled={submitting}>
-              Skip for now
+              {t.skipForNow}
             </button>
           </div>
         )}

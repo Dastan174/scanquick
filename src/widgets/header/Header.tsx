@@ -1,8 +1,13 @@
 import Link from 'next/link';
 import scss from './header.module.scss';
 import Button from '@/shared/ui/button/Button';
+import LanguageSwitcher from '@/widgets/languageSwitcher/LanguageSwitcher';
+import { getLocale, getDictionary } from '@/shared/lib/i18n/locale';
 
-export default function Header() {
+export default async function Header() {
+  const locale = await getLocale();
+  const t = getDictionary(locale);
+
   return (
     <header className={scss.container}>
       <div className="container">
@@ -12,17 +17,18 @@ export default function Header() {
             LoveQR
           </Link>
           <nav className={scss.links}>
-            <Link href="/">Features</Link>
-            <Link href="/">Templates</Link>
-            <Link href="/">Pricing</Link>
-            <Link href="/">FAQ</Link>
+            <Link href="/">{t.header.features}</Link>
+            <Link href="/">{t.header.templates}</Link>
+            <Link href="/">{t.header.pricing}</Link>
+            <Link href="/">{t.header.faq}</Link>
           </nav>
           <nav className={scss.actions}>
+            <LanguageSwitcher locale={locale} />
             <Button variant="ghost" size="sm" href="/login">
-              Sign in
+              {t.header.signIn}
             </Button>
             <Button size="sm" href="/signup">
-              Start free
+              {t.header.startFree}
             </Button>
           </nav>
         </div>

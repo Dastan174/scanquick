@@ -104,37 +104,37 @@ export const templates = [
   {
     id: 'starlit-romance',
     name: 'Starlit Romance',
-    mood: 'Dark & Magical',
+    mood: 'Тёмный и волшебный',
     gradient: 'linear-gradient(135deg, #1a0a2e, #4a1060, #8b2080)',
   },
   {
     id: 'garden-of-love',
     name: 'Garden of Love',
-    mood: 'Soft & Floral',
+    mood: 'Нежный и цветочный',
     gradient: 'linear-gradient(135deg, #f5ede8, #fad8e4, #e8b8c8)',
   },
   {
     id: 'parisian-dream',
     name: 'Parisian Dream',
-    mood: 'Classic & Rich',
+    mood: 'Классический и роскошный',
     gradient: 'linear-gradient(135deg, #2c2420, #6b4a3c, #c4866a)',
   },
   {
     id: 'golden-hour',
     name: 'Golden Hour',
-    mood: 'Warm & Golden',
+    mood: 'Тёплый и золотой',
     gradient: 'linear-gradient(135deg, #fdf0f3, #fce4b0, #f0a060)',
   },
   {
     id: 'northern-lights',
     name: 'Northern Lights',
-    mood: 'Aurora Magic',
+    mood: 'Магия сияния',
     gradient: 'linear-gradient(135deg, #0a1a2e, #0a4a3c, #20a080)',
   },
   {
     id: 'cherry-blossom',
     name: 'Cherry Blossom',
-    mood: 'Delicate & Pure',
+    mood: 'Утончённый и чистый',
     gradient: 'linear-gradient(135deg, #fef0f8, #fad0e8, #e8a0c0)',
   },
 ];

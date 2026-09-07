@@ -5,30 +5,23 @@ import Badge from '@/shared/ui/badge/Badge';
 import BillingHistory from '@/widgets/billingHistory/BillingHistory';
 import { currentUser } from '@/shared/lib/mockData';
 import { updateProfile } from '@/app/(admin)/profile/actions';
+import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
+import type { Locale } from '@/shared/lib/i18n/shared';
+import { memberSince as formatMemberSince } from '@/shared/lib/i18n/format';
 import scss from './profilePage.module.scss';
-
-const tabs = ['Profile', 'Subscription', 'Billing History'] as const;
-
-const subscriptionFeatures = [
-  'Unlimited Projects',
-  'All 6 Templates',
-  'No Watermark',
-  'Custom URL Slug',
-  'Password Protection',
-  'Music Upload',
-  'Heart Game',
-  'Priority Support',
-];
 
 interface ProfilePageProps {
   name: string;
   email: string;
   plan: string;
   memberSince: string;
+  locale: Locale;
+  t: Dictionary;
 }
 
-export default function ProfilePage({ name, email, plan, memberSince }: ProfilePageProps) {
-  const [tab, setTab] = useState<(typeof tabs)[number]>('Profile');
+export default function ProfilePage({ name, email, plan, memberSince, locale, t }: ProfilePageProps) {
+  const p = t.profilePage;
+  const [tab, setTab] = useState(0);
 
   const initials =
     name
@@ -48,96 +41,95 @@ export default function ProfilePage({ name, email, plan, memberSince }: ProfileP
         <div>
           <h1>{name}</h1>
           <span className={scss.meta}>
-            <Badge tone="pink">{plan}</Badge>
-            {memberSince && <>Member since {memberSince}</>}
+            <Badge tone="pink" label={plan === 'free' ? t.common.free : t.common.premium}>
+              {plan}
+            </Badge>
+            {memberSince && <>{formatMemberSince(locale, memberSince)}</>}
           </span>
         </div>
       </div>
 
       <div className={scss.tabs}>
-        {tabs.map((t) => (
-          <button key={t} className={tab === t ? scss.tabActive : ''} onClick={() => setTab(t)}>
-            {t}
+        {p.tabs.map((label, i) => (
+          <button key={label} className={tab === i ? scss.tabActive : ''} onClick={() => setTab(i)}>
+            {label}
           </button>
         ))}
       </div>
 
-      {tab === 'Profile' && (
+      {tab === 0 && (
         <>
           <form action={updateProfile} className={scss.card}>
-            <h2>Personal Information</h2>
+            <h2>{p.personalInfo}</h2>
             <label className={scss.field}>
-              Full name
+              {p.fullName}
               <input name="fullName" defaultValue={name} />
             </label>
             <label className={scss.field}>
-              Email address
+              {p.emailAddress}
               <input value={email} disabled />
             </label>
             <label className={scss.field}>
-              Language
-              <select defaultValue="English (US)">
-                <option>English (US)</option>
-                <option>Español</option>
-                <option>Français</option>
-                <option>Italiano</option>
-                <option>Português</option>
+              {p.language}
+              <select defaultValue="Русский">
+                <option>Русский</option>
+                <option>English</option>
               </select>
             </label>
             <button type="submit" className={scss.saveBtn}>
-              Save Changes
+              {p.saveChanges}
             </button>
           </form>
 
           <div className={scss.card}>
-            <h2>Change Password</h2>
+            <h2>{p.changePassword}</h2>
             <label className={scss.field}>
-              Current password
+              {p.currentPassword}
               <input type="password" />
             </label>
             <label className={scss.field}>
-              New password
+              {p.newPassword}
               <input type="password" />
             </label>
             <label className={scss.field}>
-              Confirm new password
+              {p.confirmPassword}
               <input type="password" />
             </label>
-            <button className={scss.saveBtn}>Update Password</button>
+            <button className={scss.saveBtn}>{p.updatePassword}</button>
           </div>
         </>
       )}
 
-      {tab === 'Subscription' && (
+      {tab === 1 && (
         <div className={scss.subCard}>
           <div className={scss.subHeader}>
             <div>
               <span className={scss.subIcon}>✦</span>
-              <strong>Premium Plan</strong>
-              <span className={scss.subMeta}>Active · Renews December 14, 2024</span>
+              <strong>{p.premiumPlan}</strong>
+              <span className={scss.subMeta}>{p.activeRenews}</span>
             </div>
           </div>
           <div className={scss.subStats}>
             <div>
-              <span>Projects</span>
+              <span>{p.projects}</span>
               <strong>{currentUser.projectsCount} / ∞</strong>
             </div>
             <div>
-              <span>Plan</span>
-              <strong>Annual</strong>
+              <span>{p.plan}</span>
+              <strong>{p.annual}</strong>
             </div>
             <div>
-              <span>Next bill</span>
+              <span>{p.nextBill}</span>
               <strong>$84</strong>
             </div>
           </div>
           <div className={scss.subActions}>
-            <button className={scss.manageBtn}>Manage Billing</button>
-            <button className={scss.cancelBtn}>Cancel Plan</button>
+            <button className={scss.manageBtn}>{p.manageBilling}</button>
+            <button className={scss.cancelBtn}>{p.cancelPlan}</button>
           </div>
-          <h3>Plan Features</h3>
+          <h3>{p.planFeatures}</h3>
           <div className={scss.features}>
-            {subscriptionFeatures.map((f) => (
+            {p.features.map((f) => (
               <div key={f}>
                 <span>✓</span> {f}
               </div>
@@ -146,7 +138,7 @@ export default function ProfilePage({ name, email, plan, memberSince }: ProfileP
         </div>
       )}
 
-      {tab === 'Billing History' && <BillingHistory />}
+      {tab === 2 && <BillingHistory t={t.billingHistory} />}
     </div>
   );
 }

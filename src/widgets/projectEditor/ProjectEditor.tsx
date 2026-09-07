@@ -6,8 +6,17 @@ import Badge from '@/shared/ui/badge/Badge';
 import PhoneFrame from '@/shared/ui/phoneFrame/PhoneFrame';
 import type { Project } from '@/shared/lib/mockData';
 import { demoLoveStoryContent, type LoveStoryContent } from '@/shared/lib/loveStoryContent';
-import { SECTION_KINDS, sectionKindOf, sectionMeta, newPhotoSectionId } from '@/shared/lib/sectionLibrary';
+import {
+  SECTION_KINDS,
+  sectionKindOf,
+  sectionMeta,
+  newPhotoSectionId,
+  newDividerSectionId,
+} from '@/shared/lib/sectionLibrary';
 import { updateProjectContent } from '@/app/(admin)/projects/actions';
+import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
+import type { Locale } from '@/shared/lib/i18n/shared';
+import { storyLabel } from '@/shared/lib/i18n/format';
 import TextListEditor from './TextListEditor';
 import ChatLinesEditor from './ChatLinesEditor';
 import PhotoSlot from './PhotoSlot';
@@ -16,9 +25,12 @@ import scss from './projectEditor.module.scss';
 interface ProjectEditorProps {
   project: Project;
   initialContent: Record<string, unknown> | null;
+  locale: Locale;
+  t: Dictionary;
 }
 
-export default function ProjectEditor({ project, initialContent }: ProjectEditorProps) {
+export default function ProjectEditor({ project, initialContent, locale, t }: ProjectEditorProps) {
+  const e = t.projectEditor;
   const [content, setContent] = useState<LoveStoryContent>({
     ...demoLoveStoryContent,
     ...(initialContent ?? {}),
@@ -30,6 +42,13 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
   const [dragId, setDragId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const localizedMeta = (id: string) => {
+    const kind = sectionKindOf(id);
+    const icon = sectionMeta(id).icon;
+    const text = e.sectionKinds[kind as keyof typeof e.sectionKinds] ?? e.sectionKinds.photo;
+    return { icon, label: text.label, descr: text.descr };
+  };
 
   // Debounce the live preview so we don't flood the iframe with a postMessage
   // on every keystroke — it only reflects `content` again once typing pauses.
@@ -66,6 +85,14 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
     setSaveState('dirty');
   };
 
+  const updateStoryPhoto = (index: number, photo: LoveStoryContent['stories'][number]['photo']) => {
+    setContent((c) => ({
+      ...c,
+      stories: c.stories.map((s, i) => (i === index ? { ...s, photo } : s)),
+    }));
+    setSaveState('dirty');
+  };
+
   const handleSave = async () => {
     setSaveState('saving');
     const result = await updateProjectContent(project.id, content);
@@ -73,7 +100,8 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
   };
 
   const addSection = (kind: string) => {
-    const id = kind === 'photo' ? newPhotoSectionId() : kind;
+    const id =
+      kind === 'photo' ? newPhotoSectionId() : kind === 'divider' ? newDividerSectionId() : kind;
     patch({ sectionOrder: [...content.sectionOrder, id] });
     setSelected(id);
     setAddMenuOpen(false);
@@ -86,17 +114,17 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
 
   // Drag handles start the reorder; while dragging we swap `id` into
   // whichever row the pointer is currently over.
-  const onHandlePointerDown = (id: string) => (e: React.PointerEvent) => {
+  const onHandlePointerDown = (id: string) => (ev: React.PointerEvent) => {
     setDragId(id);
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    (ev.target as HTMLElement).setPointerCapture(ev.pointerId);
   };
 
-  const onListPointerMove = (e: React.PointerEvent) => {
+  const onListPointerMove = (ev: React.PointerEvent) => {
     if (!dragId || !listRef.current) return;
     const rows = Array.from(listRef.current.querySelectorAll<HTMLElement>('[data-section-id]'));
     const overRow = rows.find((row) => {
       const rect = row.getBoundingClientRect();
-      return e.clientY >= rect.top && e.clientY <= rect.bottom;
+      return ev.clientY >= rect.top && ev.clientY <= rect.bottom;
     });
     const overId = overRow?.dataset.sectionId;
     if (!overId || overId === dragId) return;
@@ -119,35 +147,37 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
     (k) => k.repeatable || !content.sectionOrder.includes(k.kind),
   );
 
-  const selectedMeta = selected ? sectionMeta(selected) : null;
+  const selectedMeta = selected ? localizedMeta(selected) : null;
 
   return (
     <div className={scss.editor}>
       <aside className={scss.left}>
-        <span className={scss.groupLabel}>Cover</span>
+        <span className={scss.groupLabel}>{e.cover}</span>
         <button
           className={`${scss.sectionItem} ${selected === 'cover' ? scss.sectionActive : ''}`}
           onClick={() => setSelected('cover')}
         >
           <span className={scss.sectionIcon}>✦</span>
           <span className={scss.sectionText}>
-            <strong>Cover</strong>
-            <span>Always shown first</span>
+            <strong>{e.cover}</strong>
+            <span>{e.coverAlwaysFirst}</span>
           </span>
         </button>
 
         <div className={scss.sectionsHeader}>
-          <span className={scss.groupLabel}>Sections ({content.sectionOrder.length})</span>
+          <span className={scss.groupLabel}>
+            {e.sections} ({content.sectionOrder.length})
+          </span>
           <div className={scss.addWrap}>
             <button className={scss.addBtn} onClick={() => setAddMenuOpen((v) => !v)}>
-              + Add
+              {e.addBtn}
             </button>
             {addMenuOpen && (
               <div className={scss.addMenu}>
                 {availableKinds.map((k) => (
                   <button key={k.kind} onClick={() => addSection(k.kind)}>
                     <span>{k.icon}</span>
-                    {k.label}
+                    {e.sectionKinds[k.kind as keyof typeof e.sectionKinds]?.label ?? k.label}
                   </button>
                 ))}
               </div>
@@ -163,7 +193,7 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
           onPointerLeave={stopDragging}
         >
           {content.sectionOrder.map((id) => {
-            const meta = sectionMeta(id);
+            const meta = localizedMeta(id);
             return (
               <div
                 key={id}
@@ -179,8 +209,8 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
                 <button
                   type="button"
                   className={scss.removeBtn}
-                  onClick={(e) => {
-                    e.stopPropagation();
+                  onClick={(ev) => {
+                    ev.stopPropagation();
                     removeSection(id);
                   }}
                   aria-label="Remove section"
@@ -197,35 +227,35 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
               </div>
             );
           })}
-          {content.sectionOrder.length === 0 && (
-            <p className={scss.emptyList}>No sections yet — add one above.</p>
-          )}
+          {content.sectionOrder.length === 0 && <p className={scss.emptyList}>{e.noSections}</p>}
         </div>
       </aside>
 
       <div className={scss.center}>
         <div className={scss.centerHeader}>
           <Link href="/projects" className={scss.crumb}>
-            ‹ Projects
+            ‹ {t.projectsList.title}
           </Link>
           <div className={scss.titleRow}>
             <h1>{project.name}</h1>
-            <Badge>{project.status}</Badge>
+            <Badge label={project.status === 'published' ? t.common.published : t.common.draft}>
+              {project.status}
+            </Badge>
           </div>
           <div className={scss.headerActions}>
             <Link href={`/projects/${project.id}/preview`} target="_blank" rel="noopener noreferrer">
-              ▷ Preview
+              ▷ {t.common.preview}
             </Link>
-            <Link href={`/projects/${project.id}/settings`}>Settings</Link>
+            <Link href={`/projects/${project.id}/settings`}>{t.common.settings}</Link>
             <Link href={`/projects/${project.id}/qr`} className={scss.qrBtn}>
-              ⊞ Get QR Code
+              ⊞ {t.qrCodePage.title}
             </Link>
             <button
               className={scss.saveBtn}
               onClick={handleSave}
               disabled={saveState === 'saving' || saveState === 'saved'}
             >
-              {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved ✓' : 'Save'}
+              {saveState === 'saving' ? t.common.saving : saveState === 'saved' ? t.common.saved : t.common.save}
             </button>
           </div>
         </div>
@@ -246,8 +276,8 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
         <div className={scss.rightHeader}>
           <span className={scss.rightIcon}>{selected === 'cover' ? '✦' : (selectedMeta?.icon ?? '✦')}</span>
           <div>
-            <strong>{selected === 'cover' ? 'Cover' : (selectedMeta?.label ?? 'Select a section')}</strong>
-            <span>Properties & Settings</span>
+            <strong>{selected === 'cover' ? e.cover : (selectedMeta?.label ?? '')}</strong>
+            <span>{e.propertiesSettings}</span>
           </div>
         </div>
 
@@ -266,15 +296,21 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
                     }
                   : undefined
               }
-              onChange={(t) =>
-                patch({ coverPhotoUrl: t.url, coverPhotoX: t.x, coverPhotoY: t.y, coverPhotoScale: t.scale })
+              t={t.photoSlot}
+              onChange={(tr) =>
+                patch({
+                  coverPhotoUrl: tr.url,
+                  coverPhotoX: tr.x,
+                  coverPhotoY: tr.y,
+                  coverPhotoScale: tr.scale,
+                })
               }
             />
             <label className={scss.field}>
-              Prompt text
+              {e.promptText}
               <input
                 value={content.coverPromptText}
-                onChange={(e) => patch({ coverPromptText: e.target.value })}
+                onChange={(ev) => patch({ coverPromptText: ev.target.value })}
               />
             </label>
           </>
@@ -282,11 +318,11 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
 
         {sectionKindOf(selected) === 'typewriter' && (
           <label className={scss.field}>
-            Intro line
+            {e.introLine}
             <textarea
               rows={4}
               value={content.typewriterText}
-              onChange={(e) => patch({ typewriterText: e.target.value })}
+              onChange={(ev) => patch({ typewriterText: ev.target.value })}
             />
           </label>
         )}
@@ -294,17 +330,17 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
         {sectionKindOf(selected) === 'holdHeart' && (
           <>
             <label className={scss.field}>
-              Prompt (before hold)
+              {e.holdPrompt}
               <input
                 value={content.holdHeartPrompt}
-                onChange={(e) => patch({ holdHeartPrompt: e.target.value })}
+                onChange={(ev) => patch({ holdHeartPrompt: ev.target.value })}
               />
             </label>
             <label className={scss.field}>
-              Reveal text (after hold)
+              {e.revealText}
               <input
                 value={content.holdHeartRevealText}
-                onChange={(e) => patch({ holdHeartRevealText: e.target.value })}
+                onChange={(ev) => patch({ holdHeartRevealText: ev.target.value })}
               />
             </label>
           </>
@@ -313,43 +349,59 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
         {sectionKindOf(selected) === 'stories' && (
           <>
             {content.stories.map((story, i) => (
-              <label key={i} className={scss.field}>
-                Story {i + 1} label
-                <input value={story.label} onChange={(e) => updateStoryLabel(i, e.target.value)} />
-              </label>
+              <div key={i} className={scss.storyGroup}>
+                <PhotoSlot
+                  projectId={project.id}
+                  aspectRatio="9 / 16"
+                  transform={story.photo}
+                  t={t.photoSlot}
+                  onChange={(tr) => updateStoryPhoto(i, tr)}
+                />
+                <label className={scss.field}>
+                  {storyLabel(locale, i + 1)}
+                  <input value={story.label} onChange={(ev) => updateStoryLabel(i, ev.target.value)} />
+                </label>
+              </div>
             ))}
           </>
         )}
 
         {sectionKindOf(selected) === 'instagram' && (
           <>
+            <PhotoSlot
+              projectId={project.id}
+              aspectRatio="4 / 3"
+              transform={content.instagramPhoto}
+              t={t.photoSlot}
+              onChange={(tr) => patch({ instagramPhoto: tr })}
+            />
             <label className={scss.field}>
-              Username
+              {e.username}
               <input
                 value={content.instagramPost.username}
-                onChange={(e) =>
-                  patch({ instagramPost: { ...content.instagramPost, username: e.target.value } })
+                onChange={(ev) =>
+                  patch({ instagramPost: { ...content.instagramPost, username: ev.target.value } })
                 }
               />
             </label>
             <label className={scss.field}>
-              Likes
+              {e.likes}
               <input
                 type="number"
                 value={content.instagramPost.likes}
-                onChange={(e) =>
+                onChange={(ev) =>
                   patch({
-                    instagramPost: { ...content.instagramPost, likes: Number(e.target.value) },
+                    instagramPost: { ...content.instagramPost, likes: Number(ev.target.value) },
                   })
                 }
               />
             </label>
             <label className={scss.field}>
-              Caption
+              {e.caption}
               <input
                 value={content.instagramPost.caption}
-                onChange={(e) =>
-                  patch({ instagramPost: { ...content.instagramPost, caption: e.target.value } })
+                onChange={(ev) =>
+                  patch({ instagramPost: { ...content.instagramPost, caption: ev.target.value } })
                 }
               />
             </label>
@@ -357,14 +409,23 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
         )}
 
         {sectionKindOf(selected) === 'photoReveal' && (
-          <label className={scss.field}>
-            Hint text
-            <textarea
-              rows={3}
-              value={content.photoRevealHint}
-              onChange={(e) => patch({ photoRevealHint: e.target.value })}
+          <>
+            <PhotoSlot
+              projectId={project.id}
+              aspectRatio="9 / 10"
+              transform={content.photoRevealPhoto}
+              t={t.photoSlot}
+              onChange={(tr) => patch({ photoRevealPhoto: tr })}
             />
-          </label>
+            <label className={scss.field}>
+              {e.hintText}
+              <textarea
+                rows={3}
+                value={content.photoRevealHint}
+                onChange={(ev) => patch({ photoRevealHint: ev.target.value })}
+              />
+            </label>
+          </>
         )}
 
         {sectionKindOf(selected) === 'chat' && (
@@ -372,6 +433,7 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
             lines={content.chatLines}
             nameA={project.partnerA}
             nameB={project.partnerB}
+            t={t.listEditor}
             onChange={(chatLines) => patch({ chatLines })}
           />
         )}
@@ -380,7 +442,8 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
           <TextListEditor
             items={content.quotes}
             onChange={(quotes) => patch({ quotes })}
-            addLabel="Add quote"
+            addLabel={t.listEditor.addQuote}
+            removeLabel={t.listEditor.remove}
           />
         )}
 
@@ -388,24 +451,37 @@ export default function ProjectEditor({ project, initialContent }: ProjectEditor
           <TextListEditor
             items={content.balloonMessages}
             onChange={(balloonMessages) => patch({ balloonMessages })}
-            addLabel="Add balloon"
+            addLabel={t.listEditor.addBalloon}
+            removeLabel={t.listEditor.remove}
           />
         )}
 
-        {sectionKindOf(selected) === 'video' && (
-          <p className={scss.empty}>Video upload is coming soon.</p>
-        )}
+        {sectionKindOf(selected) === 'video' && <p className={scss.empty}>{e.videoComingSoon}</p>}
 
         {sectionKindOf(selected) === 'photo' && (
           <PhotoSlot
             projectId={project.id}
             aspectRatio="16 / 10"
             transform={content.photos[selected]}
-            onChange={(t) => patch({ photos: { ...content.photos, [selected]: t } })}
+            t={t.photoSlot}
+            onChange={(tr) => patch({ photos: { ...content.photos, [selected]: tr } })}
           />
         )}
 
-        {!selected && <p className={scss.empty}>Select a section to edit its properties.</p>}
+        {sectionKindOf(selected) === 'divider' && (
+          <>
+            <PhotoSlot
+              projectId={project.id}
+              aspectRatio="4 / 5"
+              transform={content.photos[selected]}
+              t={t.photoSlot}
+              onChange={(tr) => patch({ photos: { ...content.photos, [selected]: tr } })}
+            />
+            <p className={scss.hint}>{e.dividerHint}</p>
+          </>
+        )}
+
+        {!selected && <p className={scss.empty}>{e.selectSection}</p>}
       </aside>
     </div>
   );

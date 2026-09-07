@@ -1,40 +1,21 @@
 import scss from './whyLove.module.scss';
+import { getT } from '@/shared/lib/i18n/locale';
 
-const cards = [
-  {
-    icon: '♡',
-    title: 'Beautiful Romantic Sites',
-    descr:
-      'Craft immersive love stories with galleries, letters, music, and timelines — all in one magical experience.',
-    tint: scss.tintPink,
-  },
-  {
-    icon: '⊞',
-    title: 'Scan to Surprise',
-    descr:
-      'Generate an elegant QR code. Print it, frame it, gift it — one scan reveals your entire love story.',
-    tint: scss.tintBeige,
-  },
-  {
-    icon: '✦',
-    title: 'Crafted with Emotion',
-    descr:
-      'Typewriter letters, countdown timers, collages, music players — every detail designed to move hearts.',
-    tint: scss.tintBlush,
-  },
-];
+const tints = [scss.tintPink, scss.tintBeige, scss.tintBlush];
 
-export default function WhyLove() {
+export default async function WhyLove() {
+  const t = await getT();
+
   return (
     <section className={scss.container}>
       <div className="container">
         <div className={scss.mainContainer}>
-          <span>Why LoveQR</span>
-          <h1>Everything love deserves</h1>
-          <p>More than a website. A living love letter that grows with your story.</p>
+          <span>{t.whyLove.eyebrow}</span>
+          <h1>{t.whyLove.title}</h1>
+          <p>{t.whyLove.subtitle}</p>
           <div className={scss.list}>
-            {cards.map((item) => (
-              <div key={item.title} className={`${scss.card} ${item.tint}`}>
+            {t.whyLove.cards.map((item, i) => (
+              <div key={item.title} className={`${scss.card} ${tints[i]}`}>
                 <span className={scss.icon}>{item.icon}</span>
                 <h2>{item.title}</h2>
                 <p>{item.descr}</p>

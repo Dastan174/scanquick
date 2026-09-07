@@ -6,9 +6,10 @@ interface TextListEditorProps {
   items: string[];
   onChange: (items: string[]) => void;
   addLabel: string;
+  removeLabel: string;
 }
 
-export default function TextListEditor({ items, onChange, addLabel }: TextListEditorProps) {
+export default function TextListEditor({ items, onChange, addLabel, removeLabel }: TextListEditorProps) {
   return (
     <div className={scss.list}>
       {items.map((item, i) => (
@@ -22,14 +23,14 @@ export default function TextListEditor({ items, onChange, addLabel }: TextListEd
             type="button"
             className={scss.removeBtn}
             onClick={() => onChange(items.filter((_, idx) => idx !== i))}
-            aria-label="Remove"
+            aria-label={removeLabel}
           >
             ✕
           </button>
         </div>
       ))}
       <button type="button" className={scss.addBtn} onClick={() => onChange([...items, ''])}>
-        + {addLabel}
+        {addLabel}
       </button>
     </div>
   );

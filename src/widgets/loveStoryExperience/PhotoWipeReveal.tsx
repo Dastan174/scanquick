@@ -1,14 +1,16 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import type { PhotoTransform } from '@/shared/lib/loveStoryContent';
 import scss from './photoWipeReveal.module.scss';
 
 interface PhotoWipeRevealProps {
   gradient: string;
   hint: string;
+  photo?: PhotoTransform;
 }
 
-export default function PhotoWipeReveal({ gradient, hint }: PhotoWipeRevealProps) {
+export default function PhotoWipeReveal({ gradient, hint, photo }: PhotoWipeRevealProps) {
   const [pct, setPct] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -20,6 +22,14 @@ export default function PhotoWipeReveal({ gradient, hint }: PhotoWipeRevealProps
     const value = ((clientX - rect.left) / rect.width) * 100;
     setPct(Math.max(0, Math.min(100, value)));
   };
+
+  const photoStyle = photo?.url
+    ? {
+        objectPosition: `${photo.x}% ${photo.y}%`,
+        transform: `scale(${photo.scale})`,
+        transformOrigin: `${photo.x}% ${photo.y}%`,
+      }
+    : undefined;
 
   return (
     <div className={scss.wrap}>
@@ -34,11 +44,20 @@ export default function PhotoWipeReveal({ gradient, hint }: PhotoWipeRevealProps
         onPointerUp={() => (dragging.current = false)}
         onPointerLeave={() => (dragging.current = false)}
       >
-        <div className={scss.blurred} style={{ background: gradient }} />
-        <div
-          className={scss.clear}
-          style={{ background: gradient, clipPath: `inset(0 ${100 - pct}% 0 0)` }}
-        />
+        {photo?.url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photo.url} alt="" className={scss.blurred} style={photoStyle} />
+        ) : (
+          <div className={scss.blurred} style={{ background: gradient }} />
+        )}
+        <div className={scss.clear} style={{ clipPath: `inset(0 ${100 - pct}% 0 0)` }}>
+          {photo?.url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photo.url} alt="" className={scss.clearImg} style={photoStyle} />
+          ) : (
+            <div className={scss.clearFill} style={{ background: gradient }} />
+          )}
+        </div>
         <div className={scss.cursor} style={{ left: `${pct}%` }}>
           ➡️
         </div>

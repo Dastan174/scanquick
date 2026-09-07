@@ -18,14 +18,16 @@ export interface LoveStoryContent {
   typewriterText: string;
   holdHeartPrompt: string;
   holdHeartRevealText: string;
-  stories: { label: string; gradient: string }[];
+  stories: { label: string; gradient: string; photo?: PhotoTransform }[];
   instagramPost: {
     username: string;
     likes: number;
     caption: string;
   };
+  instagramPhoto?: PhotoTransform;
   wipeRevealGradient: string;
   photoRevealHint: string;
+  photoRevealPhoto?: PhotoTransform;
   chatLines: { from: 'a' | 'b'; text: string }[];
   quotes: string[];
   balloonMessages: string[];
@@ -33,9 +35,10 @@ export interface LoveStoryContent {
   sectionGradients: string[];
   // Which non-cover sections appear on the page, and in what order. Ids are
   // either a fixed singleton kind ('typewriter', 'stories', ...) or
-  // `photo-<random>` for a repeatable Photo block — see sectionLibrary.ts.
+  // `photo-<random>` / `divider-<random>` for repeatable blocks — see
+  // sectionLibrary.ts.
   sectionOrder: string[];
-  // Repeatable Photo block images, keyed by their id in sectionOrder.
+  // Repeatable Photo/Divider block images, keyed by their id in sectionOrder.
   photos: Record<string, PhotoTransform>;
 }
 

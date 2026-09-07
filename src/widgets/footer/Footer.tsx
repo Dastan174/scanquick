@@ -1,22 +1,10 @@
 import Link from 'next/link';
 import scss from './footer.module.scss';
+import { getT } from '@/shared/lib/i18n/locale';
 
-const columns = [
-  {
-    title: 'Product',
-    links: ['Features', 'Templates', 'Pricing', 'Gift Plans'],
-  },
-  {
-    title: 'Company',
-    links: ['About', 'Blog', 'Press', 'Careers'],
-  },
-  {
-    title: 'Legal',
-    links: ['Privacy', 'Terms', 'Cookies', 'Security'],
-  },
-];
+export default async function Footer() {
+  const t = await getT();
 
-export default function Footer() {
   return (
     <footer className={scss.container}>
       <div className="container">
@@ -26,9 +14,9 @@ export default function Footer() {
               <span className={scss.logoIcon}>♥</span>
               LoveQR
             </div>
-            <p>Turning love stories into scannable moments of joy, one QR code at a time.</p>
+            <p>{t.footer.tagline}</p>
           </div>
-          {columns.map((col) => (
+          {t.footer.columns.map((col) => (
             <div key={col.title}>
               <span className={scss.colTitle}>{col.title}</span>
               <div className={scss.colLinks}>
@@ -42,8 +30,8 @@ export default function Footer() {
           ))}
         </div>
         <div className={scss.bottom}>
-          <span>© 2024 LoveQR. Made with ♡</span>
-          <span>12,847 love stories created</span>
+          <span>{t.footer.copyright}</span>
+          <span>{t.footer.storiesCreated}</span>
         </div>
       </div>
     </footer>

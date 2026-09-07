@@ -1,18 +1,21 @@
 import scss from './cta.module.scss';
 import Button from '@/shared/ui/button/Button';
+import { getT } from '@/shared/lib/i18n/locale';
 
-export default function Cta() {
+export default async function Cta() {
+  const t = await getT();
+
   return (
     <section className={scss.container}>
       <div className="container">
         <div className={scss.mainContainer}>
           <h1>
-            Start your love story
+            {t.cta.title1}
             <br />
-            <em>today</em>
+            <em>{t.cta.titleEm}</em>
           </h1>
-          <p>Free to start. Upgrade when you are ready to go premium.</p>
-          <Button href="/projects/new">Create for Free →</Button>
+          <p>{t.cta.subtitle}</p>
+          <Button href="/projects/new">{t.cta.button}</Button>
         </div>
       </div>
     </section>

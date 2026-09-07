@@ -4,6 +4,7 @@ import {
   getProjectBySlugAnyStatus,
 } from '@/shared/lib/supabase/projects';
 import { demoLoveStoryContent, type LoveStoryContent } from '@/shared/lib/loveStoryContent';
+import { getT } from '@/shared/lib/i18n/locale';
 
 interface ViewProjectPageProps {
   params: Promise<{ slug: string }>;
@@ -23,6 +24,7 @@ export default async function ViewProjectPage({ params, searchParams }: ViewProj
     : await getPublishedProjectBySlug(slug);
 
   if (!result) {
+    const t = await getT();
     return (
       <div
         style={{
@@ -39,7 +41,7 @@ export default async function ViewProjectPage({ params, searchParams }: ViewProj
         }}
       >
         <span style={{ fontSize: '32px' }}>💔</span>
-        <p>This love story isn&apos;t available yet.</p>
+        <p>{t.view.notAvailable}</p>
       </div>
     );
   }
