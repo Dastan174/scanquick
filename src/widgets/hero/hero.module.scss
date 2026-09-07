@@ -1,89 +1,193 @@
 .container {
-  padding-block: 60px;
+  padding-block: 80px;
+  background: radial-gradient(
+    80% 60% at 70% 40%,
+    rgba(253, 240, 243, 0.9) 0%,
+    rgba(254, 252, 251, 0.5) 60%,
+    rgba(245, 237, 232, 0.3) 100%
+  );
+
   .mainContainer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 50px;
-    .textContent {
-      max-width: 450px;
-      height: 450px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      align-items: start;
-      gap: 25px;
-      .effect {
-        background: var(--light-pink);
-        color: var(--pink);
-        border: 1px solid var(--pink);
-        padding: 8px 13px;
-        border-radius: 20px;
-        font-size: 12px;
-      }
-      h1 {
-        font-size: 64px;
-        span {
-          color: var(--pink);
-          font-family: inherit;
-        }
-      }
-      p {
-        color: var(--paragraph);
-      }
-      .actions {
-        display: flex;
-        gap: 15px;
-      }
+  }
+}
+
+.textContent {
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 25px;
+
+  .effect {
+    background: rgba(253, 240, 243, 0.9);
+    color: var(--color-primary);
+    border: 1px solid rgba(212, 96, 122, 0.3);
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 5vw, 68px);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+
+    em {
+      font-style: italic;
     }
-    .phone {
-      width: 325px;
-      height: 540px;
-      border: 8px solid #111;
-      border-bottom: 38px solid #111;
-      border-top: 22px solid #111;
-      border-radius: 40px;
-      padding: 12px;
-      background: #000;
-      rotate: -10deg;
-      .screen {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        border-radius: 28px;
-        background: #fff;
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-      }
+
+    span {
+      color: var(--color-primary);
+      font-family: inherit;
     }
+  }
+
+  > p {
+    color: var(--color-text-secondary);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    a {
+      color: inherit;
+    }
+  }
+}
+
+.social {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  p {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+}
+
+.avatars {
+  display: flex;
+
+  span {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-gray-300);
+    border: 2px solid var(--color-cream);
+    margin-left: -10px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+.stars {
+  color: #f2b13d;
+  font-size: var(--text-xs);
+  letter-spacing: 2px;
+}
+
+.phoneWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.phone {
+  width: 325px;
+  height: 540px;
+  border: 8px solid var(--color-black);
+  border-bottom: 38px solid var(--color-black);
+  border-top: 22px solid var(--color-black);
+  border-radius: var(--phone-frame-radius);
+  padding: 12px;
+  background: var(--color-black);
+  rotate: -6deg;
+
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 28px;
+    background: var(--color-white);
+
+    img {
+      object-fit: cover;
+    }
+  }
+}
+
+.floatCard {
+  position: absolute;
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-sm);
+
+  p {
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+  }
+}
+
+.floatLabel {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.floatTime {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.floatTop {
+  top: 10%;
+  left: -60px;
+}
+
+.floatBottom {
+  bottom: 20%;
+  right: -30px;
+  background: var(--color-primary);
+
+  p,
+  .floatLabel {
+    color: var(--color-white);
   }
 }
 
 @media (max-width: 1024px) {
-  .container {
-    .mainContainer {
-      .textContent {
-        max-width: 350px;
-      }
-    }
+  .textContent {
+    max-width: 380px;
   }
 }
 
-@media (max-width: 768px) {
-  .container {
-    .mainContainer {
-      justify-content: center;
-      .textContent {
-        align-items: center;
-        text-align: center;
-        height: 100%;
-      }
-      .phone {
-        display: none;
-      }
-    }
+@media (max-width: 900px) {
+  .container .mainContainer {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .textContent {
+    align-items: center;
+    text-align: center;
+    max-width: 560px;
+  }
+
+  .phoneWrap {
+    display: none;
   }
 }

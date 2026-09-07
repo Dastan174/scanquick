@@ -1,0 +1,38 @@
+.section {
+  overflow: hidden;
+  padding-block: 32px;
+  mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+}
+
+.track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: scroll 40s linear infinite;
+}
+
+.card {
+  flex-shrink: 0;
+  width: 220px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: rgba(212, 96, 122, 0.06);
+  border: 1px solid rgba(212, 96, 122, 0.1);
+
+  p {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    line-height: var(--leading-relaxed);
+  }
+}
+
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

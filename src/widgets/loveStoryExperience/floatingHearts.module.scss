@@ -1,0 +1,31 @@
+.container {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-tooltip);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.heart {
+  position: absolute;
+  bottom: -40px;
+  font-size: 22px;
+  opacity: 0.8;
+  animation-name: rise;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+}
+
+@keyframes rise {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-110vh) translateX(20px);
+    opacity: 0;
+  }
+}

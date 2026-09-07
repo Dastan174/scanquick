@@ -1,0 +1,75 @@
+.wrap {
+  padding: 24px 20px 40px;
+  text-align: center;
+}
+
+.photoWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  height: 220px;
+  margin: 0 auto;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  box-shadow: var(--shadow-md);
+}
+
+.blurred {
+  position: absolute;
+  inset: 0;
+  filter: blur(10px) saturate(0.7) brightness(0.85);
+  transform: scale(1.1);
+}
+
+.clear {
+  position: absolute;
+  inset: 0;
+}
+
+.cursor {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--text-xl);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.progressBar {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+
+  span {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    color: var(--color-white);
+  }
+}
+
+.progressFill {
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary);
+  transition: width 0.05s linear;
+}
+
+.hint {
+  margin-top: 16px;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  max-width: 320px;
+  margin-inline: auto;
+}

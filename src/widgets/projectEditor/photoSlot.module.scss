@@ -1,0 +1,97 @@
+.wrap {
+  margin-bottom: 16px;
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-gray-100);
+  border: 1px solid var(--color-border);
+  touch-action: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  cursor: pointer;
+
+  span:first-child {
+    font-size: var(--text-2xl);
+  }
+}
+
+.controls {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.changeBtn {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.zoomRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+
+  input {
+    flex: 1;
+  }
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.error {
+  margin-top: 8px;
+  font-size: var(--text-xs);
+  color: var(--color-error);
+  text-align: center;
+}

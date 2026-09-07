@@ -1,0 +1,70 @@
+.sky {
+  padding: 32px 20px 60px;
+  text-align: center;
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin-bottom: 24px;
+}
+
+.balloons {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.balloon {
+  position: relative;
+  width: 64px;
+  height: 78px;
+  border: none;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  cursor: pointer;
+  animation: float 3.5s ease-in-out infinite;
+  box-shadow: inset -8px -8px 16px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+.string {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  width: 1px;
+  height: 20px;
+  background: var(--color-gray-400);
+}
+
+.popped {
+  animation: none;
+  width: 120px;
+  height: auto;
+  min-height: 78px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-white) !important;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.offerText {
+  font-size: 11px;
+  font-family: var(--font-heading);
+  font-style: italic;
+  color: var(--color-text);
+  line-height: 1.4;
+}

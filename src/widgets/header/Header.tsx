@@ -7,16 +7,23 @@ export default function Header() {
     <header className={scss.container}>
       <div className="container">
         <div className={scss.mainContainer}>
-          <h3>Scanquick.kg</h3>
-          <nav>
+          <Link href="/" className={scss.logo}>
+            <span className={scss.logoIcon}>♥</span>
+            LoveQR
+          </Link>
+          <nav className={scss.links}>
             <Link href="/">Features</Link>
             <Link href="/">Templates</Link>
             <Link href="/">Pricing</Link>
             <Link href="/">FAQ</Link>
           </nav>
-          <nav>
-            <Button variant="ghost">Sign in</Button>
-            <Button>Start free</Button>
+          <nav className={scss.actions}>
+            <Button variant="ghost" size="sm" href="/login">
+              Sign in
+            </Button>
+            <Button size="sm" href="/signup">
+              Start free
+            </Button>
           </nav>
         </div>
       </div>

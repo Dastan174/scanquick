@@ -34,8 +34,8 @@
   --color-surface-secondary: var(--color-beige);
 
   --color-text: var(--color-black);
-  --color-text-secondary: var(--color-gray-600);
-  --color-text-muted: var(--color-gray-500);
+  --color-text-secondary: #6b5b62;
+  --color-text-muted: #9b7e86;
 
   --color-border: rgba(28, 20, 18, 0.08);
   --color-divider: rgba(28, 20, 18, 0.05);

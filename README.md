@@ -15,8 +15,7 @@ The core application features an asynchronous split-pane page editor, adaptive m
 - **User Interface Styling:** Tailwind CSS
 - **State Optimization Engine:** Zustand (Handles global and local content builder states)
 - **Form Lifecycle Management:** React Hook Form
-- **Database Interface Layer:** Prisma ORM
-- **Storage Infrastructure:** Object Storage abstraction layer compatible with Cloudflare R2 / AWS S3 / Cloudinary
+- **Database, Auth & Storage:** Supabase (Postgres + Row Level Security, no separate ORM)
 
 ### Directory Structure & Module Maps
 

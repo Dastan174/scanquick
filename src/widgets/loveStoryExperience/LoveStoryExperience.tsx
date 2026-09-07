@@ -1,0 +1,186 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+import type { Project } from '@/shared/lib/mockData';
+import type { LoveStoryContent } from '@/shared/lib/loveStoryContent';
+import { sectionKindOf } from '@/shared/lib/sectionLibrary';
+import TypewriterText from './TypewriterText';
+import HoldHeart from './HoldHeart';
+import StoriesRow from './StoriesRow';
+import PhotoWipeReveal from './PhotoWipeReveal';
+import { MailIcon, ChatModal } from './ChatMail';
+import QuotesCarousel from './QuotesCarousel';
+import BalloonGame from './BalloonGame';
+import scss from './loveStoryExperience.module.scss';
+
+const FloatingHearts = dynamic(() => import('./FloatingHearts'), { ssr: false });
+
+interface LoveStoryExperienceProps {
+  project: Project;
+  content: LoveStoryContent;
+  // Set for the Editor's live-preview iframe, so every edit is visible
+  // immediately instead of needing a tap-to-open on each reload.
+  skipCover?: boolean;
+}
+
+function PhotoBlock({ transform }: { transform: LoveStoryContent['photos'][string] | undefined }) {
+  if (!transform?.url) return <div className={scss.fullBleed} style={{ background: '#e8dfda' }} />;
+  return (
+    <div className={scss.photoBlock}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={transform.url}
+        alt=""
+        className={scss.photoBlockImg}
+        style={{
+          objectPosition: `${transform.x}% ${transform.y}%`,
+          transform: `scale(${transform.scale})`,
+          transformOrigin: `${transform.x}% ${transform.y}%`,
+        }}
+      />
+    </div>
+  );
+}
+
+function VideoMemory() {
+  return (
+    <div className={scss.wrapper}>
+      <h2>Наши воспоминания</h2>
+      <div className={scss.videoPlaceholder}>
+        <span>▶</span>
+        <p>Видео появится здесь после загрузки</p>
+      </div>
+    </div>
+  );
+}
+
+export default function LoveStoryExperience({
+  project,
+  content: initialContent,
+  skipCover,
+}: LoveStoryExperienceProps) {
+  const [content, setContent] = useState(initialContent);
+  const [opened, setOpened] = useState(Boolean(skipCover));
+  const [chatOpen, setChatOpen] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Inside the Editor's preview iframe, edits arrive via postMessage instead
+  // of a URL reload, so the iframe never restarts and loses scroll position.
+  useEffect(() => {
+    if (!skipCover) return;
+    const handleMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.type !== 'loveqr-preview-update') return;
+      setContent(e.data.content);
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [skipCover]);
+
+  const handleOpen = () => {
+    setOpened(true);
+    const audio = audioRef.current;
+    if (audio) {
+      audio.muted = false;
+      audio.play().catch(() => {
+        // Autoplay can still be blocked by the browser — that's fine,
+        // the visitor can unmute manually once they interact again.
+      });
+    }
+  };
+
+  const coverStyle = content.coverPhotoUrl
+    ? {
+        backgroundImage: `linear-gradient(rgba(28, 20, 18, 0.35), rgba(28, 20, 18, 0.55)), url(${content.coverPhotoUrl})`,
+        backgroundSize: `${content.coverPhotoScale * 100}%`,
+        backgroundPosition: `${content.coverPhotoX}% ${content.coverPhotoY}%`,
+      }
+    : { background: content.coverGradient };
+
+  const renderSection = (id: string) => {
+    switch (sectionKindOf(id)) {
+      case 'typewriter':
+        return <TypewriterText text={content.typewriterText} />;
+      case 'holdHeart':
+        return <HoldHeart prompt={content.holdHeartPrompt} revealText={content.holdHeartRevealText} />;
+      case 'stories':
+        return <StoriesRow stories={content.stories} />;
+      case 'instagram':
+        return (
+          <div className={scss.post}>
+            <div className={scss.postHeader}>
+              <span className={scss.avatar} />
+              <span className={scss.username}>{content.instagramPost.username}</span>
+            </div>
+            <div className={scss.postImage} style={{ background: content.sectionGradients[1] }} />
+            <div className={scss.postContent}>
+              <div className={scss.actions}>
+                <span>❤️</span>
+                <span>💬</span>
+                <span>📤</span>
+              </div>
+              <p className={scss.likes}>{content.instagramPost.likes.toLocaleString('en-US')} likes</p>
+              <p className={scss.caption}>
+                <strong>{content.instagramPost.username}</strong> {content.instagramPost.caption}
+              </p>
+            </div>
+          </div>
+        );
+      case 'photoReveal':
+        return <PhotoWipeReveal gradient={content.wipeRevealGradient} hint={content.photoRevealHint} />;
+      case 'chat':
+        return (
+          <div className={scss.mailWrap}>
+            <MailIcon onClick={() => setChatOpen(true)} />
+          </div>
+        );
+      case 'quotes':
+        return <QuotesCarousel quotes={content.quotes} />;
+      case 'balloons':
+        return <BalloonGame messages={content.balloonMessages} />;
+      case 'video':
+        return <VideoMemory />;
+      case 'photo':
+        return <PhotoBlock transform={content.photos[id]} />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={scss.page}>
+      <FloatingHearts />
+      <audio ref={audioRef} loop preload="auto" muted src="/music.mp3" />
+
+      {!opened ? (
+        <button className={scss.cover} style={coverStyle} onClick={handleOpen}>
+          <span className={scss.coverIcon}>💌</span>
+          <span className={scss.coverText}>{content.coverPromptText}</span>
+        </button>
+      ) : (
+        <div className={scss.content}>
+          {content.sectionOrder.map((id) => (
+            <div key={id}>{renderSection(id)}</div>
+          ))}
+
+          <div className={scss.replyWrap}>
+            <button className={scss.replyBtn} onClick={() => setChatOpen(true)}>
+              Нажми, чтобы ответить 💌
+            </button>
+          </div>
+
+          <div className={scss.fullBleed} style={coverStyle} />
+        </div>
+      )}
+
+      <ChatModal
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        nameA={project.partnerA}
+        nameB={project.partnerB}
+        lines={content.chatLines}
+      />
+    </div>
+  );
+}

@@ -10,24 +10,46 @@ export default function Hero() {
           <div className={scss.textContent}>
             <span className={scss.effect}>✦ The most romantic gift you can give</span>
             <h1>
-              Love, Encoded in a <span>QR Code</span>
+              Love, <em>Encoded</em>
+              <br />
+              in a <span>QR Code</span>
             </h1>
             <p>
               Create a breathtaking interactive website with your love story — photos, letters,
               music, memories — then gift it as a single QR code to scan and cherish forever.
             </p>
             <div className={scss.actions}>
-              <Button>Create Yout Love Story -{'>'}</Button>
-              <Button variant="ghost">
-                <a target="_blank" href="https://elmir-present-two.vercel.app/">
-                  See a Live Example
-                </a>
+              <Button href="/projects/new">Create Your Love Story →</Button>
+              <Button variant="ghost" href="/dashboard">
+                ▷ See a Live Example
               </Button>
             </div>
+            <div className={scss.social}>
+              <div className={scss.avatars}>
+                <span />
+                <span />
+                <span />
+              </div>
+              <div>
+                <div className={scss.stars}>★★★★★</div>
+                <p>Loved by 12,000+ couples</p>
+              </div>
+            </div>
           </div>
-          <div className={scss.phone}>
-            <div className={scss.screen}>
-              <img src="/hero.png" alt="Love preview" />
+          <div className={scss.phoneWrap}>
+            <div className={scss.phone}>
+              <div className={scss.screen}>
+                <Image src="/hero.png" alt="Love preview" fill sizes="325px" priority />
+              </div>
+            </div>
+            <div className={`${scss.floatCard} ${scss.floatTop}`}>
+              <span className={scss.floatLabel}>New scan</span>
+              <p>♡ Someone is reading...</p>
+              <span className={scss.floatTime}>2 min ago</span>
+            </div>
+            <div className={`${scss.floatCard} ${scss.floatBottom}`}>
+              <span className={scss.floatLabel}>Your QR is live</span>
+              <p>Copy link ↗</p>
             </div>
           </div>
         </div>

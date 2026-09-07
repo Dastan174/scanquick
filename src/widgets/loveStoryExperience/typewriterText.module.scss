@@ -1,0 +1,36 @@
+.wrap {
+  position: relative;
+  padding: 48px 32px;
+  text-align: center;
+}
+
+.text {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--color-text);
+  min-height: 3.6em;
+}
+
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  background: var(--color-primary);
+  vertical-align: text-bottom;
+  animation: blink 0.8s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.feather {
+  display: block;
+  margin-top: 12px;
+  font-size: var(--text-xl);
+}
