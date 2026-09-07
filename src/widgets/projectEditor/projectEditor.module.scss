@@ -224,6 +224,22 @@
   }
 }
 
+.menuToggle {
+  display: none;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .headerActions {
   display: flex;
   gap: 12px;
@@ -236,6 +252,46 @@
     font-size: var(--text-xs);
     font-weight: var(--weight-medium);
     color: var(--color-text-secondary);
+  }
+}
+
+// Below ~640px the four action links/buttons no longer fit in one row —
+// collapse them behind a burger toggle in the title row instead of letting
+// them wrap or overflow.
+@media (max-width: 640px) {
+  .menuToggle {
+    display: flex;
+  }
+
+  .centerHeader {
+    position: relative;
+  }
+
+  .headerActions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 20;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 200px;
+    margin-top: 8px;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.12));
+
+    a,
+    button {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  .actionsOpen {
+    display: flex;
   }
 }
 

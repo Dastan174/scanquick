@@ -52,14 +52,67 @@
   gap: 12px;
 }
 
-@media (max-width: 900px) {
-  .links {
-    display: none;
+.menuToggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(212, 96, 122, 0.2);
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--text-lg);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mobileMenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 20px 20px;
+  background: var(--color-cream);
+  border-bottom: 1px solid rgba(212, 96, 122, 0.08);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+
+  a {
+    padding: 12px 4px;
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid rgba(212, 96, 122, 0.06);
   }
 }
 
-@media (max-width: 480px) {
-  .actions button:first-child {
+.mobileMenuOpen {
+  display: flex;
+}
+
+.mobileActions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 12px;
+
+  a {
+    border-bottom: none;
+  }
+}
+
+// Below 900px the nav links and desktop actions no longer fit in one row —
+// collapse them behind a burger toggle instead of hiding pieces ad hoc.
+@media (max-width: 900px) {
+  .links,
+  .actions {
     display: none;
+  }
+
+  .menuToggle {
+    display: flex;
   }
 }

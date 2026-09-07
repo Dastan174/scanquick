@@ -239,8 +239,6 @@ export default function LoveStoryExperience({
               Нажми, чтобы ответить 💌
             </button>
           </div>
-
-          <div className={scss.fullBleed} style={coverStyle} />
         </div>
       )}
 

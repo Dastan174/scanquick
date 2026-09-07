@@ -1,25 +1,32 @@
 import Link from 'next/link';
+import QRCode from 'qrcode';
 import StatCard from '@/shared/ui/statCard/StatCard';
 import type { Project } from '@/shared/lib/mockData';
 import { getT, getLocale } from '@/shared/lib/i18n/locale';
 import { qrSubtitle } from '@/shared/lib/i18n/format';
+import { getSiteUrl } from '@/shared/lib/siteUrl';
 import scss from './qrCodePage.module.scss';
 
-function QrGrid() {
-  const cells = Array.from({ length: 121 }, (_, i) => {
-    const row = Math.floor(i / 11);
-    const col = i % 11;
-    const isCenter = row >= 4 && row <= 6 && col >= 4 && col <= 6;
-    const on = isCenter ? false : (row * 7 + col * 13) % 5 !== 0;
-    return { on, tone: (row + col) % 3 === 0 };
-  });
+// Dark modules on a transparent background, so the white qrGrid panel shows
+// through — real QR readers need this much contrast to scan reliably, even
+// with the heart badge sitting on top (errorCorrectionLevel 'H' tolerates it).
+const QR_COLOR = { dark: '#221512', light: '#00000000' };
 
+function QrArt({ pngDataUrl }: { pngDataUrl: string }) {
   return (
-    <div className={scss.qrGrid}>
-      {cells.map((c, i) => (
-        <span key={i} className={c.on ? (c.tone ? scss.cellPink : scss.cellDark) : ''} />
-      ))}
-      <span className={scss.qrHeart}>♥</span>
+    <div className={scss.qrStage}>
+      <span className={scss.qrGlow} />
+      <span className={`${scss.sparkle} ${scss.sparkleTopLeft}`}>✦</span>
+      <span className={`${scss.sparkle} ${scss.sparkleTopRight}`}>💗</span>
+      <span className={`${scss.sparkle} ${scss.sparkleBottomLeft}`}>✧</span>
+      <div className={scss.qrFrame}>
+        <div className={scss.qrGrid}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={pngDataUrl} alt="QR code" className={scss.qrImg} />
+          <span className={scss.qrHeart}>♥</span>
+        </div>
+        <span className={scss.watermark}>✦ scanquick.kg</span>
+      </div>
     </div>
   );
 }
@@ -27,6 +34,17 @@ function QrGrid() {
 export default async function QrCodePage({ project }: { project: Project }) {
   const [fullT, locale] = await Promise.all([getT(), getLocale()]);
   const t = fullT.qrCodePage;
+
+  // Only a saved project has a slug to point the QR at — createProject
+  // always sets one immediately, so this is really just a defensive fallback.
+  const targetUrl = project.slug ? `${getSiteUrl()}/view/${project.slug}` : null;
+  const [pngDataUrl, svgMarkup] = targetUrl
+    ? await Promise.all([
+        QRCode.toDataURL(targetUrl, { errorCorrectionLevel: 'H', margin: 1, width: 512, color: QR_COLOR }),
+        QRCode.toString(targetUrl, { type: 'svg', errorCorrectionLevel: 'H', margin: 1, color: QR_COLOR }),
+      ])
+    : [null, null];
+  const svgDataUrl = svgMarkup ? `data:image/svg+xml;utf8,${encodeURIComponent(svgMarkup)}` : null;
 
   return (
     <div className={scss.page}>
@@ -49,12 +67,24 @@ export default async function QrCodePage({ project }: { project: Project }) {
       <div className={scss.grid}>
         <div className={scss.qrCard}>
           <span className={scss.liveTag}>{t.liveTag}</span>
-          <QrGrid />
+          {pngDataUrl ? <QrArt pngDataUrl={pngDataUrl} /> : <p className={scss.noSlug}>{t.noSlug}</p>}
           <p>{t.livesAt}</p>
-          <strong>loveqr.co/{project.slug ?? 'draft'}</strong>
+          <strong>{targetUrl ? targetUrl.replace(/^https?:\/\//, '') : '—'}</strong>
           <div className={scss.downloads}>
-            <button>{t.downloadPng}</button>
-            <button>{t.downloadSvg}</button>
+            {pngDataUrl ? (
+              <a href={pngDataUrl} download={`${project.slug}-qr.png`}>
+                {t.downloadPng}
+              </a>
+            ) : (
+              <button disabled>{t.downloadPng}</button>
+            )}
+            {svgDataUrl ? (
+              <a href={svgDataUrl} download={`${project.slug}-qr.svg`}>
+                {t.downloadSvg}
+              </a>
+            ) : (
+              <button disabled>{t.downloadSvg}</button>
+            )}
           </div>
           <div className={scss.downloads}>
             <button>{t.copyLink}</button>

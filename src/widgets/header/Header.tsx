@@ -2,6 +2,7 @@ import Link from 'next/link';
 import scss from './header.module.scss';
 import Button from '@/shared/ui/button/Button';
 import LanguageSwitcher from '@/widgets/languageSwitcher/LanguageSwitcher';
+import HeaderMobileMenu from './HeaderMobileMenu';
 import { getLocale, getDictionary } from '@/shared/lib/i18n/locale';
 
 export default async function Header() {
@@ -31,6 +32,7 @@ export default async function Header() {
               {t.header.startFree}
             </Button>
           </nav>
+          <HeaderMobileMenu t={t.header} locale={locale} />
         </div>
       </div>
     </header>

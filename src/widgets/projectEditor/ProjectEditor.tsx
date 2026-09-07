@@ -42,9 +42,12 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
   const [previewContent, setPreviewContent] = useState(content);
   const [saveState, setSaveState] = useState<'saved' | 'dirty' | 'saving'>('saved');
   const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const rightHeaderRef = useRef<HTMLDivElement>(null);
+  const didSelectOnce = useRef(false);
 
   const localizedMeta = (id: string) => {
     const kind = sectionKindOf(id);
@@ -86,6 +89,15 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
       { type: 'loveqr-scroll-to-section', sectionId: selected },
       window.location.origin,
     );
+
+    // On the stacked mobile layout the properties panel sits below the phone
+    // preview and the section list, so it's off-screen right after tapping a
+    // section — scroll it into view. Skipped on the first selection (page
+    // load) and on desktop, where the panel is already visible beside the list.
+    if (didSelectOnce.current && window.matchMedia('(max-width: 1200px)').matches) {
+      rightHeaderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    didSelectOnce.current = true;
   }, [selected]);
 
   const [previewSrc] = useState(
@@ -325,18 +337,41 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
             <Badge label={project.status === 'published' ? t.common.published : t.common.draft}>
               {project.status}
             </Badge>
+            <button
+              type="button"
+              className={scss.menuToggle}
+              onClick={() => setActionsOpen((v) => !v)}
+              aria-label="Menu"
+              aria-expanded={actionsOpen}
+            >
+              ☰
+            </button>
           </div>
-          <div className={scss.headerActions}>
-            <Link href={`/projects/${project.id}/preview`} target="_blank" rel="noopener noreferrer">
+          <div className={`${scss.headerActions} ${actionsOpen ? scss.actionsOpen : ''}`}>
+            <Link
+              href={`/projects/${project.id}/preview`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setActionsOpen(false)}
+            >
               ▷ {t.common.preview}
             </Link>
-            <Link href={`/projects/${project.id}/settings`}>{t.common.settings}</Link>
-            <Link href={`/projects/${project.id}/qr`} className={scss.qrBtn}>
+            <Link href={`/projects/${project.id}/settings`} onClick={() => setActionsOpen(false)}>
+              {t.common.settings}
+            </Link>
+            <Link
+              href={`/projects/${project.id}/qr`}
+              className={scss.qrBtn}
+              onClick={() => setActionsOpen(false)}
+            >
               ⊞ {t.qrCodePage.title}
             </Link>
             <button
               className={scss.saveBtn}
-              onClick={handleSave}
+              onClick={() => {
+                handleSave();
+                setActionsOpen(false);
+              }}
               disabled={saveState === 'saving' || saveState === 'saved'}
             >
               {saveState === 'saving' ? t.common.saving : saveState === 'saved' ? t.common.saved : t.common.save}
@@ -357,7 +392,7 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
       </div>
 
       <aside className={scss.right}>
-        <div className={scss.rightHeader}>
+        <div className={scss.rightHeader} ref={rightHeaderRef}>
           <span className={scss.rightIcon}>{selected === 'cover' ? '✦' : (selectedMeta?.icon ?? '✦')}</span>
           <div>
             <strong>{selected === 'cover' ? e.cover : (selectedMeta?.label ?? '')}</strong>
