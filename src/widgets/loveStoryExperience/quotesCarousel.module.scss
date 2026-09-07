@@ -20,9 +20,8 @@
   border: 1px solid rgba(212, 96, 122, 0.1);
 
   p {
-    font-family: var(--font-heading);
-    font-style: italic;
-    font-size: var(--text-sm);
+    font-family: var(--font-script);
+    font-size: calc(var(--text-sm) * 1.35);
     color: var(--color-text);
     line-height: var(--leading-relaxed);
   }

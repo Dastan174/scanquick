@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { templates } from '@/shared/lib/mockData';
 import { createProject, updateProjectContent } from '@/app/(admin)/projects/actions';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
+import { compressImage } from '@/shared/lib/compressImage';
 import { demoLoveStoryContent } from '@/shared/lib/loveStoryContent';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import type { Locale } from '@/shared/lib/i18n/shared';
@@ -54,7 +55,8 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
     if (coverFile) {
       // A failed cover upload shouldn't block moving on — the project is
       // already created, and the photo can be added again from the editor.
-      const upload = await uploadSectionPhoto(result.id, coverFile);
+      const compressed = await compressImage(coverFile);
+      const upload = await uploadSectionPhoto(result.id, compressed);
       if (upload.url) {
         await updateProjectContent(result.id, { ...demoLoveStoryContent, coverPhotoUrl: upload.url });
       }

@@ -9,7 +9,8 @@
 
 .text {
   color: var(--color-text-secondary);
-  font-size: var(--text-sm);
+  font-family: var(--font-script);
+  font-size: calc(var(--text-sm) * 1.4);
   animation: pulseText 1.5s ease-in-out infinite;
 }
 

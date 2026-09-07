@@ -29,11 +29,19 @@ export const SECTION_KINDS: SectionKind[] = [
     descr: 'A tall full-bleed photo break between sections',
     repeatable: true,
   },
+  {
+    kind: 'collage',
+    icon: '🖼️',
+    label: 'Photo Collage',
+    descr: 'A designed layout with photo cutouts to fill in',
+    repeatable: true,
+  },
 ];
 
 export function sectionKindOf(id: string): string {
   if (id.startsWith('photo-')) return 'photo';
   if (id.startsWith('divider-')) return 'divider';
+  if (id.startsWith('collage-')) return 'collage';
   return id;
 }
 
@@ -48,4 +56,8 @@ export function newPhotoSectionId(): string {
 
 export function newDividerSectionId(): string {
   return `divider-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+export function newCollageSectionId(): string {
+  return `collage-${Math.random().toString(36).slice(2, 9)}`;
 }

@@ -137,6 +137,18 @@ export async function deleteProject(id: string) {
   } = await supabase.auth.getUser();
   if (!user) return { error: 'Not signed in.' };
 
+  // Deleting the row doesn't touch Storage — every photo uploaded via
+  // uploadSectionPhoto lives at `${user.id}/${id}/...` in the project-media
+  // bucket, so clear that folder out first. A failure here shouldn't block
+  // the actual delete (an orphaned file is a much smaller problem than an
+  // undeletable project), so this is best-effort.
+  const folder = `${user.id}/${id}`;
+  const { data: files } = await supabase.storage.from('project-media').list(folder, { limit: 1000 });
+  if (files && files.length > 0) {
+    const paths = files.map((f) => `${folder}/${f.name}`);
+    await supabase.storage.from('project-media').remove(paths);
+  }
+
   const { error } = await supabase.from('projects').delete().eq('id', id).eq('owner_id', user.id);
   if (error) return { error: error.message };
 

@@ -13,6 +13,7 @@ import { MailIcon, ChatModal } from './ChatMail';
 import QuotesCarousel from './QuotesCarousel';
 import BalloonGame from './BalloonGame';
 import ClickHearts from './ClickHearts';
+import CollageSection from './CollageSection';
 import scss from './loveStoryExperience.module.scss';
 
 const FloatingHearts = dynamic(() => import('./FloatingHearts'), { ssr: false });
@@ -83,16 +84,34 @@ export default function LoveStoryExperience({
   const [content, setContent] = useState(initialContent);
   const [opened, setOpened] = useState(Boolean(skipCover));
   const [chatOpen, setChatOpen] = useState(false);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const highlightTimer = useRef<number | null>(null);
 
   // Inside the Editor's preview iframe, edits arrive via postMessage instead
   // of a URL reload, so the iframe never restarts and loses scroll position.
+  // The same channel also carries "scroll to this section" requests, fired
+  // when the owner selects a section in the editor's sidebar.
   useEffect(() => {
     if (!skipCover) return;
     const handleMessage = (e: MessageEvent) => {
       if (e.origin !== window.location.origin) return;
-      if (e.data?.type !== 'loveqr-preview-update') return;
-      setContent(e.data.content);
+      if (e.data?.type === 'loveqr-preview-update') {
+        setContent(e.data.content);
+        return;
+      }
+      if (e.data?.type === 'loveqr-scroll-to-section') {
+        const id = e.data.sectionId as string;
+        if (id === 'cover') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        const el = document.querySelector(`[data-section-id="${CSS.escape(id)}"]`);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setHighlightId(id);
+        if (highlightTimer.current) window.clearTimeout(highlightTimer.current);
+        highlightTimer.current = window.setTimeout(() => setHighlightId(null), 1400);
+      }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
@@ -185,6 +204,8 @@ export default function LoveStoryExperience({
         return <PhotoBlock transform={content.photos[id]} />;
       case 'divider':
         return <PhotoDivider transform={content.photos[id]} />;
+      case 'collage':
+        return <CollageSection instance={content.collages[id]} />;
       default:
         return null;
     }
@@ -194,7 +215,7 @@ export default function LoveStoryExperience({
     <div className={scss.page}>
       <FloatingHearts />
       {opened && <ClickHearts />}
-      <audio ref={audioRef} loop preload="auto" muted src="/music.mp3" />
+      <audio ref={audioRef} loop preload="auto" muted src={content.musicUrl || '/music.mp3'} />
 
       {!opened ? (
         <button className={scss.cover} style={coverStyle} onClick={handleOpen}>
@@ -204,7 +225,13 @@ export default function LoveStoryExperience({
       ) : (
         <div className={scss.content}>
           {content.sectionOrder.map((id) => (
-            <div key={id}>{renderSection(id)}</div>
+            <div
+              key={id}
+              data-section-id={id}
+              className={id === highlightId ? scss.sectionHighlight : undefined}
+            >
+              {renderSection(id)}
+            </div>
           ))}
 
           <div className={scss.replyWrap}>

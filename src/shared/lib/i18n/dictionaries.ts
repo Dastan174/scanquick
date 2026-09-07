@@ -506,6 +506,7 @@ const ru = {
     selectSection: 'Выберите секцию, чтобы изменить её настройки.',
     settings: 'Свойства и настройки',
     propertiesSettings: 'Свойства и настройки',
+    collageDesign: 'Дизайн коллажа',
     sectionKinds: {
       typewriter: { label: 'Печатная машинка', descr: 'Анимированная вступительная строка' },
       holdHeart: { label: 'Удержи сердце', descr: 'Взаимодействие удержанием' },
@@ -518,6 +519,7 @@ const ru = {
       video: { label: 'Видео-воспоминание', descr: 'Встроенное видео' },
       photo: { label: 'Фото', descr: 'Полноширинное фото, можно добавить сколько угодно' },
       divider: { label: 'Фото-разделитель', descr: 'Высокая полноэкранная фото-пауза между секциями' },
+      collage: { label: 'Фотоколлаж', descr: 'Готовый дизайн с местами под фото' },
     },
   },
   photoSlot: {
@@ -526,6 +528,15 @@ const ru = {
     changePhoto: 'Изменить фото',
     zoom: 'Масштаб',
     dragHint: 'Перетащите фото выше, чтобы изменить позицию',
+    uploadFailed: 'Не удалось загрузить.',
+  },
+  musicUpload: {
+    label: 'Фоновая музыка',
+    uploading: 'Загрузка…',
+    uploadMusic: 'Загрузить музыку',
+    changeMusic: 'Заменить',
+    remove: 'Убрать',
+    hint: 'Заиграет, когда получатель откроет открытку. MP3, M4A, AAC, OGG или WAV, до 8 МБ.',
     uploadFailed: 'Не удалось загрузить.',
   },
   listEditor: {
@@ -1036,6 +1047,7 @@ const en: typeof ru = {
     selectSection: 'Select a section to edit its properties.',
     settings: 'Properties & Settings',
     propertiesSettings: 'Properties & Settings',
+    collageDesign: 'Collage design',
     sectionKinds: {
       typewriter: { label: 'Typewriter', descr: 'Animated intro line' },
       holdHeart: { label: 'Hold the Heart', descr: 'Press-and-hold interaction' },
@@ -1048,6 +1060,7 @@ const en: typeof ru = {
       video: { label: 'Video Memory', descr: 'An embedded video' },
       photo: { label: 'Photo', descr: 'A full-width photo, add as many as you like' },
       divider: { label: 'Photo Divider', descr: 'A tall full-bleed photo break between sections' },
+      collage: { label: 'Photo Collage', descr: 'A designed layout with photo cutouts to fill in' },
     },
   },
   photoSlot: {
@@ -1056,6 +1069,15 @@ const en: typeof ru = {
     changePhoto: 'Change Photo',
     zoom: 'Zoom',
     dragHint: 'Drag the photo above to reposition it',
+    uploadFailed: 'Upload failed.',
+  },
+  musicUpload: {
+    label: 'Background music',
+    uploading: 'Uploading…',
+    uploadMusic: 'Upload music',
+    changeMusic: 'Change',
+    remove: 'Remove',
+    hint: 'Plays when the recipient opens the card. MP3, M4A, AAC, OGG or WAV, up to 8MB.',
     uploadFailed: 'Upload failed.',
   },
   listEditor: {

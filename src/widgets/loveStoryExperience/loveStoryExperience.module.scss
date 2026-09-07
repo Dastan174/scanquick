@@ -35,6 +35,23 @@
   margin: 0 auto;
 }
 
+.sectionHighlight {
+  animation: sectionPulse 1.4s ease-out;
+  border-radius: var(--card-radius, 16px);
+}
+
+@keyframes sectionPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 96, 122, 0.55);
+  }
+  25% {
+    box-shadow: 0 0 0 6px rgba(212, 96, 122, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 96, 122, 0);
+  }
+}
+
 .fullBleed {
   height: 220px;
   width: 100%;

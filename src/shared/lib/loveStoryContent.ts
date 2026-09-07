@@ -9,12 +9,20 @@ export interface PhotoTransform {
   scale: number; // 1 = fitted, >1 = zoomed in
 }
 
+export interface CollageInstance {
+  templateId: string; // key into COLLAGE_TEMPLATES, see collageTemplates.ts
+  photos: Record<string, PhotoTransform>; // keyed by slot id
+}
+
 export interface LoveStoryContent {
   coverPromptText: string;
   coverPhotoUrl?: string;
   coverPhotoX: number;
   coverPhotoY: number;
   coverPhotoScale: number;
+  // Plays once the recipient taps the cover open. Falls back to the demo
+  // track (see LoveStoryExperience) until the owner uploads their own.
+  musicUrl?: string;
   typewriterText: string;
   holdHeartPrompt: string;
   holdHeartRevealText: string;
@@ -35,11 +43,13 @@ export interface LoveStoryContent {
   sectionGradients: string[];
   // Which non-cover sections appear on the page, and in what order. Ids are
   // either a fixed singleton kind ('typewriter', 'stories', ...) or
-  // `photo-<random>` / `divider-<random>` for repeatable blocks — see
-  // sectionLibrary.ts.
+  // `photo-<random>` / `divider-<random>` / `collage-<random>` for
+  // repeatable blocks — see sectionLibrary.ts.
   sectionOrder: string[];
   // Repeatable Photo/Divider block images, keyed by their id in sectionOrder.
   photos: Record<string, PhotoTransform>;
+  // Repeatable Collage block instances, keyed by their id in sectionOrder.
+  collages: Record<string, CollageInstance>;
 }
 
 export const DEFAULT_SECTION_ORDER = [
@@ -106,4 +116,5 @@ export const demoLoveStoryContent: LoveStoryContent = {
   ],
   sectionOrder: DEFAULT_SECTION_ORDER,
   photos: {},
+  collages: {},
 };

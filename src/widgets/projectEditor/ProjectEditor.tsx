@@ -12,7 +12,9 @@ import {
   sectionMeta,
   newPhotoSectionId,
   newDividerSectionId,
+  newCollageSectionId,
 } from '@/shared/lib/sectionLibrary';
+import { COLLAGE_TEMPLATES, getCollageTemplate, slotAspectRatio } from '@/shared/lib/collageTemplates';
 import { updateProjectContent } from '@/app/(admin)/projects/actions';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import type { Locale } from '@/shared/lib/i18n/shared';
@@ -20,6 +22,7 @@ import { storyLabel } from '@/shared/lib/i18n/format';
 import TextListEditor from './TextListEditor';
 import ChatLinesEditor from './ChatLinesEditor';
 import PhotoSlot from './PhotoSlot';
+import MusicUpload from './MusicUpload';
 import scss from './projectEditor.module.scss';
 
 interface ProjectEditorProps {
@@ -47,6 +50,12 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
     const kind = sectionKindOf(id);
     const icon = sectionMeta(id).icon;
     const text = e.sectionKinds[kind as keyof typeof e.sectionKinds] ?? e.sectionKinds.photo;
+    // Several different Canva designs can all be "collage" sections, so show
+    // which one this particular instance uses instead of a generic label.
+    if (kind === 'collage') {
+      const templateLabel = getCollageTemplate(content.collages[id]?.templateId).label;
+      return { icon, label: `${text.label}: ${templateLabel}`, descr: text.descr };
+    }
     return { icon, label: text.label, descr: text.descr };
   };
 
@@ -67,6 +76,17 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
       window.location.origin,
     );
   }, [previewContent]);
+
+  // Picking a section in the sidebar scrolls the live preview to it and
+  // briefly highlights it, so it's obvious which part of the phone you're
+  // editing — same postMessage channel as the content updates above.
+  useEffect(() => {
+    if (!selected) return;
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: 'loveqr-scroll-to-section', sectionId: selected },
+      window.location.origin,
+    );
+  }, [selected]);
 
   const [previewSrc] = useState(
     () => `/view/${project.slug ?? project.id}?preview=${encodeURIComponent(JSON.stringify(content))}`,
@@ -93,16 +113,71 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
     setSaveState('dirty');
   };
 
-  const handleSave = async () => {
+  const updateCollage = (sectionId: string, next: LoveStoryContent['collages'][string]) => {
+    patch({ collages: { ...content.collages, [sectionId]: next } });
+  };
+
+  // Autosave plumbing: `persist` always saves the latest content (via the
+  // ref, so it's never stale) and never runs two saves at once — if content
+  // changes again while a save is in flight, it queues one more round
+  // instead of overlapping requests that could land out of order.
+  const contentRef = useRef(content);
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+  const savingRef = useRef(false);
+  const pendingRef = useRef(false);
+
+  const persist = async () => {
+    if (savingRef.current) {
+      pendingRef.current = true;
+      return;
+    }
+    savingRef.current = true;
     setSaveState('saving');
-    const result = await updateProjectContent(project.id, content);
+    const result = await updateProjectContent(project.id, contentRef.current);
+    savingRef.current = false;
+    if (pendingRef.current) {
+      pendingRef.current = false;
+      persist();
+      return;
+    }
     setSaveState('error' in result ? 'dirty' : 'saved');
   };
 
-  const addSection = (kind: string) => {
+  // Saves automatically ~1.5s after the last edit — the Save button below
+  // stays as a manual "save now" fallback for when you don't want to wait.
+  useEffect(() => {
+    if (saveState !== 'dirty') return;
+    const timer = window.setTimeout(persist, 1500);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content, saveState]);
+
+  const handleSave = () => {
+    persist();
+  };
+
+  const addSection = (kind: string, collageTemplateId?: string) => {
     const id =
-      kind === 'photo' ? newPhotoSectionId() : kind === 'divider' ? newDividerSectionId() : kind;
-    patch({ sectionOrder: [...content.sectionOrder, id] });
+      kind === 'photo'
+        ? newPhotoSectionId()
+        : kind === 'divider'
+          ? newDividerSectionId()
+          : kind === 'collage'
+            ? newCollageSectionId()
+            : kind;
+    patch({
+      sectionOrder: [...content.sectionOrder, id],
+      ...(kind === 'collage'
+        ? {
+            collages: {
+              ...content.collages,
+              [id]: { templateId: collageTemplateId ?? COLLAGE_TEMPLATES[0].id, photos: {} },
+            },
+          }
+        : {}),
+    });
     setSelected(id);
     setAddMenuOpen(false);
   };
@@ -174,12 +249,21 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
             </button>
             {addMenuOpen && (
               <div className={scss.addMenu}>
-                {availableKinds.map((k) => (
-                  <button key={k.kind} onClick={() => addSection(k.kind)}>
-                    <span>{k.icon}</span>
-                    {e.sectionKinds[k.kind as keyof typeof e.sectionKinds]?.label ?? k.label}
-                  </button>
-                ))}
+                {availableKinds.map((k) =>
+                  k.kind === 'collage' ? (
+                    COLLAGE_TEMPLATES.map((tpl) => (
+                      <button key={tpl.id} onClick={() => addSection('collage', tpl.id)}>
+                        <span>{k.icon}</span>
+                        {tpl.label}
+                      </button>
+                    ))
+                  ) : (
+                    <button key={k.kind} onClick={() => addSection(k.kind)}>
+                      <span>{k.icon}</span>
+                      {e.sectionKinds[k.kind as keyof typeof e.sectionKinds]?.label ?? k.label}
+                    </button>
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -313,6 +397,12 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
                 onChange={(ev) => patch({ coverPromptText: ev.target.value })}
               />
             </label>
+            <MusicUpload
+              projectId={project.id}
+              musicUrl={content.musicUrl}
+              t={t.musicUpload}
+              onChange={(url) => patch({ musicUrl: url })}
+            />
           </>
         )}
 
@@ -480,6 +570,50 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
             <p className={scss.hint}>{e.dividerHint}</p>
           </>
         )}
+
+        {sectionKindOf(selected) === 'collage' &&
+          (() => {
+            const instance = content.collages[selected] ?? {
+              templateId: COLLAGE_TEMPLATES[0].id,
+              photos: {},
+            };
+            const template = getCollageTemplate(instance.templateId);
+            return (
+              <>
+                {COLLAGE_TEMPLATES.length > 1 && (
+                  <label className={scss.field}>
+                    {e.collageDesign}
+                    <select
+                      value={instance.templateId}
+                      onChange={(ev) => updateCollage(selected, { ...instance, templateId: ev.target.value })}
+                    >
+                      {COLLAGE_TEMPLATES.map((tpl) => (
+                        <option key={tpl.id} value={tpl.id}>
+                          {tpl.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                {template.slots.map((slot) => (
+                  <div key={slot.id} className={scss.storyGroup}>
+                    <PhotoSlot
+                      projectId={project.id}
+                      aspectRatio={slotAspectRatio(slot, template)}
+                      transform={instance.photos[slot.id]}
+                      t={t.photoSlot}
+                      onChange={(tr) =>
+                        updateCollage(selected, {
+                          ...instance,
+                          photos: { ...instance.photos, [slot.id]: tr },
+                        })
+                      }
+                    />
+                  </div>
+                ))}
+              </>
+            );
+          })()}
 
         {!selected && <p className={scss.empty}>{e.selectSection}</p>}
       </aside>

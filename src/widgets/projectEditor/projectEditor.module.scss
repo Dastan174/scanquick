@@ -358,6 +358,13 @@
     border: none;
     border-bottom: 1px solid var(--color-border);
   }
+
+  // Stacked layout: the phone preview is what you actually look at while
+  // editing, so it goes first — the sections list and properties panel
+  // follow below it, instead of sandwiching it in the middle.
+  .center {
+    order: -1;
+  }
 }
 
 @media (max-width: 900px) {

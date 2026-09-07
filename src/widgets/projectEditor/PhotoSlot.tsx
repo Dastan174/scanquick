@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
+import { compressImage } from '@/shared/lib/compressImage';
 import type { PhotoTransform } from '@/shared/lib/loveStoryContent';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import scss from './photoSlot.module.scss';
@@ -31,7 +32,8 @@ export default function PhotoSlot({ projectId, transform, aspectRatio, t, onChan
     if (!file) return;
     setUploading(true);
     setError('');
-    const result = await uploadSectionPhoto(projectId, file);
+    const compressed = await compressImage(file);
+    const result = await uploadSectionPhoto(projectId, compressed);
     setUploading(false);
     if (result.error || !result.url) {
       setError(result.error ?? t.uploadFailed);
