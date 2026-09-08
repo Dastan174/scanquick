@@ -26,7 +26,15 @@ export async function POST(request: NextRequest) {
   if (!match) return NextResponse.json({ ok: true, debug: 'no-token-match', text });
 
   const admin = createAdminClient();
-  if (!admin) return NextResponse.json({ ok: true, debug: 'no-admin-client' });
+  if (!admin) {
+    return NextResponse.json({
+      ok: true,
+      debug: 'no-admin-client',
+      hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      hasServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+      serviceKeyLen: process.env.SUPABASE_SERVICE_ROLE_KEY?.length ?? 0,
+    });
+  }
 
   const { data: project, error } = await admin
     .from('projects')
