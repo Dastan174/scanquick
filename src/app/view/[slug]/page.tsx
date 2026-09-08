@@ -1,10 +1,12 @@
 import { HeartCrack } from 'lucide-react';
 import LoveStoryExperience from '@/widgets/loveStoryExperience/LoveStoryExperience';
+import DateInvitationExperience from '@/widgets/dateInvitation/DateInvitationExperience';
 import {
   getPublishedProjectBySlug,
   getProjectBySlugAnyStatus,
 } from '@/shared/lib/supabase/projects';
 import { demoLoveStoryContent, type LoveStoryContent } from '@/shared/lib/loveStoryContent';
+import { demoInvitationContent, type InvitationContent } from '@/shared/lib/invitationContent';
 import { getT } from '@/shared/lib/i18n/locale';
 
 interface ViewProjectPageProps {
@@ -48,6 +50,18 @@ export default async function ViewProjectPage({ params, searchParams }: ViewProj
   }
 
   const { project, content: savedContent } = result;
+
+  if (project.type === 'invitation') {
+    let invitationContent: InvitationContent = { ...demoInvitationContent, ...savedContent };
+    if (preview) {
+      try {
+        invitationContent = { ...invitationContent, ...JSON.parse(preview) };
+      } catch {
+        // Malformed draft — fall back to the saved/demo content instead of crashing.
+      }
+    }
+    return <DateInvitationExperience projectId={project.id} content={invitationContent} />;
+  }
 
   // The saved content only overrides the fields it actually holds — a
   // freshly created project's content is `{}`, so it renders using the

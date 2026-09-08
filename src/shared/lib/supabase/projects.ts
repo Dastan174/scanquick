@@ -1,5 +1,5 @@
 import { createClient } from '@/shared/lib/supabase/server';
-import { templates, type Project, type ProjectStatus } from '@/shared/lib/mockData';
+import { templates, type Project, type ProjectStatus, type ProjectType } from '@/shared/lib/mockData';
 
 interface ProjectRow {
   id: string;
@@ -11,6 +11,9 @@ interface ProjectRow {
   template_id: string;
   slug: string | null;
   status: ProjectStatus;
+  type: ProjectType;
+  telegram_chat_id: string | null;
+  telegram_link_token: string;
   content: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -42,9 +45,12 @@ function toProject(row: ProjectRow): Project {
     template: template.name,
     gradient: template.gradient,
     status: row.status,
+    type: row.type,
     scans: 0,
     updatedAt: formatRelativeTime(row.updated_at),
     slug: row.slug,
+    telegramChatId: row.telegram_chat_id,
+    telegramLinkToken: row.telegram_link_token,
   };
 }
 

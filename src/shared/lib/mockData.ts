@@ -1,4 +1,5 @@
 export type ProjectStatus = 'published' | 'draft';
+export type ProjectType = 'love_story' | 'invitation';
 
 export interface Project {
   id: string;
@@ -8,9 +9,12 @@ export interface Project {
   template: string;
   gradient: string;
   status: ProjectStatus;
+  type: ProjectType;
   scans: number;
   updatedAt: string;
   slug: string | null;
+  telegramChatId: string | null;
+  telegramLinkToken: string;
 }
 
 export const projects: Project[] = [
@@ -22,9 +26,12 @@ export const projects: Project[] = [
     template: 'Starlit Romance',
     gradient: 'linear-gradient(135deg, #1a0a2e, #4a1060, #8b2080)',
     status: 'published',
+    type: 'love_story',
     scans: 284,
     updatedAt: '2 hours ago',
     slug: 'james-sofia-2024',
+    telegramChatId: null,
+    telegramLinkToken: '',
   },
   {
     id: 'valentines-surprise',
@@ -34,9 +41,12 @@ export const projects: Project[] = [
     template: 'Garden of Love',
     gradient: 'linear-gradient(135deg, #f5ede8, #fad8e4, #e8b8c8)',
     status: 'published',
+    type: 'love_story',
     scans: 612,
     updatedAt: 'Yesterday',
     slug: 'marco-lucia-forever',
+    telegramChatId: null,
+    telegramLinkToken: '',
   },
   {
     id: 'wedding-proposal',
@@ -46,9 +56,12 @@ export const projects: Project[] = [
     template: 'Golden Hour',
     gradient: 'linear-gradient(135deg, #fdf0f3, #fce4b0, #f0a060)',
     status: 'draft',
+    type: 'love_story',
     scans: 0,
     updatedAt: '3 days ago',
     slug: null,
+    telegramChatId: null,
+    telegramLinkToken: '',
   },
   {
     id: 'first-date-anniversary',
@@ -58,9 +71,12 @@ export const projects: Project[] = [
     template: 'Cherry Blossom',
     gradient: 'linear-gradient(135deg, #fef0f8, #fad0e8, #e8a0c0)',
     status: 'published',
+    type: 'love_story',
     scans: 388,
     updatedAt: '5 days ago',
     slug: 'yuki-chen-love',
+    telegramChatId: null,
+    telegramLinkToken: '',
   },
   {
     id: 'our-story',
@@ -70,9 +86,12 @@ export const projects: Project[] = [
     template: 'Parisian Dream',
     gradient: 'linear-gradient(135deg, #2c2420, #6b4a3c, #c4866a)',
     status: 'published',
+    type: 'love_story',
     scans: 156,
     updatedAt: '1 week ago',
     slug: 'emma-noah-story',
+    telegramChatId: null,
+    telegramLinkToken: '',
   },
   {
     id: 'northern-love',
@@ -82,9 +101,12 @@ export const projects: Project[] = [
     template: 'Northern Lights',
     gradient: 'linear-gradient(135deg, #0a1a2e, #0a4a3c, #20a080)',
     status: 'draft',
+    type: 'love_story',
     scans: 0,
     updatedAt: '2 weeks ago',
     slug: null,
+    telegramChatId: null,
+    telegramLinkToken: '',
   },
   {
     id: '10-years-together',
@@ -94,9 +116,12 @@ export const projects: Project[] = [
     template: 'Starlit Romance',
     gradient: 'linear-gradient(135deg, #1a0a2e, #4a1060, #8b2080)',
     status: 'published',
+    type: 'love_story',
     scans: 923,
     updatedAt: '3 weeks ago',
     slug: 'david-maria-10years',
+    telegramChatId: null,
+    telegramLinkToken: '',
   },
 ];
 

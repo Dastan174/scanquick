@@ -19,11 +19,11 @@ interface ProjectWizardProps {
   t: Dictionary['projectWizard'];
 }
 
-const TOTAL_STEPS = 4;
-
-// Only the love story card (index 0) is built — birthday and date invitation
-// are shown so people know they're coming, but aren't selectable yet.
+// Birthday (index 1) isn't built yet — shown so people know it's coming,
+// but isn't selectable. The love story card and date invitation both work.
 const SITE_TYPE_ICONS = [Heart, Cake, CalendarHeart];
+const SOON_INDEX = 1;
+const INVITATION_INDEX = 2;
 
 export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const router = useRouter();
@@ -43,6 +43,27 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const namesLabel = yourName && partnerName ? `${yourName} & ${partnerName}` : t.namesPlaceholder;
   const activeTemplate = templates.find((tp) => tp.id === templateId) ?? templates[0];
   const canContinueNames = projectName.trim() && yourName.trim() && partnerName.trim();
+  const isInvitation = siteType === INVITATION_INDEX;
+  const totalSteps = isInvitation ? 2 : 4;
+
+  const finishInvitation = async () => {
+    setSubmitting(true);
+    setError('');
+    const result = await createProject({
+      name: projectName,
+      partnerA: yourName,
+      partnerB: partnerName,
+      anniversaryDate: '',
+      templateId: templates[0].id,
+      type: 'invitation',
+    });
+    if (result.error || !result.id) {
+      setSubmitting(false);
+      setError(result.error ?? t.errorFallback);
+      return;
+    }
+    router.push(`/projects/${result.id}/edit`);
+  };
 
   const finish = async () => {
     setSubmitting(true);
@@ -83,7 +104,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
     <div className={scss.wizard}>
       <div className={scss.left}>
         <div className={scss.steps}>
-          {[1, 2, 3, 4].map((s) => (
+          {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
             <div
               key={s}
               className={`${scss.stepDot} ${step > s ? scss.stepDone : ''} ${step === s ? scss.stepCurrent : ''}`}
@@ -92,11 +113,21 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             </div>
           ))}
         </div>
-        <span className={scss.stepLabel}>{stepLabel(locale, step, TOTAL_STEPS)}</span>
+        <span className={scss.stepLabel}>{stepLabel(locale, step, totalSteps)}</span>
         <h1>
-          {t.stepTitles[step - 1].title}
-          <br />
-          <em>{t.stepTitles[step - 1].em}</em>
+          {isInvitation && step === 2 ? (
+            <>
+              {t.stepTitles[2].title}
+              <br />
+              <em>{t.stepTitles[2].em}</em>
+            </>
+          ) : (
+            <>
+              {t.stepTitles[step - 1].title}
+              <br />
+              <em>{t.stepTitles[step - 1].em}</em>
+            </>
+          )}
         </h1>
 
         <div className={scss.phone} style={{ background: activeTemplate.gradient }}>
@@ -119,7 +150,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             <div className={scss.typeGrid}>
               {t.siteTypes.map((type, i) => {
                 const Icon = SITE_TYPE_ICONS[i];
-                const soon = i !== 0;
+                const soon = i === SOON_INDEX;
                 return (
                   <button
                     key={type.name}
@@ -145,7 +176,58 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           </div>
         )}
 
-        {step === 2 && (
+        {step === 2 && isInvitation && (
+          <div className={scss.step}>
+            <h2>{t.namesStepTitle}</h2>
+            <p>{t.namesStepDescr}</p>
+
+            <label className={scss.field}>
+              {t.projectName}
+              <input
+                placeholder={t.projectNamePlaceholder}
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+              />
+            </label>
+
+            <div className={scss.fieldRow}>
+              <label className={scss.field}>
+                {t.yourName}
+                <input
+                  placeholder="Sofia"
+                  value={yourName}
+                  onChange={(e) => setYourName(e.target.value)}
+                />
+              </label>
+              <label className={scss.field}>
+                {t.partnerName}
+                <input
+                  placeholder="James"
+                  value={partnerName}
+                  onChange={(e) => setPartnerName(e.target.value)}
+                />
+              </label>
+            </div>
+
+            {error && <div className={scss.error}>{error}</div>}
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(1)} disabled={submitting}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button
+                className={scss.continueBtn}
+                disabled={!canContinueNames || submitting}
+                onClick={finishInvitation}
+              >
+                {submitting ? t.creating : t.openEditor}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && !isInvitation && (
           <div className={scss.step}>
             <h2>{t.templateStepTitle}</h2>
             <p>{t.templateStepDescr}</p>
@@ -177,7 +259,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           </div>
         )}
 
-        {step === 3 && (
+        {step === 3 && !isInvitation && (
           <div className={scss.step}>
             <h2>{t.namesStepTitle}</h2>
             <p>{t.namesStepDescr}</p>

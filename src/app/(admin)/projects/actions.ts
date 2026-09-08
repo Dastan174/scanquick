@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/shared/lib/supabase/server';
 import type { LoveStoryContent } from '@/shared/lib/loveStoryContent';
+import type { InvitationContent } from '@/shared/lib/invitationContent';
+import type { ProjectType } from '@/shared/lib/mockData';
+import { sendTelegramMessage } from '@/shared/lib/telegram';
 
 const DIACRITICS_RE = /[̀-ͯ]/g;
 
@@ -26,6 +29,7 @@ export interface CreateProjectInput {
   partnerB: string;
   anniversaryDate: string;
   templateId: string;
+  type?: ProjectType;
 }
 
 export async function createProject(
@@ -49,6 +53,7 @@ export async function createProject(
       partner_b: input.partnerB,
       anniversary_date: input.anniversaryDate || null,
       template_id: input.templateId,
+      type: input.type ?? 'love_story',
       slug,
       status: 'draft',
       content: {},
@@ -79,6 +84,74 @@ export async function updateProjectContent(id: string, content: LoveStoryContent
   if (error) return { error: error.message };
   revalidatePath(`/projects/${id}`);
   return { ok: true };
+}
+
+export async function updateInvitationContent(id: string, content: InvitationContent) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: 'Not signed in.' };
+
+  const { error } = await supabase
+    .from('projects')
+    .update({ content })
+    .eq('id', id)
+    .eq('owner_id', user.id);
+
+  if (error) return { error: error.message };
+  revalidatePath(`/projects/${id}`);
+  return { ok: true };
+}
+
+// Public — called by the (unauthenticated) recipient once they pick a
+// date/time. Notifies the creator on Telegram if they've linked their chat.
+export async function submitInvitationResponse(projectId: string, chosenDate: string, chosenTime: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('invitation_responses')
+    .insert({ project_id: projectId, chosen_date: chosenDate, chosen_time: chosenTime });
+  if (error) return { error: error.message };
+
+  const { data: project } = await supabase
+    .from('projects')
+    .select('name, telegram_chat_id')
+    .eq('id', projectId)
+    .single();
+
+  if (project?.telegram_chat_id) {
+    await sendTelegramMessage(
+      project.telegram_chat_id,
+      `💌 «${project.name}» — получатель ответил: ${chosenDate} в ${chosenTime}`,
+    );
+  }
+
+  return { ok: true };
+}
+
+// Returns the deep link the owner sends themselves on Telegram to link
+// their chat — the bot's webhook resolves telegram_link_token back to this
+// project and fills in telegram_chat_id, see /api/telegram/webhook.
+export async function getMyProjectTelegramLink(id: string): Promise<{ url: string } | { error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: 'Not signed in.' };
+
+  const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME;
+  if (!botUsername) return { error: 'Telegram bot is not configured yet.' };
+
+  const { data } = await supabase
+    .from('projects')
+    .select('telegram_link_token')
+    .eq('id', id)
+    .eq('owner_id', user.id)
+    .single();
+
+  if (!data) return { error: 'Project not found.' };
+  return { url: `https://t.me/${botUsername}?start=${data.telegram_link_token}` };
 }
 
 export async function updateProjectSlug(
