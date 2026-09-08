@@ -1,3 +1,4 @@
+import { HeartCrack } from 'lucide-react';
 import LoveStoryExperience from '@/widgets/loveStoryExperience/LoveStoryExperience';
 import {
   getPublishedProjectBySlug,
@@ -40,7 +41,7 @@ export default async function ViewProjectPage({ params, searchParams }: ViewProj
           color: '#6b5b62',
         }}
       >
-        <span style={{ fontSize: '32px' }}>💔</span>
+        <HeartCrack size={36} color="#d4607a" />
         <p>{t.view.notAvailable}</p>
       </div>
     );

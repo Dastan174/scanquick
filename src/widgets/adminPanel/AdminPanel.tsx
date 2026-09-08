@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Clock, Folder, Percent, QrCode, TrendingDown, TrendingUp, Users } from 'lucide-react';
 import StatCard from '@/shared/ui/statCard/StatCard';
 import Badge from '@/shared/ui/badge/Badge';
 import { recentUsers, recentPayments, projects, templates } from '@/shared/lib/mockData';
@@ -43,10 +44,10 @@ export default function AdminPanel({ t }: { t: Dictionary['adminPanel'] }) {
       {tab === 0 && (
         <>
           <div className={scss.stats}>
-            <StatCard label={t.statTotalUsers} icon="◎" value="12,847" delta="+284 this week" />
-            <StatCard label={t.statActiveProjects} icon="◈" value="31,294" delta="+1,203 this week" />
-            <StatCard label={t.statMonthlyRevenue} icon="✦" value="$48,320" delta="+12% vs last month" />
-            <StatCard label={t.statTotalScans} icon="⊞" value="2.4M" delta="+186K this week" />
+            <StatCard label={t.statTotalUsers} icon={Users} value="12,847" delta="+284 this week" />
+            <StatCard label={t.statActiveProjects} icon={Folder} value="31,294" delta="+1,203 this week" />
+            <StatCard label={t.statMonthlyRevenue} icon={TrendingUp} value="$48,320" delta="+12% vs last month" />
+            <StatCard label={t.statTotalScans} icon={QrCode} value="2.4M" delta="+186K this week" />
           </div>
 
           <div className={scss.grid}>
@@ -190,10 +191,10 @@ export default function AdminPanel({ t }: { t: Dictionary['adminPanel'] }) {
 
       {tab === 5 && (
         <div className={scss.stats}>
-          <StatCard label={t.statAvgSession} icon="◷" value="3:42" delta="+8% vs last month" />
-          <StatCard label={t.statConversionRate} icon="✦" value="4.8%" delta="+0.6% vs last month" />
-          <StatCard label={t.statChurnRate} icon="◈" value="1.2%" delta="-0.3% vs last month" />
-          <StatCard label={t.statQrScanRate} icon="⊞" value="68%" delta="+5% vs last month" />
+          <StatCard label={t.statAvgSession} icon={Clock} value="3:42" delta="+8% vs last month" />
+          <StatCard label={t.statConversionRate} icon={Percent} value="4.8%" delta="+0.6% vs last month" />
+          <StatCard label={t.statChurnRate} icon={TrendingDown} value="1.2%" delta="-0.3% vs last month" />
+          <StatCard label={t.statQrScanRate} icon={QrCode} value="68%" delta="+5% vs last month" />
         </div>
       )}
     </div>

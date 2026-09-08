@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Check, Pencil, Sparkles } from 'lucide-react';
 import Badge from '@/shared/ui/badge/Badge';
 import BillingHistory from '@/widgets/billingHistory/BillingHistory';
 import { currentUser } from '@/shared/lib/mockData';
@@ -36,7 +37,9 @@ export default function ProfilePage({ name, email, plan, memberSince, locale, t 
       <div className={scss.header}>
         <span className={scss.avatar}>
           {initials}
-          <span className={scss.editBadge}>✎</span>
+          <span className={scss.editBadge}>
+            <Pencil size={12} />
+          </span>
         </span>
         <div>
           <h1>{name}</h1>
@@ -104,7 +107,9 @@ export default function ProfilePage({ name, email, plan, memberSince, locale, t 
         <div className={scss.subCard}>
           <div className={scss.subHeader}>
             <div>
-              <span className={scss.subIcon}>✦</span>
+              <span className={scss.subIcon}>
+                <Sparkles size={20} />
+              </span>
               <strong>{p.premiumPlan}</strong>
               <span className={scss.subMeta}>{p.activeRenews}</span>
             </div>
@@ -131,7 +136,10 @@ export default function ProfilePage({ name, email, plan, memberSince, locale, t 
           <div className={scss.features}>
             {p.features.map((f) => (
               <div key={f}>
-                <span>✓</span> {f}
+                <span>
+                  <Check size={14} />
+                </span>{' '}
+                {f}
               </div>
             ))}
           </div>

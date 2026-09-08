@@ -23,6 +23,9 @@
   gap: 25px;
 
   .effect {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: rgba(253, 240, 243, 0.9);
     color: var(--color-primary);
     border: 1px solid rgba(212, 96, 122, 0.3);
@@ -91,9 +94,9 @@
 }
 
 .stars {
+  display: flex;
+  gap: 2px;
   color: #f2b13d;
-  font-size: var(--text-xs);
-  letter-spacing: 2px;
 }
 
 .phoneWrap {
@@ -138,6 +141,9 @@
   font-size: var(--text-sm);
 
   p {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     color: var(--color-text);
     font-weight: var(--weight-medium);
   }

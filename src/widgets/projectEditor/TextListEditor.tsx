@@ -1,5 +1,6 @@
 'use client';
 
+import { X } from 'lucide-react';
 import scss from './listEditor.module.scss';
 
 interface TextListEditorProps {
@@ -25,7 +26,7 @@ export default function TextListEditor({ items, onChange, addLabel, removeLabel 
             onClick={() => onChange(items.filter((_, idx) => idx !== i))}
             aria-label={removeLabel}
           >
-            ✕
+            <X size={14} />
           </button>
         </div>
       ))}

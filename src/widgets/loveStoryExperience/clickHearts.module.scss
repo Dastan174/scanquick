@@ -7,8 +7,9 @@
 
 .heart {
   position: absolute;
+  display: flex;
   transform: translate(-50%, -50%);
-  font-size: 20px;
+  color: var(--color-primary);
   animation: rise 1.2s ease-out forwards;
 }
 

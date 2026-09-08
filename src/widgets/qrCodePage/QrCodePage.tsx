@@ -1,5 +1,17 @@
 import Link from 'next/link';
 import QRCode from 'qrcode';
+import {
+  ChevronLeft,
+  Clock,
+  Download,
+  Frame,
+  Globe,
+  Heart,
+  Link2,
+  Share2,
+  Sparkle,
+  TrendingUp,
+} from 'lucide-react';
 import StatCard from '@/shared/ui/statCard/StatCard';
 import type { Project } from '@/shared/lib/mockData';
 import { getT, getLocale } from '@/shared/lib/i18n/locale';
@@ -16,16 +28,27 @@ function QrArt({ pngDataUrl }: { pngDataUrl: string }) {
   return (
     <div className={scss.qrStage}>
       <span className={scss.qrGlow} />
-      <span className={`${scss.sparkle} ${scss.sparkleTopLeft}`}>✦</span>
-      <span className={`${scss.sparkle} ${scss.sparkleTopRight}`}>💗</span>
-      <span className={`${scss.sparkle} ${scss.sparkleBottomLeft}`}>✧</span>
+      <span className={`${scss.sparkle} ${scss.sparkleTopLeft}`}>
+        <Sparkle size={18} />
+      </span>
+      <span className={`${scss.sparkle} ${scss.sparkleTopRight}`}>
+        <Heart size={14} />
+      </span>
+      <span className={`${scss.sparkle} ${scss.sparkleBottomLeft}`}>
+        <Sparkle size={14} />
+      </span>
       <div className={scss.qrFrame}>
         <div className={scss.qrGrid}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={pngDataUrl} alt="QR code" className={scss.qrImg} />
-          <span className={scss.qrHeart}>♥</span>
+          <span className={scss.qrHeart}>
+            <Heart size={18} fill="currentColor" />
+          </span>
         </div>
-        <span className={scss.watermark}>✦ scanquick.kg</span>
+        <span className={scss.watermark}>
+          <Sparkle size={13} />
+          scanquick.kg
+        </span>
       </div>
     </div>
   );
@@ -51,6 +74,7 @@ export default async function QrCodePage({ project }: { project: Project }) {
       <div className={scss.header}>
         <div>
           <Link href={`/projects/${project.id}/edit`} className={scss.back}>
+            <ChevronLeft size={14} />
             {t.backToEditor}
           </Link>
           <h1>{t.title}</h1>
@@ -73,25 +97,42 @@ export default async function QrCodePage({ project }: { project: Project }) {
           <div className={scss.downloads}>
             {pngDataUrl ? (
               <a href={pngDataUrl} download={`${project.slug}-qr.png`}>
+                <Download size={14} />
                 {t.downloadPng}
               </a>
             ) : (
-              <button disabled>{t.downloadPng}</button>
+              <button disabled>
+                <Download size={14} />
+                {t.downloadPng}
+              </button>
             )}
             {svgDataUrl ? (
               <a href={svgDataUrl} download={`${project.slug}-qr.svg`}>
+                <Download size={14} />
                 {t.downloadSvg}
               </a>
             ) : (
-              <button disabled>{t.downloadSvg}</button>
+              <button disabled>
+                <Download size={14} />
+                {t.downloadSvg}
+              </button>
             )}
           </div>
           <div className={scss.downloads}>
-            <button>{t.copyLink}</button>
-            <button>{t.share}</button>
+            <button>
+              <Link2 size={14} />
+              {t.copyLink}
+            </button>
+            <button>
+              <Share2 size={14} />
+              {t.share}
+            </button>
           </div>
           <div className={scss.tips}>
-            <strong>{t.printTips}</strong>
+            <strong>
+              <Sparkle size={14} />
+              {t.printTips}
+            </strong>
             <p>{t.printTipsBody}</p>
           </div>
         </div>
@@ -100,10 +141,10 @@ export default async function QrCodePage({ project }: { project: Project }) {
           <div className={scss.analyticsCard}>
             <h2>{t.scanAnalytics}</h2>
             <div className={scss.statsGrid}>
-              <StatCard label={t.statTotalScans} icon="⊞" value={String(project.scans)} delta="" />
-              <StatCard label={t.statThisWeek} icon="↑" value="42" delta="" />
-              <StatCard label={t.statCountries} icon="◎" value="8" delta="" />
-              <StatCard label={t.statAvgTime} icon="◷" value="4:32" delta="" />
+              <StatCard label={t.statTotalScans} icon={Link2} value={String(project.scans)} delta="" />
+              <StatCard label={t.statThisWeek} icon={TrendingUp} value="42" delta="" />
+              <StatCard label={t.statCountries} icon={Globe} value="8" delta="" />
+              <StatCard label={t.statAvgTime} icon={Clock} value="4:32" delta="" />
             </div>
           </div>
 
@@ -121,7 +162,9 @@ export default async function QrCodePage({ project }: { project: Project }) {
           </div>
 
           <div className={scss.frameUpsell}>
-            <span>🖼</span>
+            <span>
+              <Frame size={28} />
+            </span>
             <strong>{t.getFramed}</strong>
             <p>{t.frameDescr}</p>
             <Link href="/upgrade">{t.orderFrame}</Link>

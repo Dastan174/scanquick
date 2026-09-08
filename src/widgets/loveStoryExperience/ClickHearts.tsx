@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Heart as HeartIcon } from 'lucide-react';
 import scss from './clickHearts.module.scss';
 
 interface Heart {
@@ -30,7 +31,7 @@ export default function ClickHearts() {
     <div className={scss.layer} aria-hidden>
       {hearts.map((h) => (
         <span key={h.id} className={scss.heart} style={{ left: h.x, top: h.y }}>
-          💕
+          <HeartIcon size={22} fill="currentColor" />
         </span>
       ))}
     </div>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { Heart } from 'lucide-react';
 import Badge from '@/shared/ui/badge/Badge';
 import type { Project } from '@/shared/lib/mockData';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
@@ -72,7 +73,9 @@ export default function ProjectsList({ projects, locale, t }: ProjectsListProps)
 
       {projects.length === 0 ? (
         <div className={scss.emptyState}>
-          <span>♡</span>
+          <span>
+            <Heart size={28} />
+          </span>
           <strong>{p.emptyTitle}</strong>
           <p>{p.emptyDescr}</p>
           <Link href="/projects/new" className={scss.newBtn}>

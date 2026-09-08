@@ -53,7 +53,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -170,6 +170,7 @@
 }
 
 .chevron {
+  display: flex;
   color: var(--color-text-muted);
 }
 
@@ -274,26 +275,34 @@
 }
 
 .upsellIcon {
-  font-size: var(--text-xl);
+  display: flex;
+  color: var(--color-primary);
 }
 
 @media (max-width: 1024px) {
   .stats {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: 480px) {
   .stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .recent,
+  .chartCard,
+  .actionsCard,
+  .upsell {
+    padding: 16px;
   }
 }

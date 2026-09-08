@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Mail, X } from 'lucide-react';
 import { useLockBodyScroll } from '@/shared/lib/useLockBodyScroll';
 import scss from './chatMail.module.scss';
 
@@ -12,7 +13,7 @@ interface ChatLine {
 export function MailIcon({ onClick }: { onClick: () => void }) {
   return (
     <button className={scss.mailIcon} onClick={onClick} aria-label="Open messages">
-      💌
+      <Mail size={20} />
       <span className={scss.badge}>1</span>
     </button>
   );
@@ -90,7 +91,7 @@ export function ChatModal({ open, onClose, nameA, nameB, lines }: ChatModalProps
   return (
     <div className={scss.overlay} onClick={onClose}>
       <button className={scss.close} onClick={onClose}>
-        ✖️
+        <X size={20} />
       </button>
       <div className={scss.container} onClick={(e) => e.stopPropagation()}>
         {lines.slice(0, visibleCount).map((line, i) => (

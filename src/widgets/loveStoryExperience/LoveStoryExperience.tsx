@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { Heart, Mail, MessageCircle, Send } from 'lucide-react';
 import type { Project } from '@/shared/lib/mockData';
 import type { LoveStoryContent } from '@/shared/lib/loveStoryContent';
 import { sectionKindOf } from '@/shared/lib/sectionLibrary';
@@ -169,9 +170,15 @@ export default function LoveStoryExperience({
             )}
             <div className={scss.postContent}>
               <div className={scss.actions}>
-                <span>❤️</span>
-                <span>💬</span>
-                <span>📤</span>
+                <span>
+                  <Heart size={18} fill="currentColor" />
+                </span>
+                <span>
+                  <MessageCircle size={18} />
+                </span>
+                <span>
+                  <Send size={18} />
+                </span>
               </div>
               <p className={scss.likes}>{content.instagramPost.likes.toLocaleString('en-US')} likes</p>
               <p className={scss.caption}>
@@ -219,7 +226,9 @@ export default function LoveStoryExperience({
 
       {!opened ? (
         <button className={scss.cover} style={coverStyle} onClick={handleOpen}>
-          <span className={scss.coverIcon}>💌</span>
+          <span className={scss.coverIcon}>
+            <Heart size={40} fill="currentColor" />
+          </span>
           <span className={scss.coverText}>{content.coverPromptText}</span>
         </button>
       ) : (
@@ -236,7 +245,8 @@ export default function LoveStoryExperience({
 
           <div className={scss.replyWrap}>
             <button className={scss.replyBtn} onClick={() => setChatOpen(true)}>
-              Нажми, чтобы ответить 💌
+              <Mail size={16} />
+              Нажми, чтобы ответить
             </button>
           </div>
         </div>

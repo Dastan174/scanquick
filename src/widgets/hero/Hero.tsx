@@ -1,3 +1,4 @@
+import { Heart, Play, Share2, Sparkle, Star } from 'lucide-react';
 import Button from '@/shared/ui/button/Button';
 import scss from './hero.module.scss';
 import Image from 'next/image';
@@ -11,7 +12,10 @@ export default async function Hero() {
       <div className="container">
         <div className={scss.mainContainer}>
           <div className={scss.textContent}>
-            <span className={scss.effect}>{t.hero.eyebrow}</span>
+            <span className={scss.effect}>
+              <Sparkle size={14} />
+              {t.hero.eyebrow}
+            </span>
             <h1>
               {t.hero.titleLine1} <em>{t.hero.titleEm}</em>
               <br />
@@ -21,6 +25,7 @@ export default async function Hero() {
             <div className={scss.actions}>
               <Button href="/projects/new">{t.hero.ctaPrimary}</Button>
               <Button variant="ghost" href="/dashboard">
+                <Play size={16} />
                 {t.hero.ctaSecondary}
               </Button>
             </div>
@@ -31,7 +36,11 @@ export default async function Hero() {
                 <span />
               </div>
               <div>
-                <div className={scss.stars}>{t.hero.stars}</div>
+                <div className={scss.stars}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={14} fill="currentColor" />
+                  ))}
+                </div>
                 <p>{t.hero.social}</p>
               </div>
             </div>
@@ -44,12 +53,18 @@ export default async function Hero() {
             </div>
             <div className={`${scss.floatCard} ${scss.floatTop}`}>
               <span className={scss.floatLabel}>{t.hero.floatNewScan}</span>
-              <p>{t.hero.floatReading}</p>
+              <p>
+                <Heart size={12} />
+                {t.hero.floatReading}
+              </p>
               <span className={scss.floatTime}>{t.hero.floatTimeAgo}</span>
             </div>
             <div className={`${scss.floatCard} ${scss.floatBottom}`}>
               <span className={scss.floatLabel}>{t.hero.floatLive}</span>
-              <p>{t.hero.floatCopyLink}</p>
+              <p>
+                {t.hero.floatCopyLink}
+                <Share2 size={12} />
+              </p>
             </div>
           </div>
         </div>

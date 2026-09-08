@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { Heart } from 'lucide-react';
 import scss from './holdHeart.module.scss';
 
 const HOLD_MS = 1400;
@@ -90,7 +91,7 @@ export default function HoldHeart({ prompt, revealText }: HoldHeartProps) {
                   } as React.CSSProperties
                 }
               >
-                ❤️
+                <Heart size={16} fill="currentColor" />
               </span>
             ))}
           </span>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Check } from 'lucide-react';
 import scss from './pricing.module.scss';
 import { getT } from '@/shared/lib/i18n/locale';
 
@@ -34,7 +35,9 @@ export default async function Pricing() {
                   <div className={scss.features}>
                     {plan.features.map((f) => (
                       <div key={f}>
-                        <span>✓</span>
+                        <span>
+                          <Check size={14} />
+                        </span>
                         {f}
                       </div>
                     ))}

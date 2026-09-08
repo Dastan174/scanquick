@@ -1,5 +1,6 @@
 'use client';
 
+import { X } from 'lucide-react';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import scss from './listEditor.module.scss';
 
@@ -41,7 +42,7 @@ export default function ChatLinesEditor({ lines, nameA, nameB, t, onChange }: Ch
               onClick={() => onChange(lines.filter((_, idx) => idx !== i))}
               aria-label={t.remove}
             >
-              ✕
+              <X size={14} />
             </button>
           </div>
           <textarea

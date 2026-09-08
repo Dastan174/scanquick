@@ -3,7 +3,9 @@
 }
 
 .back {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   margin-bottom: 16px;

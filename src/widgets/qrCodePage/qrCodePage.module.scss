@@ -29,7 +29,9 @@
 }
 
 .back {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   margin-bottom: 6px;
@@ -104,7 +106,8 @@
 
 .sparkle {
   position: absolute;
-  font-size: var(--text-lg);
+  display: flex;
+  color: var(--color-primary);
   opacity: 0.85;
   animation: sparkleFloat 3s ease-in-out infinite;
 }
@@ -118,14 +121,12 @@
 .sparkleTopRight {
   top: 12px;
   right: 6%;
-  font-size: var(--text-base);
   animation-delay: 0.6s;
 }
 
 .sparkleBottomLeft {
   bottom: 10px;
   left: 4%;
-  font-size: var(--text-base);
   animation-delay: 1.2s;
 }
 
@@ -207,7 +208,10 @@
   button,
   a {
     flex: 1;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     padding: 10px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--color-border);
@@ -239,7 +243,9 @@
   margin-top: 20px;
 
   strong {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: var(--text-sm);
     margin-bottom: 6px;
     color: var(--color-primary);

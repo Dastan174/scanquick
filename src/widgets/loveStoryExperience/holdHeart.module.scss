@@ -55,7 +55,8 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  font-size: 20px;
+  display: flex;
+  color: var(--color-primary);
   transform: translate(-50%, -50%);
   animation: burstOut 1.2s ease-out forwards;
 }

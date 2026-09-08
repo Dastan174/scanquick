@@ -3,6 +3,24 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import {
+  ChevronLeft,
+  ChevronRight,
+  CreditCard,
+  Heart,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Pencil,
+  Play,
+  Plus,
+  QrCode,
+  Receipt,
+  Settings,
+  Shield,
+  User,
+  X,
+} from 'lucide-react';
 import { signOut } from '@/app/(auth)/actions';
 import { useLockBodyScroll } from '@/shared/lib/useLockBodyScroll';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
@@ -30,20 +48,20 @@ export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: 
     latestProjectId ? `/projects/${latestProjectId}/${suffix}` : '/projects/new';
 
   const mainNav = [
-    { href: '/dashboard', icon: '◈', label: t.dashboard },
-    { href: '/projects', icon: '♡', label: t.projects },
-    { href: projectHref('edit'), icon: '◻', label: t.editor },
-    { href: projectHref('preview'), icon: '▷', label: t.preview },
-    { href: projectHref('qr'), icon: '⊞', label: t.qrCode },
+    { href: '/dashboard', icon: LayoutDashboard, label: t.dashboard },
+    { href: '/projects', icon: Heart, label: t.projects },
+    { href: projectHref('edit'), icon: Pencil, label: t.editor },
+    { href: projectHref('preview'), icon: Play, label: t.preview },
+    { href: projectHref('qr'), icon: QrCode, label: t.qrCode },
   ];
 
   const pagesNav = [
-    { href: '/projects/new', icon: '+', label: t.createProject },
-    { href: '/upgrade', icon: '◈', label: t.payment },
-    { href: projectHref('settings'), icon: '⚙', label: t.settings },
-    { href: '/billing', icon: '◉', label: t.billing },
-    { href: '/profile', icon: '⊙', label: t.profile },
-    { href: '/admin', icon: '⬡', label: t.admin },
+    { href: '/projects/new', icon: Plus, label: t.createProject },
+    { href: '/upgrade', icon: CreditCard, label: t.payment },
+    { href: projectHref('settings'), icon: Settings, label: t.settings },
+    { href: '/billing', icon: Receipt, label: t.billing },
+    { href: '/profile', icon: User, label: t.profile },
+    { href: '/admin', icon: Shield, label: t.admin },
   ];
 
   const isActive = (href: string) => {
@@ -59,7 +77,7 @@ export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: 
         onClick={() => setMobileOpen(true)}
         aria-label="Open menu"
       >
-        ☰
+        <Menu size={20} />
       </button>
       {mobileOpen && <div className={scss.overlay} onClick={() => setMobileOpen(false)} />}
       <aside
@@ -68,7 +86,9 @@ export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: 
       >
         <div className={scss.top}>
           <Link href="/" className={scss.logo}>
-            <span className={scss.logoIcon}>♥</span>
+            <span className={scss.logoIcon}>
+              <Heart size={16} fill="currentColor" />
+            </span>
             {!collapsed && <span>LoveQR</span>}
           </Link>
           <button
@@ -76,7 +96,7 @@ export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: 
             onClick={() => setMobileOpen(false)}
             aria-label="Close menu"
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
 
@@ -88,7 +108,9 @@ export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: 
               className={`${scss.link} ${isActive(item.href) ? scss.active : ''}`}
               onClick={() => setMobileOpen(false)}
             >
-              <span className={scss.linkIcon}>{item.icon}</span>
+              <span className={scss.linkIcon}>
+                <item.icon size={18} />
+              </span>
               {!collapsed && <span>{item.label}</span>}
             </Link>
           ))}
@@ -103,7 +125,9 @@ export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: 
               className={`${scss.link} ${isActive(item.href) ? scss.active : ''}`}
               onClick={() => setMobileOpen(false)}
             >
-              <span className={scss.linkIcon}>{item.icon}</span>
+              <span className={scss.linkIcon}>
+                <item.icon size={18} />
+              </span>
               {!collapsed && <span>{item.label}</span>}
             </Link>
           ))}
@@ -118,13 +142,17 @@ export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: 
 
         <form action={signOut}>
           <button type="submit" className={scss.collapseBtn}>
-            <span className={scss.linkIcon}>⏻</span>
+            <span className={scss.linkIcon}>
+              <LogOut size={18} />
+            </span>
             {!collapsed && <span>{t.signOut}</span>}
           </button>
         </form>
 
         <button className={scss.collapseBtn} onClick={() => setCollapsed((c) => !c)}>
-          <span className={scss.linkIcon}>{collapsed ? '▸' : '◂'}</span>
+          <span className={scss.linkIcon}>
+            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </span>
           {!collapsed && <span>{t.collapse}</span>}
         </button>
       </aside>

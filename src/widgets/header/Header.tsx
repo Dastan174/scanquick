@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Heart } from 'lucide-react';
 import scss from './header.module.scss';
 import Button from '@/shared/ui/button/Button';
 import LanguageSwitcher from '@/widgets/languageSwitcher/LanguageSwitcher';
@@ -14,7 +15,9 @@ export default async function Header() {
       <div className="container">
         <div className={scss.mainContainer}>
           <Link href="/" className={scss.logo}>
-            <span className={scss.logoIcon}>♥</span>
+            <span className={scss.logoIcon}>
+              <Heart size={16} fill="currentColor" />
+            </span>
             LoveQR
           </Link>
           <nav className={scss.links}>

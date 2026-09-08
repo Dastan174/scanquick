@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { Heart as HeartIcon } from 'lucide-react';
 import scss from './floatingHearts.module.scss';
 
-const EMOJIS = ['💗', '💓', '🩷', '🤍', '💜', '🩵', '💛'];
+const COLORS = ['#e8749a', '#f2879c', '#ec9dc4', '#e5e7eb', '#b98cd6', '#8ecbe8', '#f2d478'];
 
 interface Heart {
   id: number;
   left: number;
   delay: number;
   duration: number;
-  emoji: string;
+  color: string;
 }
 
 function generateHearts(): Heart[] {
@@ -19,7 +20,7 @@ function generateHearts(): Heart[] {
     left: Math.random() * 100,
     delay: Math.random() * 6,
     duration: 8 + Math.random() * 6,
-    emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
   }));
 }
 
@@ -40,9 +41,10 @@ export default function FloatingHearts() {
             left: `${h.left}%`,
             animationDelay: `${h.delay}s`,
             animationDuration: `${h.duration}s`,
+            color: h.color,
           }}
         >
-          {h.emoji}
+          <HeartIcon size={20} fill="currentColor" />
         </span>
       ))}
     </div>

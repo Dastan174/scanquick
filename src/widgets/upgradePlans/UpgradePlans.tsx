@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Check, ChevronLeft, Heart } from 'lucide-react';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import scss from './upgradePlans.module.scss';
 
@@ -20,6 +21,7 @@ export default function UpgradePlans({ t }: { t: Dictionary['upgradePlans'] }) {
   return (
     <div className={scss.page}>
       <Link href="/dashboard" className={scss.back}>
+        <ChevronLeft size={14} />
         {t.back}
       </Link>
       <h1>
@@ -65,7 +67,10 @@ export default function UpgradePlans({ t }: { t: Dictionary['upgradePlans'] }) {
               <div className={scss.features}>
                 {p.features.map((f) => (
                   <div key={f}>
-                    <span>✓</span> {f}
+                    <span>
+                      <Check size={14} />
+                    </span>{' '}
+                    {f}
                   </div>
                 ))}
               </div>
@@ -76,7 +81,9 @@ export default function UpgradePlans({ t }: { t: Dictionary['upgradePlans'] }) {
         <div className={scss.checkout}>
           {!activePlan ? (
             <div className={scss.empty}>
-              <span>♡</span>
+              <span>
+                <Heart size={28} />
+              </span>
               <strong>{t.selectPlan}</strong>
               <p>{t.selectPlanDescr}</p>
             </div>

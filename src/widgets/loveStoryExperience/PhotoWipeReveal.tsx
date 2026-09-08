@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { MoveRight } from 'lucide-react';
 import type { PhotoTransform } from '@/shared/lib/loveStoryContent';
 import scss from './photoWipeReveal.module.scss';
 
@@ -59,7 +60,7 @@ export default function PhotoWipeReveal({ gradient, hint, photo }: PhotoWipeReve
           )}
         </div>
         <div className={scss.cursor} style={{ left: `${pct}%` }}>
-          ➡️
+          <MoveRight size={18} />
         </div>
         <div className={scss.progressBar}>
           <div className={scss.progressFill} style={{ width: `${pct}%` }} />

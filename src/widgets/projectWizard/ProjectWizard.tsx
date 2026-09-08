@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Cake, Camera, CalendarHeart, Check, ChevronLeft, Heart } from 'lucide-react';
 import { templates } from '@/shared/lib/mockData';
 import { createProject, updateProjectContent } from '@/app/(admin)/projects/actions';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
@@ -18,9 +19,16 @@ interface ProjectWizardProps {
   t: Dictionary['projectWizard'];
 }
 
+const TOTAL_STEPS = 4;
+
+// Only the love story card (index 0) is built — birthday and date invitation
+// are shown so people know they're coming, but aren't selectable yet.
+const SITE_TYPE_ICONS = [Heart, Cake, CalendarHeart];
+
 export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [siteType, setSiteType] = useState(0);
   const [projectName, setProjectName] = useState('');
   const [yourName, setYourName] = useState('');
   const [partnerName, setPartnerName] = useState('');
@@ -34,7 +42,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
 
   const namesLabel = yourName && partnerName ? `${yourName} & ${partnerName}` : t.namesPlaceholder;
   const activeTemplate = templates.find((tp) => tp.id === templateId) ?? templates[0];
-  const canContinueStep1 = projectName.trim() && yourName.trim() && partnerName.trim();
+  const canContinueNames = projectName.trim() && yourName.trim() && partnerName.trim();
 
   const finish = async () => {
     setSubmitting(true);
@@ -75,16 +83,16 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
     <div className={scss.wizard}>
       <div className={scss.left}>
         <div className={scss.steps}>
-          {[1, 2, 3].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <div
               key={s}
               className={`${scss.stepDot} ${step > s ? scss.stepDone : ''} ${step === s ? scss.stepCurrent : ''}`}
             >
-              {step > s ? '✓' : s}
+              {step > s ? <Check size={14} /> : s}
             </div>
           ))}
         </div>
-        <span className={scss.stepLabel}>{stepLabel(locale, step)}</span>
+        <span className={scss.stepLabel}>{stepLabel(locale, step, TOTAL_STEPS)}</span>
         <h1>
           {t.stepTitles[step - 1].title}
           <br />
@@ -99,13 +107,80 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
 
       <div className={scss.right}>
         <Link href="/projects" className={scss.back}>
+          <ChevronLeft size={14} />
           {t.backToProjects}
         </Link>
 
         {step === 1 && (
           <div className={scss.step}>
-            <h2>{t.step1Title}</h2>
-            <p>{t.step1Descr}</p>
+            <h2>{t.typeStepTitle}</h2>
+            <p>{t.typeStepDescr}</p>
+
+            <div className={scss.typeGrid}>
+              {t.siteTypes.map((type, i) => {
+                const Icon = SITE_TYPE_ICONS[i];
+                const soon = i !== 0;
+                return (
+                  <button
+                    key={type.name}
+                    type="button"
+                    className={`${scss.typeCard} ${siteType === i ? scss.typeActive : ''} ${soon ? scss.typeSoon : ''}`}
+                    onClick={() => !soon && setSiteType(i)}
+                    disabled={soon}
+                  >
+                    {soon && <span className={scss.soonTag}>{t.comingSoon}</span>}
+                    <Icon size={26} />
+                    <strong>{type.name}</strong>
+                    <span>{type.descr}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className={scss.stepActions}>
+              <button className={scss.continueBtn} onClick={() => setStep(2)}>
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className={scss.step}>
+            <h2>{t.templateStepTitle}</h2>
+            <p>{t.templateStepDescr}</p>
+
+            <div className={scss.templateGrid}>
+              {templates.map((tpl, i) => (
+                <button
+                  key={tpl.id}
+                  className={`${scss.templateCard} ${templateId === tpl.id ? scss.templateActive : ''}`}
+                  onClick={() => setTemplateId(tpl.id)}
+                >
+                  {i === 0 && <span className={scss.popularTag}>{t.popular}</span>}
+                  <span className={scss.templateSwatch} style={{ background: tpl.gradient }} />
+                  <strong>{tpl.name}</strong>
+                  <span>{tpl.mood}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(1)}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button className={scss.continueBtn} onClick={() => setStep(3)}>
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className={scss.step}>
+            <h2>{t.namesStepTitle}</h2>
+            <p>{t.namesStepDescr}</p>
 
             <label className={scss.field}>
               {t.projectName}
@@ -140,51 +215,26 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </label>
 
-            <button
-              className={scss.continueBtn}
-              disabled={!canContinueStep1}
-              onClick={() => setStep(2)}
-            >
-              {t.continue}
-            </button>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className={scss.step}>
-            <h2>{t.step2Title}</h2>
-            <p>{t.step2Descr}</p>
-
-            <div className={scss.templateGrid}>
-              {templates.map((tpl, i) => (
-                <button
-                  key={tpl.id}
-                  className={`${scss.templateCard} ${templateId === tpl.id ? scss.templateActive : ''}`}
-                  onClick={() => setTemplateId(tpl.id)}
-                >
-                  {i === 0 && <span className={scss.popularTag}>{t.popular}</span>}
-                  <span className={scss.templateSwatch} style={{ background: tpl.gradient }} />
-                  <strong>{tpl.name}</strong>
-                  <span>{tpl.mood}</span>
-                </button>
-              ))}
-            </div>
-
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(1)}>
+              <button className={scss.backBtn} onClick={() => setStep(2)}>
+                <ChevronLeft size={14} />
                 {t.back}
               </button>
-              <button className={scss.continueBtn} onClick={() => setStep(3)}>
+              <button
+                className={scss.continueBtn}
+                disabled={!canContinueNames}
+                onClick={() => setStep(4)}
+              >
                 {t.continue}
               </button>
             </div>
           </div>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <div className={scss.step}>
-            <h2>{t.step3Title}</h2>
-            <p>{t.step3Descr}</p>
+            <h2>{t.coverStepTitle}</h2>
+            <p>{t.coverStepDescr}</p>
 
             <button
               type="button"
@@ -198,7 +248,9 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             >
               {!coverPreview && (
                 <>
-                  <span>📸</span>
+                  <span>
+                    <Camera size={28} />
+                  </span>
                   <strong>{t.uploadCover}</strong>
                   <span>{t.uploadHint}</span>
                   <span>{t.orClickToBrowse}</span>
@@ -225,7 +277,8 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             {error && <div className={scss.error}>{error}</div>}
 
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(2)} disabled={submitting}>
+              <button className={scss.backBtn} onClick={() => setStep(3)} disabled={submitting}>
+                <ChevronLeft size={14} />
                 {t.back}
               </button>
               <button className={scss.continueBtn} onClick={finish} disabled={submitting}>

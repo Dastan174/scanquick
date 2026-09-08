@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { Camera } from 'lucide-react';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import { compressImage } from '@/shared/lib/compressImage';
 import type { PhotoTransform } from '@/shared/lib/loveStoryContent';
@@ -90,7 +91,9 @@ export default function PhotoSlot({ projectId, transform, aspectRatio, t, onChan
           />
         ) : (
           <button type="button" className={scss.empty} onClick={() => inputRef.current?.click()}>
-            <span>📸</span>
+            <span>
+              <Camera size={24} />
+            </span>
             <span>{uploading ? t.uploading : t.uploadPhoto}</span>
           </button>
         )}

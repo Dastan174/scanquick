@@ -45,8 +45,9 @@
 .cursor {
   position: absolute;
   top: 50%;
+  display: flex;
   transform: translate(-50%, -50%);
-  font-size: var(--text-xl);
+  color: var(--color-white);
   pointer-events: none;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }

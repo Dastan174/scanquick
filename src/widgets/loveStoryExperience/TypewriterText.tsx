@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Feather } from 'lucide-react';
 import scss from './typewriterText.module.scss';
 
 export default function TypewriterText({ text }: { text: string }) {
@@ -30,7 +31,9 @@ export default function TypewriterText({ text }: { text: string }) {
         {shown}
         <span className={scss.cursor} />
       </p>
-      <span className={scss.feather}>🪶</span>
+      <span className={scss.feather}>
+        <Feather size={20} />
+      </span>
     </div>
   );
 }

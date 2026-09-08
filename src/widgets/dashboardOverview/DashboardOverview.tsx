@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ChevronRight, Folder, Link2, Pencil, Play, Plus, QrCode, Sparkles } from 'lucide-react';
 import StatCard from '@/shared/ui/statCard/StatCard';
 import Badge from '@/shared/ui/badge/Badge';
 import type { Project } from '@/shared/lib/mockData';
@@ -24,12 +25,12 @@ export default async function DashboardOverview({ projects, userName, plan }: Da
 
   const quickActions = latest
     ? [
-        { icon: '⊞', label: d.actionViewQr, href: `/projects/${latest.id}/qr` },
-        { icon: '▷', label: d.actionPreview, href: `/projects/${latest.id}/preview`, newTab: true },
-        { icon: '◈', label: d.actionEdit, href: `/projects/${latest.id}/edit` },
-        { icon: '✦', label: d.actionUpgrade, href: '/upgrade' },
+        { icon: QrCode, label: d.actionViewQr, href: `/projects/${latest.id}/qr` },
+        { icon: Play, label: d.actionPreview, href: `/projects/${latest.id}/preview`, newTab: true },
+        { icon: Pencil, label: d.actionEdit, href: `/projects/${latest.id}/edit` },
+        { icon: Sparkles, label: d.actionUpgrade, href: '/upgrade' },
       ]
-    : [{ icon: '+', label: d.actionCreateFirst, href: '/projects/new' }];
+    : [{ icon: Plus, label: d.actionCreateFirst, href: '/projects/new' }];
 
   return (
     <div className={scss.page}>
@@ -47,18 +48,18 @@ export default async function DashboardOverview({ projects, userName, plan }: Da
       </div>
 
       <div className={scss.stats}>
-        <StatCard label={d.statTotalProjects} icon="◈" value={String(projects.length)} />
-        <StatCard label={d.statTotalScans} icon="⊞" value={totalScans.toLocaleString('ru-RU')} />
+        <StatCard label={d.statTotalProjects} icon={Folder} value={String(projects.length)} />
+        <StatCard label={d.statTotalScans} icon={QrCode} value={totalScans.toLocaleString('ru-RU')} />
         <StatCard
           label={d.statActiveLinks}
-          icon="◉"
+          icon={Link2}
           value={String(publishedCount)}
           delta={draftsCount(locale, draftCount)}
           deltaTone="neutral"
         />
         <StatCard
           label={d.statPlan}
-          icon="✦"
+          icon={Sparkles}
           value={plan === 'free' ? t.common.free : t.common.premium}
           delta={plan === 'free' ? d.upgradeAnytime : d.active}
           deltaTone="neutral"
@@ -99,7 +100,9 @@ export default async function DashboardOverview({ projects, userName, plan }: Da
                     <strong>{p.scans}</strong>
                     <span>{d.scans}</span>
                   </div>
-                  <span className={scss.chevron}>›</span>
+                  <span className={scss.chevron}>
+                    <ChevronRight size={16} />
+                  </span>
                 </Link>
               ))}
             </div>
@@ -131,7 +134,9 @@ export default async function DashboardOverview({ projects, userName, plan }: Da
                 className={scss.actionRow}
                 {...('newTab' in a && a.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
               >
-                <span>{a.icon}</span>
+                <span>
+                  <a.icon size={16} />
+                </span>
                 {a.label}
               </Link>
             ))}
@@ -139,7 +144,9 @@ export default async function DashboardOverview({ projects, userName, plan }: Da
 
           {plan === 'free' && (
             <div className={scss.upsell}>
-              <span className={scss.upsellIcon}>✦</span>
+              <span className={scss.upsellIcon}>
+                <Sparkles size={20} />
+              </span>
               <strong>{d.premiumWaiting}</strong>
               <p>{d.premiumDescr}</p>
               <Link href="/upgrade">{d.upgradeNow}</Link>

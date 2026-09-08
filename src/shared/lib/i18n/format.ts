@@ -35,9 +35,9 @@ export function deleteConfirm(locale: Locale, name: string): string {
   return `Удалить «${name}»? Это действие нельзя отменить.`;
 }
 
-export function stepLabel(locale: Locale, step: number): string {
-  if (locale === 'en') return `Step ${step} of 3`;
-  return `Шаг ${step} из 3`;
+export function stepLabel(locale: Locale, step: number, total: number): string {
+  if (locale === 'en') return `Step ${step} of ${total}`;
+  return `Шаг ${step} из ${total}`;
 }
 
 export function qrSubtitle(locale: Locale, name: string): string {

@@ -20,7 +20,8 @@
 }
 
 .coverIcon {
-  font-size: 48px;
+  display: flex;
+  justify-content: center;
 }
 
 .coverText {
@@ -168,8 +169,11 @@
 .actions {
   display: flex;
   gap: 14px;
-  font-size: var(--text-lg);
   margin-bottom: 8px;
+
+  span {
+    display: flex;
+  }
 }
 
 .likes {
@@ -196,6 +200,10 @@
 }
 
 .replyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 14px 32px;
   border-radius: var(--radius-full);
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));

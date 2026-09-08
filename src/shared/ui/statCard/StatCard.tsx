@@ -1,8 +1,9 @@
+import type { LucideIcon } from 'lucide-react';
 import scss from './statCard.module.scss';
 
 interface StatCardProps {
   label: string;
-  icon: string;
+  icon: LucideIcon;
   value: string;
   delta?: string;
   deltaTone?: 'positive' | 'neutral';
@@ -10,7 +11,7 @@ interface StatCardProps {
 
 export default function StatCard({
   label,
-  icon,
+  icon: Icon,
   value,
   delta,
   deltaTone = 'positive',
@@ -19,7 +20,9 @@ export default function StatCard({
     <div className={scss.card}>
       <div className={scss.top}>
         <span className={scss.label}>{label}</span>
-        <span className={scss.icon}>{icon}</span>
+        <span className={scss.icon}>
+          <Icon size={16} />
+        </span>
       </div>
       <div className={scss.value}>{value}</div>
       {delta && (

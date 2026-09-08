@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Heart, X } from 'lucide-react';
 import type { PhotoTransform } from '@/shared/lib/loveStoryContent';
 import { useLockBodyScroll } from '@/shared/lib/useLockBodyScroll';
 import scss from './storiesRow.module.scss';
@@ -135,7 +136,7 @@ export default function StoriesRow({ stories }: { stories: Story[] }) {
                 setLiked((l) => !l);
               }}
             >
-              ♥
+              <Heart size={22} fill={liked ? 'currentColor' : 'none'} />
             </button>
             <button
               className={scss.close}
@@ -144,7 +145,7 @@ export default function StoriesRow({ stories }: { stories: Story[] }) {
                 closeModal();
               }}
             >
-              ✕
+              <X size={22} />
             </button>
           </div>
         </div>

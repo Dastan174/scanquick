@@ -2,6 +2,18 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import {
+  Check,
+  ChevronLeft,
+  Eye,
+  GripVertical,
+  Music,
+  Plus,
+  QrCode,
+  Settings as SettingsIcon,
+  Sparkles,
+  X,
+} from 'lucide-react';
 import Badge from '@/shared/ui/badge/Badge';
 import PhoneFrame from '@/shared/ui/phoneFrame/PhoneFrame';
 import type { Project } from '@/shared/lib/mockData';
@@ -19,6 +31,7 @@ import { updateProjectContent } from '@/app/(admin)/projects/actions';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import type { Locale } from '@/shared/lib/i18n/shared';
 import { storyLabel } from '@/shared/lib/i18n/format';
+import { useLockBodyScroll } from '@/shared/lib/useLockBodyScroll';
 import TextListEditor from './TextListEditor';
 import ChatLinesEditor from './ChatLinesEditor';
 import PhotoSlot from './PhotoSlot';
@@ -42,12 +55,17 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
   const [previewContent, setPreviewContent] = useState(content);
   const [saveState, setSaveState] = useState<'saved' | 'dirty' | 'saving'>('saved');
   const [addMenuOpen, setAddMenuOpen] = useState(false);
-  const [actionsOpen, setActionsOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const rightHeaderRef = useRef<HTMLDivElement>(null);
   const didSelectOnce = useRef(false);
+
+  // On the stacked mobile layout the phone preview opens as a floating
+  // overlay (see the JSX below) instead of sitting inline, so it stops
+  // competing with the page for scroll gestures — lock the page behind it.
+  useLockBodyScroll(previewOpen);
 
   const localizedMeta = (id: string) => {
     const kind = sectionKindOf(id);
@@ -234,7 +252,7 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
     (k) => k.repeatable || !content.sectionOrder.includes(k.kind),
   );
 
-  const selectedMeta = selected ? localizedMeta(selected) : null;
+  const selectedMeta = selected && selected !== 'cover' && selected !== 'music' ? localizedMeta(selected) : null;
 
   return (
     <div className={scss.editor}>
@@ -244,10 +262,24 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
           className={`${scss.sectionItem} ${selected === 'cover' ? scss.sectionActive : ''}`}
           onClick={() => setSelected('cover')}
         >
-          <span className={scss.sectionIcon}>✦</span>
+          <span className={scss.sectionIcon}>
+            <Sparkles size={16} />
+          </span>
           <span className={scss.sectionText}>
             <strong>{e.cover}</strong>
             <span>{e.coverAlwaysFirst}</span>
+          </span>
+        </button>
+        <button
+          className={`${scss.sectionItem} ${selected === 'music' ? scss.sectionActive : ''}`}
+          onClick={() => setSelected('music')}
+        >
+          <span className={scss.sectionIcon}>
+            <Music size={16} />
+          </span>
+          <span className={scss.sectionText}>
+            <strong>{e.music}</strong>
+            <span>{e.musicAlwaysAvailable}</span>
           </span>
         </button>
 
@@ -257,6 +289,7 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
           </span>
           <div className={scss.addWrap}>
             <button className={scss.addBtn} onClick={() => setAddMenuOpen((v) => !v)}>
+              <Plus size={14} />
               {e.addBtn}
             </button>
             {addMenuOpen && (
@@ -265,13 +298,13 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
                   k.kind === 'collage' ? (
                     COLLAGE_TEMPLATES.map((tpl) => (
                       <button key={tpl.id} onClick={() => addSection('collage', tpl.id)}>
-                        <span>{k.icon}</span>
+                        <k.icon size={16} />
                         {tpl.label}
                       </button>
                     ))
                   ) : (
                     <button key={k.kind} onClick={() => addSection(k.kind)}>
-                      <span>{k.icon}</span>
+                      <k.icon size={16} />
                       {e.sectionKinds[k.kind as keyof typeof e.sectionKinds]?.label ?? k.label}
                     </button>
                   ),
@@ -297,7 +330,9 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
                 className={`${scss.sectionItem} ${selected === id ? scss.sectionActive : ''} ${dragId === id ? scss.dragging : ''}`}
                 onClick={() => setSelected(id)}
               >
-                <span className={scss.sectionIcon}>{meta.icon}</span>
+                <span className={scss.sectionIcon}>
+                  <meta.icon size={16} />
+                </span>
                 <span className={scss.sectionText}>
                   <strong>{meta.label}</strong>
                   <span>{meta.descr}</span>
@@ -311,14 +346,14 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
                   }}
                   aria-label="Remove section"
                 >
-                  ✕
+                  <X size={12} />
                 </button>
                 <span
                   className={scss.dragHandle}
                   onPointerDown={onHandlePointerDown(id)}
                   aria-label="Drag to reorder"
                 >
-                  ⠿
+                  <GripVertical size={16} />
                 </span>
               </div>
             );
@@ -330,55 +365,56 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
       <div className={scss.center}>
         <div className={scss.centerHeader}>
           <Link href="/projects" className={scss.crumb}>
-            ‹ {t.projectsList.title}
+            <ChevronLeft size={14} />
+            {t.projectsList.title}
           </Link>
           <div className={scss.titleRow}>
             <h1>{project.name}</h1>
             <Badge label={project.status === 'published' ? t.common.published : t.common.draft}>
               {project.status}
             </Badge>
-            <button
-              type="button"
-              className={scss.menuToggle}
-              onClick={() => setActionsOpen((v) => !v)}
-              aria-label="Menu"
-              aria-expanded={actionsOpen}
-            >
-              ☰
-            </button>
           </div>
-          <div className={`${scss.headerActions} ${actionsOpen ? scss.actionsOpen : ''}`}>
-            <Link
-              href={`/projects/${project.id}/preview`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setActionsOpen(false)}
-            >
-              ▷ {t.common.preview}
+          <div className={scss.headerActions}>
+            <Link href={`/projects/${project.id}/preview`} target="_blank" rel="noopener noreferrer">
+              <Eye size={14} />
+              {t.common.preview}
             </Link>
-            <Link href={`/projects/${project.id}/settings`} onClick={() => setActionsOpen(false)}>
+            <Link href={`/projects/${project.id}/settings`}>
+              <SettingsIcon size={14} />
               {t.common.settings}
             </Link>
-            <Link
-              href={`/projects/${project.id}/qr`}
-              className={scss.qrBtn}
-              onClick={() => setActionsOpen(false)}
-            >
-              ⊞ {t.qrCodePage.title}
+            <Link href={`/projects/${project.id}/qr`} className={scss.qrBtn}>
+              <QrCode size={14} />
+              {t.qrCodePage.title}
             </Link>
             <button
               className={scss.saveBtn}
-              onClick={() => {
-                handleSave();
-                setActionsOpen(false);
-              }}
+              onClick={handleSave}
               disabled={saveState === 'saving' || saveState === 'saved'}
             >
+              {saveState === 'saved' && <Check size={14} />}
               {saveState === 'saving' ? t.common.saving : saveState === 'saved' ? t.common.saved : t.common.save}
             </button>
           </div>
         </div>
-        <div className={scss.stage}>
+        {/* Mobile only (see CSS) — the inline stage below turns into a
+            floating overlay there, so this trigger opens it without the
+            preview competing with the page for scroll gestures. */}
+        <button type="button" className={scss.previewFab} onClick={() => setPreviewOpen(true)}>
+          {t.common.preview}
+        </button>
+
+        {previewOpen && <div className={scss.previewBackdrop} onClick={() => setPreviewOpen(false)} />}
+
+        <div className={`${scss.stage} ${previewOpen ? scss.stageOpen : ''}`}>
+          <button
+            type="button"
+            className={scss.previewCloseBtn}
+            onClick={() => setPreviewOpen(false)}
+            aria-label={t.common.cancel}
+          >
+            <X size={18} />
+          </button>
           <PhoneFrame>
             <iframe
               key={project.id}
@@ -393,9 +429,19 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
 
       <aside className={scss.right}>
         <div className={scss.rightHeader} ref={rightHeaderRef}>
-          <span className={scss.rightIcon}>{selected === 'cover' ? '✦' : (selectedMeta?.icon ?? '✦')}</span>
+          <span className={scss.rightIcon}>
+            {selected === 'cover' ? (
+              <Sparkles size={18} />
+            ) : selected === 'music' ? (
+              <Music size={18} />
+            ) : selectedMeta ? (
+              <selectedMeta.icon size={18} />
+            ) : (
+              <Sparkles size={18} />
+            )}
+          </span>
           <div>
-            <strong>{selected === 'cover' ? e.cover : (selectedMeta?.label ?? '')}</strong>
+            <strong>{selected === 'cover' ? e.cover : selected === 'music' ? e.music : (selectedMeta?.label ?? '')}</strong>
             <span>{e.propertiesSettings}</span>
           </div>
         </div>
@@ -432,13 +478,16 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
                 onChange={(ev) => patch({ coverPromptText: ev.target.value })}
               />
             </label>
-            <MusicUpload
-              projectId={project.id}
-              musicUrl={content.musicUrl}
-              t={t.musicUpload}
-              onChange={(url) => patch({ musicUrl: url })}
-            />
           </>
+        )}
+
+        {selected === 'music' && (
+          <MusicUpload
+            projectId={project.id}
+            musicUrl={content.musicUrl}
+            t={t.musicUpload}
+            onChange={(url) => patch({ musicUrl: url })}
+          />
         )}
 
         {sectionKindOf(selected) === 'typewriter' && (

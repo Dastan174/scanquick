@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { Music } from 'lucide-react';
 import { uploadMusic } from '@/app/(admin)/projects/media-actions';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import scss from './musicUpload.module.scss';
@@ -48,7 +49,9 @@ export default function MusicUpload({ projectId, musicUrl, t, onChange }: MusicU
         </>
       ) : (
         <button type="button" className={scss.uploadBtn} onClick={() => inputRef.current?.click()}>
-          <span>🎵</span>
+          <span>
+            <Music size={24} />
+          </span>
           <span>{uploading ? t.uploading : t.uploadMusic}</span>
         </button>
       )}

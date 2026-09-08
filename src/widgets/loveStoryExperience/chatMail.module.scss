@@ -68,9 +68,10 @@
   position: absolute;
   top: 20px;
   right: 20px;
+  display: flex;
   background: transparent;
   border: none;
-  font-size: var(--text-lg);
+  color: var(--color-white);
   cursor: pointer;
 }
 

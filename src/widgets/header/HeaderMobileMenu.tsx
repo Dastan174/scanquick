@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Menu, X } from 'lucide-react';
 import Button from '@/shared/ui/button/Button';
 import LanguageSwitcher from '@/widgets/languageSwitcher/LanguageSwitcher';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
@@ -26,7 +27,7 @@ export default function HeaderMobileMenu({ t, locale }: HeaderMobileMenuProps) {
         aria-label="Menu"
         aria-expanded={open}
       >
-        {open ? '✕' : '☰'}
+        {open ? <X size={20} /> : <Menu size={20} />}
       </button>
       <nav className={`${scss.mobileMenu} ${open ? scss.mobileMenuOpen : ''}`}>
         <Link href="/" onClick={close}>
