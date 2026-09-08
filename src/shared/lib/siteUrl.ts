@@ -1,7 +1,9 @@
 // The real, scannable base URL for QR codes and shared links. Falls back to
 // the known Vercel production domain when NEXT_PUBLIC_APP_URL is unset or
 // still pointing at localhost (the default in .env.local for local dev).
-const FALLBACK_SITE_URL = 'https://scanquick.vercel.app';
+// NOTE: `scanquick.vercel.app` is a stale/orphaned Vercel project — the one
+// actually being developed and deployed is `scanquick-beta`.
+const FALLBACK_SITE_URL = 'https://scanquick-beta.vercel.app';
 
 export function getSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_APP_URL;

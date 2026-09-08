@@ -17,21 +17,11 @@ export async function POST(request: NextRequest) {
   const text: string | undefined = message?.text;
   const chatId: string | undefined = message?.chat?.id?.toString();
 
-  // TODO(debug): remove the `debug` field once the link flow is confirmed
-  // working end-to-end — it's here to see exactly where this bails out
-  // without needing Vercel log access.
-  if (!text || !chatId) return NextResponse.json({ ok: true, debug: 'no-text-or-chatid' });
+  if (!text || !chatId) return NextResponse.json({ ok: true });
 
   const match = text.match(/^\/start\s+([0-9a-f-]{36})$/i);
-  if (!match) return NextResponse.json({ ok: true, debug: 'no-token-match', text });
+  if (!match) return NextResponse.json({ ok: true });
 
-  const result = await linkTelegramChat(match[1], chatId);
-  return NextResponse.json({
-    ok: true,
-    ...result,
-    buildMarker: 'MARKER-9f3a21',
-    vercelEnv: process.env.VERCEL_ENV ?? null,
-    vercelUrl: process.env.VERCEL_URL ?? null,
-    region: process.env.VERCEL_REGION ?? null,
-  });
+  await linkTelegramChat(match[1], chatId);
+  return NextResponse.json({ ok: true });
 }
