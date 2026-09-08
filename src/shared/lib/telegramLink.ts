@@ -1,9 +1,10 @@
 'use server';
 
-// The actual DB write + Telegram notification, split into a Server Action.
-// Route Handlers in this app somehow don't see the dashboard env vars at
-// runtime (still unexplained — Next 16 + Turbopack), but Server Actions
-// reliably do, since the whole rest of the app depends on that path working.
+// The Telegram webhook's actual DB write + notification, deliberately kept
+// outside `src/app/api/` — every 'use server' file colocated with a Route
+// Handler under app/api/ came back with zero dashboard env vars at runtime,
+// while files here (same tree as the rest of the app's working actions)
+// don't have that problem. See src/app/api/telegram/webhook/route.ts.
 import { createAdminClient } from '@/shared/lib/supabase/admin';
 import { sendTelegramMessage } from '@/shared/lib/telegram';
 

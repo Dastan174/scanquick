@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { linkTelegramChat, verifyTelegramSecret } from './actions';
+import { linkTelegramChat, verifyTelegramSecret } from '@/shared/lib/telegramLink';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
