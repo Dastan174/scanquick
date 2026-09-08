@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/shared/lib/supabase/admin';
-import { sendTelegramMessage } from '@/shared/lib/telegram';
+import { linkTelegramChat, verifyTelegramSecret } from './actions';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -10,10 +9,8 @@ export const runtime = 'nodejs';
 // the deep link the owner opens from their editor (see
 // getMyProjectTelegramLink) — which links their chat to that project.
 export async function POST(request: NextRequest) {
-  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (secret && request.headers.get('x-telegram-bot-api-secret-token') !== secret) {
-    return NextResponse.json({ ok: false }, { status: 401 });
-  }
+  const ok = await verifyTelegramSecret(request.headers.get('x-telegram-bot-api-secret-token'));
+  if (!ok) return NextResponse.json({ ok: false }, { status: 401 });
 
   const update = await request.json().catch(() => null);
   const message = update?.message;
@@ -28,33 +25,6 @@ export async function POST(request: NextRequest) {
   const match = text.match(/^\/start\s+([0-9a-f-]{36})$/i);
   if (!match) return NextResponse.json({ ok: true, debug: 'no-token-match', text });
 
-  const admin = createAdminClient();
-  if (!admin) {
-    return NextResponse.json({
-      ok: true,
-      debug: 'no-admin-client',
-      hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
-      hasServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
-      serviceKeyLen: process.env.SUPABASE_SERVICE_ROLE_KEY?.length ?? 0,
-      hasNodeEnv: Boolean(process.env.NODE_ENV),
-      hasBotToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
-      envKeyCount: Object.keys(process.env).length,
-    });
-  }
-
-  const { data: project, error } = await admin
-    .from('projects')
-    .update({ telegram_chat_id: chatId })
-    .eq('telegram_link_token', match[1])
-    .select('name')
-    .single();
-
-  if (project) {
-    await sendTelegramMessage(
-      chatId,
-      `Готово! Теперь сюда будут приходить ответы по «${project.name}» 💌`,
-    );
-  }
-
-  return NextResponse.json({ ok: true, debug: project ? 'linked' : 'no-project', error: error?.message });
+  const result = await linkTelegramChat(match[1], chatId);
+  return NextResponse.json({ ok: true, ...result });
 }
