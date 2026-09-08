@@ -2,6 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/shared/lib/supabase/admin';
 import { sendTelegramMessage } from '@/shared/lib/telegram';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Telegram calls this on every update once the webhook is registered (see
 // the setup instructions). The only thing we handle is `/start <token>` —
 // the deep link the owner opens from their editor (see
@@ -33,6 +36,9 @@ export async function POST(request: NextRequest) {
       hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
       hasServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
       serviceKeyLen: process.env.SUPABASE_SERVICE_ROLE_KEY?.length ?? 0,
+      hasNodeEnv: Boolean(process.env.NODE_ENV),
+      hasBotToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
+      envKeyCount: Object.keys(process.env).length,
     });
   }
 
