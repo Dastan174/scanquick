@@ -17,15 +17,18 @@ export async function POST(request: NextRequest) {
   const text: string | undefined = message?.text;
   const chatId: string | undefined = message?.chat?.id?.toString();
 
-  if (!text || !chatId) return NextResponse.json({ ok: true });
+  // TODO(debug): remove the `debug` field once the link flow is confirmed
+  // working end-to-end — it's here to see exactly where this bails out
+  // without needing Vercel log access.
+  if (!text || !chatId) return NextResponse.json({ ok: true, debug: 'no-text-or-chatid' });
 
   const match = text.match(/^\/start\s+([0-9a-f-]{36})$/i);
-  if (!match) return NextResponse.json({ ok: true });
+  if (!match) return NextResponse.json({ ok: true, debug: 'no-token-match', text });
 
   const admin = createAdminClient();
-  if (!admin) return NextResponse.json({ ok: true });
+  if (!admin) return NextResponse.json({ ok: true, debug: 'no-admin-client' });
 
-  const { data: project } = await admin
+  const { data: project, error } = await admin
     .from('projects')
     .update({ telegram_chat_id: chatId })
     .eq('telegram_link_token', match[1])
@@ -39,5 +42,5 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, debug: project ? 'linked' : 'no-project', error: error?.message });
 }
