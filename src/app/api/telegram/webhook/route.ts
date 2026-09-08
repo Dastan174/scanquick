@@ -26,5 +26,12 @@ export async function POST(request: NextRequest) {
   if (!match) return NextResponse.json({ ok: true, debug: 'no-token-match', text });
 
   const result = await linkTelegramChat(match[1], chatId);
-  return NextResponse.json({ ok: true, ...result });
+  return NextResponse.json({
+    ok: true,
+    ...result,
+    buildMarker: 'MARKER-9f3a21',
+    vercelEnv: process.env.VERCEL_ENV ?? null,
+    vercelUrl: process.env.VERCEL_URL ?? null,
+    region: process.env.VERCEL_REGION ?? null,
+  });
 }
