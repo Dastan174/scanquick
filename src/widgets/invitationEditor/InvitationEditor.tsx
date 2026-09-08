@@ -72,13 +72,23 @@ export default function InvitationEditor({ project, initialContent }: Invitation
   }, [content, project.slug]);
 
   const connectTelegram = async () => {
+    // Open the tab synchronously, in the same tick as the click, so browsers
+    // don't treat it as an unsolicited popup — then fill in the URL once the
+    // server action resolves. Opening `window.open(url)` only after an
+    // `await` loses the user-gesture association and gets silently blocked.
+    const win = window.open('', '_blank');
     setTelegramStatus('Открываю Telegram…');
     const result = await getMyProjectTelegramLink(project.id);
     if ('error' in result) {
       setTelegramStatus(result.error);
+      win?.close();
       return;
     }
-    window.open(result.url, '_blank', 'noopener,noreferrer');
+    if (win) {
+      win.location.href = result.url;
+    } else {
+      window.open(result.url, '_blank', 'noopener,noreferrer');
+    }
     setTelegramStatus('Нажмите "Start" в Telegram, затем вернитесь сюда.');
   };
 
