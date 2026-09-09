@@ -1,5 +1,12 @@
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@/shared/lib/supabase/server';
-import { templates, type Project, type ProjectStatus, type ProjectType } from '@/shared/lib/mockData';
+import { createPublicClient } from '@/shared/lib/supabase/public';
+import {
+  templates,
+  type Project,
+  type ProjectStatus,
+  type ProjectType,
+} from '@/shared/lib/mockData';
 
 interface ProjectRow {
   id: string;
@@ -92,15 +99,31 @@ interface ProjectWithContent {
   content: Record<string, unknown>;
 }
 
-export async function getPublishedProjectBySlug(slug: string): Promise<ProjectWithContent | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .single();
+// Cached for 45s so a viral QR (many anonymous scans of the same project in
+// a short window) doesn't hit the database on every single view. Uses the
+// cookie-free public client (see public.ts) since unstable_cache can't call
+// cookies()/headers() — fine here, published projects are publicly
+// readable regardless of who's asking. Owners see their own edits
+// immediately in the editor's live preview either way, which bypasses this
+// path entirely (see getProjectBySlugAnyStatus below); only the real
+// public page can lag behind a save by up to 45s.
+const getCachedPublishedProjectRow = unstable_cache(
+  async (slug: string): Promise<ProjectRow | null> => {
+    const supabase = createPublicClient();
+    const { data } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .single();
+    return data ?? null;
+  },
+  ['published-project-by-slug'],
+  { revalidate: 45 },
+);
 
+export async function getPublishedProjectBySlug(slug: string): Promise<ProjectWithContent | null> {
+  const data = await getCachedPublishedProjectRow(slug);
   return data ? { project: toProject(data), content: data.content ?? {} } : null;
 }
 
