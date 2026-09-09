@@ -61,7 +61,6 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const [projectName, setProjectName] = useState('');
   const [yourName, setYourName] = useState('');
   const [partnerName, setPartnerName] = useState('');
-  const [date, setDate] = useState('');
   const [templateId, setTemplateId] = useState(templates[0].id);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState('');
@@ -180,7 +179,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
       name: projectName,
       partnerA: yourName,
       partnerB: partnerName,
-      anniversaryDate: date,
+      anniversaryDate: '',
       templateId,
     });
     if (result.error || !result.id) {
@@ -680,11 +679,6 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 />
               </label>
             </div>
-
-            <label className={scss.field}>
-              {t.anniversaryDate} <span>{t.optional}</span>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-            </label>
 
             <div className={scss.stepActions}>
               <button className={scss.backBtn} onClick={() => setStep(2)}>
