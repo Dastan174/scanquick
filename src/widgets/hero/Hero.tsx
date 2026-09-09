@@ -48,7 +48,7 @@ export default async function Hero() {
           <div className={scss.phoneWrap}>
             <div className={scss.phone}>
               <div className={scss.screen}>
-                <Image src="/hero.png" alt="Love preview" fill sizes="325px" priority />
+                <Image src="/hero.webp" alt="Love preview" fill sizes="325px" priority />
               </div>
             </div>
             <div className={`${scss.floatCard} ${scss.floatTop}`}>

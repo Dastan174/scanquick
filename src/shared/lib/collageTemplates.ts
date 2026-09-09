@@ -40,7 +40,7 @@ export const COLLAGE_TEMPLATES: CollageTemplate[] = [
   {
     id: 'bold-love',
     label: 'Смелая любовь',
-    background: '/templates/template-love.png',
+    background: '/templates/template-love.webp',
     canvasWidth: 1080,
     canvasHeight: 1350,
     // Same measurement approach, but segmented by each shape's own fill

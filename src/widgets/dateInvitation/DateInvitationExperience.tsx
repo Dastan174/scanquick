@@ -17,7 +17,10 @@ function fillTemplate(text: string, date: string, time: string, activity: string
   return text.replace('{date}', date).replace('{time}', time).replace('{activity}', activity);
 }
 
-export default function DateInvitationExperience({ projectId, content }: DateInvitationExperienceProps) {
+export default function DateInvitationExperience({
+  projectId,
+  content,
+}: DateInvitationExperienceProps) {
   const [screen, setScreen] = useState<Screen>('question');
   const [noOffset, setNoOffset] = useState({ x: 0, y: 0 });
   const [activity, setActivity] = useState('');
@@ -46,7 +49,7 @@ export default function DateInvitationExperience({ projectId, content }: DateInv
               // eslint-disable-next-line @next/next/no-img-element
               <img src={content.questionImageUrl} alt="" className={scss.image} />
             ) : (
-              <Image src="/invite.png" alt="" width={140} height={140} priority />
+              <Image src="/invite.webp" alt="" width={140} height={140} priority />
             )}
             <h1>{content.questionTitle}</h1>
             <div className={scss.actions}>
@@ -67,7 +70,7 @@ export default function DateInvitationExperience({ projectId, content }: DateInv
 
         {screen === 'confirm' && (
           <>
-            <Image src="/excited.png" alt="" width={140} height={140} />
+            <Image src="/excited.webp" alt="" width={140} height={140} />
             <h1>{content.confirmTitle}</h1>
             <p>{content.confirmSubtitle}</p>
             <button className={scss.yesBtn} onClick={() => setScreen('activity')}>
@@ -127,7 +130,7 @@ export default function DateInvitationExperience({ projectId, content }: DateInv
 
         {screen === 'final' && (
           <>
-            <Image src="/hug.png" alt="" width={160} height={160} priority />
+            <Image src="/hug.webp" alt="" width={160} height={160} priority />
             <h1>{content.finalTitle}</h1>
             <p>{fillTemplate(content.finalDescription, date, time, activity)}</p>
           </>

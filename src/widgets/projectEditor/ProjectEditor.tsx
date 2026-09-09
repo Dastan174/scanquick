@@ -27,6 +27,11 @@ import {
   newCollageSectionId,
 } from '@/shared/lib/sectionLibrary';
 import {
+  COVER_TEMPLATES,
+  getCoverTemplate,
+  coverSlotAspectRatio,
+} from '@/shared/lib/coverTemplates';
+import {
   COLLAGE_TEMPLATES,
   getCollageTemplate,
   slotAspectRatio,
@@ -478,40 +483,60 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
           </div>
         </div>
 
-        {selected === 'cover' && (
-          <>
-            <PhotoSlot
-              projectId={project.id}
-              aspectRatio="9 / 16"
-              transform={
-                content.coverPhotoUrl
-                  ? {
-                      url: content.coverPhotoUrl,
-                      x: content.coverPhotoX,
-                      y: content.coverPhotoY,
-                      scale: content.coverPhotoScale,
-                    }
-                  : undefined
-              }
-              t={t.photoSlot}
-              onChange={(tr) =>
-                patch({
-                  coverPhotoUrl: tr.url,
-                  coverPhotoX: tr.x,
-                  coverPhotoY: tr.y,
-                  coverPhotoScale: tr.scale,
-                })
-              }
-            />
-            <label className={scss.field}>
-              {e.promptText}
-              <input
-                value={content.coverPromptText}
-                onChange={(ev) => patch({ coverPromptText: ev.target.value })}
-              />
-            </label>
-          </>
-        )}
+        {selected === 'cover' &&
+          (() => {
+            const coverTemplate = getCoverTemplate(content.coverTemplateId);
+            return (
+              <>
+                <label className={scss.field}>
+                  {e.coverStyle}
+                  <select
+                    value={content.coverTemplateId ?? ''}
+                    onChange={(ev) => patch({ coverTemplateId: ev.target.value || undefined })}
+                  >
+                    <option value="">{e.coverStylePlain}</option>
+                    {COVER_TEMPLATES.map((tpl) => (
+                      <option key={tpl.id} value={tpl.id}>
+                        {tpl.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <PhotoSlot
+                  projectId={project.id}
+                  aspectRatio={coverTemplate ? coverSlotAspectRatio(coverTemplate) : '9 / 16'}
+                  transform={
+                    content.coverPhotoUrl
+                      ? {
+                          url: content.coverPhotoUrl,
+                          x: content.coverPhotoX,
+                          y: content.coverPhotoY,
+                          scale: content.coverPhotoScale,
+                        }
+                      : undefined
+                  }
+                  t={t.photoSlot}
+                  onChange={(tr) =>
+                    patch({
+                      coverPhotoUrl: tr.url,
+                      coverPhotoX: tr.x,
+                      coverPhotoY: tr.y,
+                      coverPhotoScale: tr.scale,
+                    })
+                  }
+                />
+                {!coverTemplate && (
+                  <label className={scss.field}>
+                    {e.promptText}
+                    <input
+                      value={content.coverPromptText}
+                      onChange={(ev) => patch({ coverPromptText: ev.target.value })}
+                    />
+                  </label>
+                )}
+              </>
+            );
+          })()}
 
         {selected === 'music' && (
           <MusicUpload

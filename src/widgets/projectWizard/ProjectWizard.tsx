@@ -3,7 +3,16 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Cake, Camera, CalendarHeart, Check, CheckCircle2, ChevronLeft, Heart, Send } from 'lucide-react';
+import {
+  Cake,
+  Camera,
+  CalendarHeart,
+  Check,
+  CheckCircle2,
+  ChevronLeft,
+  Heart,
+  Send,
+} from 'lucide-react';
 import { templates } from '@/shared/lib/mockData';
 import {
   createProject,
@@ -15,6 +24,7 @@ import {
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import { compressImage } from '@/shared/lib/compressImage';
 import { demoLoveStoryContent } from '@/shared/lib/loveStoryContent';
+import { COVER_TEMPLATES } from '@/shared/lib/coverTemplates';
 import { demoInvitationContent, type InvitationContent } from '@/shared/lib/invitationContent';
 import TextListEditor from '@/widgets/projectEditor/TextListEditor';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
@@ -55,13 +65,15 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const [templateId, setTemplateId] = useState(templates[0].id);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState('');
+  const [coverTemplateId, setCoverTemplateId] = useState(demoLoveStoryContent.coverTemplateId);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [invitationId, setInvitationId] = useState('');
   const [invitationSlug, setInvitationSlug] = useState('');
-  const [invitationContent, setInvitationContent] = useState<InvitationContent>(demoInvitationContent);
+  const [invitationContent, setInvitationContent] =
+    useState<InvitationContent>(demoInvitationContent);
   const [invitationPreviewSrc, setInvitationPreviewSrc] = useState('');
   const [telegramStatus, setTelegramStatus] = useState('');
   const [telegramConnected, setTelegramConnected] = useState(false);
@@ -72,7 +84,8 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const isInvitation = siteType === INVITATION_INDEX;
   const totalSteps = isInvitation ? 8 : 4;
 
-  const patchInvitation = (fields: Partial<InvitationContent>) => setInvitationContent((c) => ({ ...c, ...fields }));
+  const patchInvitation = (fields: Partial<InvitationContent>) =>
+    setInvitationContent((c) => ({ ...c, ...fields }));
 
   // Once the recipient's name step is done we create the project right away
   // (draft, empty content) so the remaining steps can show a real live
@@ -176,14 +189,21 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
       return;
     }
 
+    let coverPhotoUrl: string | undefined;
     if (coverFile) {
       // A failed cover upload shouldn't block moving on — the project is
       // already created, and the photo can be added again from the editor.
       const compressed = await compressImage(coverFile);
       const upload = await uploadSectionPhoto(result.id, compressed);
-      if (upload.url) {
-        await updateProjectContent(result.id, { ...demoLoveStoryContent, coverPhotoUrl: upload.url });
-      }
+      coverPhotoUrl = upload.url;
+    }
+
+    if (coverPhotoUrl || coverTemplateId !== demoLoveStoryContent.coverTemplateId) {
+      await updateProjectContent(result.id, {
+        ...demoLoveStoryContent,
+        coverTemplateId,
+        ...(coverPhotoUrl ? { coverPhotoUrl } : {}),
+      });
     }
 
     router.push(`/projects/${result.id}/edit`);
@@ -585,7 +605,11 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
-              <button className={scss.continueBtn} onClick={finishInvitationContent} disabled={submitting}>
+              <button
+                className={scss.continueBtn}
+                onClick={finishInvitationContent}
+                disabled={submitting}
+              >
                 {submitting ? t.creating : t.openEditor}
               </button>
             </div>
@@ -682,6 +706,21 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           <div className={scss.step}>
             <h2>{t.coverStepTitle}</h2>
             <p>{t.coverStepDescr}</p>
+
+            <label className={scss.field}>
+              {t.coverStyle}
+              <select
+                value={coverTemplateId ?? ''}
+                onChange={(ev) => setCoverTemplateId(ev.target.value || undefined)}
+              >
+                <option value="">{t.coverStylePlain}</option>
+                {COVER_TEMPLATES.map((tpl) => (
+                  <option key={tpl.id} value={tpl.id}>
+                    {tpl.label}
+                  </option>
+                ))}
+              </select>
+            </label>
 
             <button
               type="button"

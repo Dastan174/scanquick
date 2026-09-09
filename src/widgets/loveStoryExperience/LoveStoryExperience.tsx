@@ -6,6 +6,7 @@ import { Heart, Mail, MessageCircle, Send } from 'lucide-react';
 import type { Project } from '@/shared/lib/mockData';
 import type { LoveStoryContent } from '@/shared/lib/loveStoryContent';
 import { sectionKindOf } from '@/shared/lib/sectionLibrary';
+import { getCoverTemplate } from '@/shared/lib/coverTemplates';
 import TypewriterText from './TypewriterText';
 import HoldHeart from './HoldHeart';
 import StoriesRow from './StoriesRow';
@@ -153,6 +154,8 @@ export default function LoveStoryExperience({
       }
     : { background: content.coverGradient };
 
+  const coverTemplate = getCoverTemplate(content.coverTemplateId);
+
   const renderSection = (id: string) => {
     switch (sectionKindOf(id)) {
       case 'typewriter':
@@ -244,16 +247,58 @@ export default function LoveStoryExperience({
       <audio ref={audioRef} loop preload="auto" muted src={content.musicUrl || '/music.mp3'} />
 
       {!opened ? (
-        <button
-          className={`${scss.cover} ${closing ? scss.coverClosing : ''}`}
-          style={coverStyle}
-          onClick={handleOpen}
-        >
-          <span className={scss.coverIcon}>
-            <Heart size={40} fill="currentColor" />
-          </span>
-          <span className={scss.coverText}>{content.coverPromptText}</span>
-        </button>
+        coverTemplate ? (
+          <button
+            type="button"
+            className={`${scss.coverTemplateWrap} ${closing ? scss.coverClosing : ''}`}
+            style={{ background: coverTemplate.backdropColor }}
+            onClick={handleOpen}
+          >
+            <div
+              className={scss.coverTemplateCard}
+              style={{
+                aspectRatio: `${coverTemplate.canvasWidth} / ${coverTemplate.canvasHeight}`,
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={coverTemplate.background} alt="" className={scss.coverTemplateBg} />
+              <div
+                className={scss.coverTemplateSlot}
+                style={{
+                  left: `${coverTemplate.slot.x}%`,
+                  top: `${coverTemplate.slot.y}%`,
+                  width: `${coverTemplate.slot.width}%`,
+                  height: `${coverTemplate.slot.height}%`,
+                }}
+              >
+                {content.coverPhotoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={content.coverPhotoUrl}
+                    alt=""
+                    className={scss.coverTemplateSlotImg}
+                    style={{
+                      objectPosition: `${content.coverPhotoX}% ${content.coverPhotoY}%`,
+                      transform: `scale(${content.coverPhotoScale})`,
+                      transformOrigin: `${content.coverPhotoX}% ${content.coverPhotoY}%`,
+                    }}
+                  />
+                ) : null}
+              </div>
+            </div>
+          </button>
+        ) : (
+          <button
+            className={`${scss.cover} ${closing ? scss.coverClosing : ''}`}
+            style={coverStyle}
+            onClick={handleOpen}
+          >
+            <span className={scss.coverIcon}>
+              <Heart size={40} fill="currentColor" />
+            </span>
+            <span className={scss.coverText}>{content.coverPromptText}</span>
+          </button>
+        )
       ) : (
         <div className={scss.content}>
           {content.sectionOrder.map((id) => (

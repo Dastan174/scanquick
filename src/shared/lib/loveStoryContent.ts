@@ -16,6 +16,10 @@ export interface CollageInstance {
 
 export interface LoveStoryContent {
   coverPromptText: string;
+  // Key into COVER_TEMPLATES (coverTemplates.ts) — a polaroid-style cover
+  // with the photo inset into a designed frame. Undefined keeps the
+  // original full-bleed photo/gradient cover below.
+  coverTemplateId?: string;
   coverPhotoUrl?: string;
   coverPhotoX: number;
   coverPhotoY: number;
@@ -66,7 +70,8 @@ export const DEFAULT_SECTION_ORDER = [
 ];
 
 export const demoLoveStoryContent: LoveStoryContent = {
-  coverPromptText: 'Нажми, чтобы открыть',
+  coverPromptText: 'Нажми на экран',
+  coverTemplateId: 'open-first',
   coverPhotoX: 50,
   coverPhotoY: 50,
   coverPhotoScale: 1,

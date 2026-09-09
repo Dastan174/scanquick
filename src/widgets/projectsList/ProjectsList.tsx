@@ -44,7 +44,13 @@ export default function ProjectsList({ projects, locale, t }: ProjectsListProps)
       <div className={scss.header}>
         <div>
           <h1>{p.title}</h1>
-          <p>{projectsCount(locale, projects.length, projects.filter((x) => x.status === 'published').length)}</p>
+          <p>
+            {projectsCount(
+              locale,
+              projects.length,
+              projects.filter((x) => x.status === 'published').length,
+            )}
+          </p>
         </div>
         <Link href="/projects/new" className={scss.newBtn}>
           {p.newProject}
@@ -73,7 +79,13 @@ export default function ProjectsList({ projects, locale, t }: ProjectsListProps)
 
       {projects.length === 0 ? (
         <div className={scss.emptyState}>
-          <Image src="/empty-box.png" alt="" width={120} height={120} className={scss.emptyImage} />
+          <Image
+            src="/empty-box.webp"
+            alt=""
+            width={120}
+            height={120}
+            className={scss.emptyImage}
+          />
           <strong>{p.emptyTitle}</strong>
           <p>{p.emptyDescr}</p>
           <Link href="/projects/new" className={scss.newBtn}>

@@ -22,9 +22,10 @@ export default async function ViewProjectPage({ params, searchParams }: ViewProj
   const { slug } = await params;
   const { preview, draft } = await searchParams;
 
-  const result = preview || draft
-    ? await getProjectBySlugAnyStatus(slug)
-    : await getPublishedProjectBySlug(slug);
+  const result =
+    preview || draft
+      ? await getProjectBySlugAnyStatus(slug)
+      : await getPublishedProjectBySlug(slug);
 
   if (!result) {
     const t = await getT();
@@ -43,7 +44,7 @@ export default async function ViewProjectPage({ params, searchParams }: ViewProj
           color: '#6b5b62',
         }}
       >
-        <Image src="/sad.png" alt="" width={140} height={140} priority />
+        <Image src="/sad.webp" alt="" width={140} height={140} priority />
         <p>{t.view.notAvailable}</p>
       </div>
     );
