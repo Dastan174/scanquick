@@ -13,42 +13,63 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 16px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
 .balloon {
   position: relative;
-  width: 64px;
-  height: 78px;
+  width: 72px;
+  height: 88px;
   border: none;
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  border-radius: 50% 50% 45% 55%;
   cursor: pointer;
-  animation: float 3.5s ease-in-out infinite;
-  box-shadow: inset -8px -8px 16px rgba(0, 0, 0, 0.15);
+  animation: float 4s ease-in-out infinite;
+  box-shadow:
+    inset -10px -14px 18px rgba(0, 0, 0, 0.22),
+    inset 8px 10px 16px rgba(255, 255, 255, 0.4),
+    0 10px 18px rgba(0, 0, 0, 0.16);
+  transition: transform 0.2s ease;
+}
+
+.balloon:hover {
+  transform: scale(1.05);
+}
+
+.balloon:nth-child(2n) {
+  animation-duration: 4.6s;
+  animation-delay: 0.3s;
+}
+
+.balloon:nth-child(3n) {
+  animation-duration: 3.4s;
+  animation-delay: 0.6s;
 }
 
 @keyframes float {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(0deg);
   }
   50% {
-    transform: translateY(-14px);
+    transform: translateY(-14px) rotate(2deg);
   }
 }
 
 .string {
   position: absolute;
-  bottom: -20px;
+  bottom: -22px;
   left: 50%;
   width: 1px;
-  height: 20px;
+  height: 22px;
   background: var(--color-gray-400);
+  opacity: 0.7;
+  transform: translateX(-50%) rotate(3deg);
+  transform-origin: top;
 }
 
 .popped {
-  animation: none;
+  animation: pop 0.35s ease-out forwards;
   width: 120px;
   height: auto;
   min-height: 78px;
@@ -59,6 +80,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .offerText {
