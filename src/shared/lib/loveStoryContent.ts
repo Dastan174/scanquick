@@ -62,6 +62,7 @@ export const DEFAULT_SECTION_ORDER = [
   DEFAULT_COLLAGE_SECTION_ID,
   'quotes',
   'holdHeart',
+  'balloons',
 ];
 
 export const demoLoveStoryContent: LoveStoryContent = {
