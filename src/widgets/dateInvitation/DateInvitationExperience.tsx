@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Heart } from 'lucide-react';
 import type { InvitationContent } from '@/shared/lib/invitationContent';
 import { submitInvitationResponse } from '@/app/(admin)/projects/actions';
@@ -105,7 +106,7 @@ export default function DateInvitationExperience({ projectId, content }: DateInv
 
         {screen === 'final' && (
           <>
-            <Heart size={56} className={scss.heartIcon} fill="currentColor" />
+            <Image src="/hug.png" alt="" width={160} height={160} priority />
             <h1>{content.finalTitle}</h1>
             <p>{fillTemplate(content.finalDescription, date, time)}</p>
           </>

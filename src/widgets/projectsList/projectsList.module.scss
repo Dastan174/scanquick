@@ -211,9 +211,8 @@
   border: 1px dashed var(--color-border);
   border-radius: var(--card-radius);
 
-  > span {
-    font-size: var(--text-3xl);
-    color: var(--color-primary);
+  .emptyImage {
+    object-fit: contain;
   }
 
   strong {
