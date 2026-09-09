@@ -52,16 +52,16 @@ export interface LoveStoryContent {
   collages: Record<string, CollageInstance>;
 }
 
+// A new project starts with just this small set — everything else (chat,
+// instagram post, photo reveal, balloons, video...) stays available to add
+// from the editor's "+" menu instead of showing up pre-filled.
+export const DEFAULT_COLLAGE_SECTION_ID = 'collage-default';
+
 export const DEFAULT_SECTION_ORDER = [
   'typewriter',
-  'holdHeart',
-  'stories',
-  'instagram',
-  'photoReveal',
-  'chat',
+  DEFAULT_COLLAGE_SECTION_ID,
   'quotes',
-  'balloons',
-  'video',
+  'holdHeart',
 ];
 
 export const demoLoveStoryContent: LoveStoryContent = {
@@ -116,5 +116,8 @@ export const demoLoveStoryContent: LoveStoryContent = {
   ],
   sectionOrder: DEFAULT_SECTION_ORDER,
   photos: {},
-  collages: {},
+  collages: {
+    // 'polaroid-duo' is COLLAGE_TEMPLATES[0] in collageTemplates.ts — Два полароида.
+    [DEFAULT_COLLAGE_SECTION_ID]: { templateId: 'polaroid-duo', photos: {} },
+  },
 };
