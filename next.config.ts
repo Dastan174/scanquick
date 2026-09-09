@@ -1,6 +1,10 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Used server-side to bake the watermark into downloadable QR codes (see
+  // src/shared/lib/qrComposite.ts) — has native bindings, so it must stay
+  // external rather than get bundled.
+  serverExternalPackages: ['sharp'],
   experimental: {
     serverActions: {
       // Server Actions default to a 1MB body limit — too small for the

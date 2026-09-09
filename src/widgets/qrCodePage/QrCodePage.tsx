@@ -17,6 +17,7 @@ import type { Project } from '@/shared/lib/mockData';
 import { getT, getLocale } from '@/shared/lib/i18n/locale';
 import { qrSubtitle } from '@/shared/lib/i18n/format';
 import { getSiteUrl } from '@/shared/lib/siteUrl';
+import { buildQrCompositeSvg, qrCompositeToPngBuffer } from '@/shared/lib/qrComposite';
 import scss from './qrCodePage.module.scss';
 
 // Dark modules on a transparent background, so the white qrGrid panel shows
@@ -63,11 +64,31 @@ export default async function QrCodePage({ project }: { project: Project }) {
   const targetUrl = project.slug ? `${getSiteUrl()}/view/${project.slug}` : null;
   const [pngDataUrl, svgMarkup] = targetUrl
     ? await Promise.all([
-        QRCode.toDataURL(targetUrl, { errorCorrectionLevel: 'H', margin: 1, width: 512, color: QR_COLOR }),
-        QRCode.toString(targetUrl, { type: 'svg', errorCorrectionLevel: 'H', margin: 1, color: QR_COLOR }),
+        QRCode.toDataURL(targetUrl, {
+          errorCorrectionLevel: 'H',
+          margin: 1,
+          width: 512,
+          color: QR_COLOR,
+        }),
+        QRCode.toString(targetUrl, {
+          type: 'svg',
+          errorCorrectionLevel: 'H',
+          margin: 1,
+          color: QR_COLOR,
+        }),
       ])
     : [null, null];
-  const svgDataUrl = svgMarkup ? `data:image/svg+xml;utf8,${encodeURIComponent(svgMarkup)}` : null;
+
+  // The downloaded files carry the same frame/heart/watermark as the page's
+  // decorated preview (which does it with CSS) baked into the pixels/markup,
+  // so the branding survives once the QR leaves the app.
+  const compositeSvg = svgMarkup ? buildQrCompositeSvg(svgMarkup) : null;
+  const compositeSvgDataUrl = compositeSvg
+    ? `data:image/svg+xml;utf8,${encodeURIComponent(compositeSvg)}`
+    : null;
+  const compositePngDataUrl = compositeSvg
+    ? `data:image/png;base64,${(await qrCompositeToPngBuffer(compositeSvg)).toString('base64')}`
+    : null;
 
   return (
     <div className={scss.page}>
@@ -91,12 +112,16 @@ export default async function QrCodePage({ project }: { project: Project }) {
       <div className={scss.grid}>
         <div className={scss.qrCard}>
           <span className={scss.liveTag}>{t.liveTag}</span>
-          {pngDataUrl ? <QrArt pngDataUrl={pngDataUrl} /> : <p className={scss.noSlug}>{t.noSlug}</p>}
+          {pngDataUrl ? (
+            <QrArt pngDataUrl={pngDataUrl} />
+          ) : (
+            <p className={scss.noSlug}>{t.noSlug}</p>
+          )}
           <p>{t.livesAt}</p>
           <strong>{targetUrl ? targetUrl.replace(/^https?:\/\//, '') : '—'}</strong>
           <div className={scss.downloads}>
-            {pngDataUrl ? (
-              <a href={pngDataUrl} download={`${project.slug}-qr.png`}>
+            {compositePngDataUrl ? (
+              <a href={compositePngDataUrl} download={`${project.slug}-qr.png`}>
                 <Download size={14} />
                 {t.downloadPng}
               </a>
@@ -106,8 +131,8 @@ export default async function QrCodePage({ project }: { project: Project }) {
                 {t.downloadPng}
               </button>
             )}
-            {svgDataUrl ? (
-              <a href={svgDataUrl} download={`${project.slug}-qr.svg`}>
+            {compositeSvgDataUrl ? (
+              <a href={compositeSvgDataUrl} download={`${project.slug}-qr.svg`}>
                 <Download size={14} />
                 {t.downloadSvg}
               </a>
@@ -141,7 +166,12 @@ export default async function QrCodePage({ project }: { project: Project }) {
           <div className={scss.analyticsCard}>
             <h2>{t.scanAnalytics}</h2>
             <div className={scss.statsGrid}>
-              <StatCard label={t.statTotalScans} icon={Link2} value={String(project.scans)} delta="" />
+              <StatCard
+                label={t.statTotalScans}
+                icon={Link2}
+                value={String(project.scans)}
+                delta=""
+              />
               <StatCard label={t.statThisWeek} icon={TrendingUp} value="42" delta="" />
               <StatCard label={t.statCountries} icon={Globe} value="8" delta="" />
               <StatCard label={t.statAvgTime} icon={Clock} value="4:32" delta="" />
