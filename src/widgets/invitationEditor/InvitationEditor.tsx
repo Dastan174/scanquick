@@ -2,13 +2,22 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Check, CheckCircle2, ChevronLeft, Eye, QrCode, Send, Settings as SettingsIcon } from 'lucide-react';
+import {
+  Check,
+  CheckCircle2,
+  ChevronLeft,
+  Eye,
+  QrCode,
+  Send,
+  Settings as SettingsIcon,
+} from 'lucide-react';
 import type { Project } from '@/shared/lib/mockData';
 import { demoInvitationContent, type InvitationContent } from '@/shared/lib/invitationContent';
 import {
   updateInvitationContent,
   getMyProjectTelegramLink,
   getMyProjectTelegramStatus,
+  setProjectStatus,
 } from '@/app/(admin)/projects/actions';
 import PhoneFrame from '@/shared/ui/phoneFrame/PhoneFrame';
 import TextListEditor from '../projectEditor/TextListEditor';
@@ -25,6 +34,7 @@ export default function InvitationEditor({ project, initialContent }: Invitation
     ...(initialContent ?? {}),
   });
   const [saveState, setSaveState] = useState<'saved' | 'dirty' | 'saving'>('saved');
+  const [status, setStatus] = useState(project.status);
   const [telegramStatus, setTelegramStatus] = useState('');
   const [telegramConnected, setTelegramConnected] = useState(Boolean(project.telegramChatId));
   const [previewSrc, setPreviewSrc] = useState(
@@ -72,10 +82,21 @@ export default function InvitationEditor({ project, initialContent }: Invitation
   // instead of the admin page's — same reasoning as ProjectEditor's preview.
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setPreviewSrc(`/view/${project.slug}?preview=${encodeURIComponent(JSON.stringify(content))}&draft=1`);
+      setPreviewSrc(
+        `/view/${project.slug}?preview=${encodeURIComponent(JSON.stringify(content))}&draft=1`,
+      );
     }, 500);
     return () => window.clearTimeout(timer);
   }, [content, project.slug]);
+
+  // Getting the QR code only makes sense once the site is actually live for
+  // whoever scans it, so publish it right away instead of making the owner
+  // remember to flip the toggle in Settings first.
+  const handleGetQr = () => {
+    if (status === 'published') return;
+    setStatus('published');
+    setProjectStatus(project.id, 'published');
+  };
 
   const connectTelegram = async () => {
     // Open the tab synchronously, in the same tick as the click, so browsers
@@ -147,7 +168,10 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           <strong style={{ display: 'block', marginBottom: 12 }}>Экран подтверждения</strong>
           <label className={scss.field}>
             Заголовок
-            <input value={content.confirmTitle} onChange={(e) => patch({ confirmTitle: e.target.value })} />
+            <input
+              value={content.confirmTitle}
+              onChange={(e) => patch({ confirmTitle: e.target.value })}
+            />
           </label>
           <label className={scss.field}>
             Подзаголовок
@@ -244,7 +268,10 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           <strong style={{ display: 'block', marginBottom: 12 }}>Финальный экран</strong>
           <label className={scss.field}>
             Заголовок
-            <input value={content.finalTitle} onChange={(e) => patch({ finalTitle: e.target.value })} />
+            <input
+              value={content.finalTitle}
+              onChange={(e) => patch({ finalTitle: e.target.value })}
+            />
           </label>
           <label className={scss.field}>
             Описание
@@ -265,7 +292,14 @@ export default function InvitationEditor({ project, initialContent }: Invitation
             Когда получатель ответит, вы получите сообщение от бота.
           </p>
           {telegramConnected ? (
-            <p style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--color-success)' }}>
+            <p
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                color: 'var(--color-success)',
+              }}
+            >
               <CheckCircle2 size={16} />
               Telegram подключён
             </p>
@@ -294,7 +328,11 @@ export default function InvitationEditor({ project, initialContent }: Invitation
             <h1>{project.name}</h1>
           </div>
           <div className={scss.headerActions}>
-            <Link href={`/projects/${project.id}/preview`} target="_blank" rel="noopener noreferrer">
+            <Link
+              href={`/projects/${project.id}/preview`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Eye size={14} />
               Просмотр
             </Link>
@@ -302,19 +340,28 @@ export default function InvitationEditor({ project, initialContent }: Invitation
               <SettingsIcon size={14} />
               Настройки
             </Link>
-            <Link href={`/projects/${project.id}/qr`} className={scss.qrBtn}>
+            <Link href={`/projects/${project.id}/qr`} className={scss.qrBtn} onClick={handleGetQr}>
               <QrCode size={14} />
               Ваш QR-код
             </Link>
             <button className={scss.saveBtn} onClick={persist} disabled={saveState !== 'dirty'}>
               {saveState === 'saved' && <Check size={14} />}
-              {saveState === 'saving' ? 'Сохранение…' : saveState === 'saved' ? 'Сохранено' : 'Сохранить'}
+              {saveState === 'saving'
+                ? 'Сохранение…'
+                : saveState === 'saved'
+                  ? 'Сохранено'
+                  : 'Сохранить'}
             </button>
           </div>
         </div>
         <div className={scss.stage}>
           <PhoneFrame>
-            <iframe key={project.id} src={previewSrc} className={scss.previewFrame} title="Live preview" />
+            <iframe
+              key={project.id}
+              src={previewSrc}
+              className={scss.previewFrame}
+              title="Live preview"
+            />
           </PhoneFrame>
         </div>
       </div>

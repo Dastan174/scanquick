@@ -26,8 +26,12 @@ import {
   newDividerSectionId,
   newCollageSectionId,
 } from '@/shared/lib/sectionLibrary';
-import { COLLAGE_TEMPLATES, getCollageTemplate, slotAspectRatio } from '@/shared/lib/collageTemplates';
-import { updateProjectContent } from '@/app/(admin)/projects/actions';
+import {
+  COLLAGE_TEMPLATES,
+  getCollageTemplate,
+  slotAspectRatio,
+} from '@/shared/lib/collageTemplates';
+import { updateProjectContent, setProjectStatus } from '@/app/(admin)/projects/actions';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import type { Locale } from '@/shared/lib/i18n/shared';
 import { storyLabel } from '@/shared/lib/i18n/format';
@@ -54,6 +58,7 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
   const [selected, setSelected] = useState(content.sectionOrder[0] ?? 'typewriter');
   const [previewContent, setPreviewContent] = useState(content);
   const [saveState, setSaveState] = useState<'saved' | 'dirty' | 'saving'>('saved');
+  const [status, setStatus] = useState(project.status);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
@@ -119,7 +124,8 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
   }, [selected]);
 
   const [previewSrc] = useState(
-    () => `/view/${project.slug ?? project.id}?preview=${encodeURIComponent(JSON.stringify(content))}`,
+    () =>
+      `/view/${project.slug ?? project.id}?preview=${encodeURIComponent(JSON.stringify(content))}`,
   );
 
   const patch = (fields: Partial<LoveStoryContent>) => {
@@ -188,6 +194,15 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
     persist();
   };
 
+  // Getting the QR code only makes sense once the site is actually live for
+  // whoever scans it, so publish it right away instead of making the owner
+  // remember to flip the toggle in Settings first.
+  const handleGetQr = () => {
+    if (status === 'published') return;
+    setStatus('published');
+    setProjectStatus(project.id, 'published');
+  };
+
   const addSection = (kind: string, collageTemplateId?: string) => {
     const id =
       kind === 'photo'
@@ -252,7 +267,8 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
     (k) => k.repeatable || !content.sectionOrder.includes(k.kind),
   );
 
-  const selectedMeta = selected && selected !== 'cover' && selected !== 'music' ? localizedMeta(selected) : null;
+  const selectedMeta =
+    selected && selected !== 'cover' && selected !== 'music' ? localizedMeta(selected) : null;
 
   return (
     <div className={scss.editor}>
@@ -370,12 +386,16 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
           </Link>
           <div className={scss.titleRow}>
             <h1>{project.name}</h1>
-            <Badge label={project.status === 'published' ? t.common.published : t.common.draft}>
-              {project.status}
+            <Badge label={status === 'published' ? t.common.published : t.common.draft}>
+              {status}
             </Badge>
           </div>
           <div className={scss.headerActions}>
-            <Link href={`/projects/${project.id}/preview`} target="_blank" rel="noopener noreferrer">
+            <Link
+              href={`/projects/${project.id}/preview`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Eye size={14} />
               {t.common.preview}
             </Link>
@@ -383,7 +403,7 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
               <SettingsIcon size={14} />
               {t.common.settings}
             </Link>
-            <Link href={`/projects/${project.id}/qr`} className={scss.qrBtn}>
+            <Link href={`/projects/${project.id}/qr`} className={scss.qrBtn} onClick={handleGetQr}>
               <QrCode size={14} />
               {t.qrCodePage.title}
             </Link>
@@ -393,7 +413,11 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
               disabled={saveState === 'saving' || saveState === 'saved'}
             >
               {saveState === 'saved' && <Check size={14} />}
-              {saveState === 'saving' ? t.common.saving : saveState === 'saved' ? t.common.saved : t.common.save}
+              {saveState === 'saving'
+                ? t.common.saving
+                : saveState === 'saved'
+                  ? t.common.saved
+                  : t.common.save}
             </button>
           </div>
         </div>
@@ -404,7 +428,9 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
           {t.common.preview}
         </button>
 
-        {previewOpen && <div className={scss.previewBackdrop} onClick={() => setPreviewOpen(false)} />}
+        {previewOpen && (
+          <div className={scss.previewBackdrop} onClick={() => setPreviewOpen(false)} />
+        )}
 
         <div className={`${scss.stage} ${previewOpen ? scss.stageOpen : ''}`}>
           <button
@@ -441,7 +467,13 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
             )}
           </span>
           <div>
-            <strong>{selected === 'cover' ? e.cover : selected === 'music' ? e.music : (selectedMeta?.label ?? '')}</strong>
+            <strong>
+              {selected === 'cover'
+                ? e.cover
+                : selected === 'music'
+                  ? e.music
+                  : (selectedMeta?.label ?? '')}
+            </strong>
             <span>{e.propertiesSettings}</span>
           </div>
         </div>
@@ -533,7 +565,10 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
                 />
                 <label className={scss.field}>
                   {storyLabel(locale, i + 1)}
-                  <input value={story.label} onChange={(ev) => updateStoryLabel(i, ev.target.value)} />
+                  <input
+                    value={story.label}
+                    onChange={(ev) => updateStoryLabel(i, ev.target.value)}
+                  />
                 </label>
               </div>
             ))}
@@ -669,7 +704,9 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
                     {e.collageDesign}
                     <select
                       value={instance.templateId}
-                      onChange={(ev) => updateCollage(selected, { ...instance, templateId: ev.target.value })}
+                      onChange={(ev) =>
+                        updateCollage(selected, { ...instance, templateId: ev.target.value })
+                      }
                     >
                       {COLLAGE_TEMPLATES.map((tpl) => (
                         <option key={tpl.id} value={tpl.id}>
