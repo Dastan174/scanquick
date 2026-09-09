@@ -1,4 +1,4 @@
-import { HeartCrack } from 'lucide-react';
+import Image from 'next/image';
 import LoveStoryExperience from '@/widgets/loveStoryExperience/LoveStoryExperience';
 import DateInvitationExperience from '@/widgets/dateInvitation/DateInvitationExperience';
 import {
@@ -43,7 +43,7 @@ export default async function ViewProjectPage({ params, searchParams }: ViewProj
           color: '#6b5b62',
         }}
       >
-        <HeartCrack size={36} color="#d4607a" />
+        <Image src="/sad.png" alt="" width={140} height={140} priority />
         <p>{t.view.notAvailable}</p>
       </div>
     );
