@@ -34,7 +34,10 @@ export interface CreateProjectInput {
 
 export async function createProject(
   input: CreateProjectInput,
-): Promise<{ id: string; error?: undefined } | { id?: undefined; error: string }> {
+): Promise<
+  | { id: string; slug: string; error?: undefined }
+  | { id?: undefined; slug?: undefined; error: string }
+> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -58,14 +61,14 @@ export async function createProject(
       status: 'draft',
       content: {},
     })
-    .select('id')
+    .select('id, slug')
     .single();
 
   if (error || !data) return { error: error?.message ?? 'Could not create the project.' };
 
   revalidatePath('/dashboard');
   revalidatePath('/projects');
-  return { id: data.id as string };
+  return { id: data.id as string, slug: data.slug as string };
 }
 
 export async function updateProjectContent(id: string, content: LoveStoryContent) {

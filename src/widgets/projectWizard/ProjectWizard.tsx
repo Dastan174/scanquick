@@ -1,18 +1,30 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Cake, Camera, CalendarHeart, Check, ChevronLeft, Heart } from 'lucide-react';
 import { templates } from '@/shared/lib/mockData';
-import { createProject, updateProjectContent } from '@/app/(admin)/projects/actions';
+import { createProject, updateProjectContent, updateInvitationContent } from '@/app/(admin)/projects/actions';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import { compressImage } from '@/shared/lib/compressImage';
 import { demoLoveStoryContent } from '@/shared/lib/loveStoryContent';
+import { demoInvitationContent, type InvitationContent } from '@/shared/lib/invitationContent';
+import TextListEditor from '@/widgets/projectEditor/TextListEditor';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import type { Locale } from '@/shared/lib/i18n/shared';
 import { stepLabel } from '@/shared/lib/i18n/format';
 import scss from './projectWizard.module.scss';
+
+// Steps 3-7 (the invitation content screens) aren't localized — same as
+// InvitationEditor.tsx, this feature is Russian-only for now.
+const INVITATION_STEP_HEADINGS: Record<number, { title: string; em: string }> = {
+  3: { title: 'Первый', em: 'вопрос' },
+  4: { title: 'Экран', em: 'подтверждения' },
+  5: { title: 'Куда', em: 'сходим' },
+  6: { title: 'Дата', em: 'и время' },
+  7: { title: 'Финальный', em: 'экран' },
+};
 
 interface ProjectWizardProps {
   locale: Locale;
@@ -40,13 +52,28 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [invitationId, setInvitationId] = useState('');
+  const [invitationSlug, setInvitationSlug] = useState('');
+  const [invitationContent, setInvitationContent] = useState<InvitationContent>(demoInvitationContent);
+  const [invitationPreviewSrc, setInvitationPreviewSrc] = useState('');
+
   const namesLabel = yourName && partnerName ? `${yourName} & ${partnerName}` : t.namesPlaceholder;
   const activeTemplate = templates.find((tp) => tp.id === templateId) ?? templates[0];
   const canContinueNames = projectName.trim() && yourName.trim() && partnerName.trim();
   const isInvitation = siteType === INVITATION_INDEX;
-  const totalSteps = isInvitation ? 2 : 4;
+  const totalSteps = isInvitation ? 7 : 4;
 
-  const finishInvitation = async () => {
+  const patchInvitation = (fields: Partial<InvitationContent>) => setInvitationContent((c) => ({ ...c, ...fields }));
+
+  // Once the recipient's name step is done we create the project right away
+  // (draft, empty content) so the remaining steps can show a real live
+  // preview via the same /view/[slug]?preview= iframe trick InvitationEditor
+  // uses — 100vh inside the preview needs a real iframe to size correctly.
+  const continueFromNames = async () => {
+    if (invitationId) {
+      setStep(3);
+      return;
+    }
     setSubmitting(true);
     setError('');
     const result = await createProject({
@@ -57,12 +84,36 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
       templateId: templates[0].id,
       type: 'invitation',
     });
+    setSubmitting(false);
     if (result.error || !result.id) {
-      setSubmitting(false);
       setError(result.error ?? t.errorFallback);
       return;
     }
-    router.push(`/projects/${result.id}/edit`);
+    setInvitationId(result.id);
+    setInvitationSlug(result.slug);
+    setStep(3);
+  };
+
+  useEffect(() => {
+    if (!invitationSlug) return;
+    const timer = window.setTimeout(() => {
+      setInvitationPreviewSrc(
+        `/view/${invitationSlug}?preview=${encodeURIComponent(JSON.stringify(invitationContent))}&draft=1`,
+      );
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [invitationContent, invitationSlug]);
+
+  const finishInvitationContent = async () => {
+    setSubmitting(true);
+    setError('');
+    const result = await updateInvitationContent(invitationId, invitationContent);
+    setSubmitting(false);
+    if ('error' in result) {
+      setError(result.error ?? t.errorFallback);
+      return;
+    }
+    router.push(`/projects/${invitationId}/edit`);
   };
 
   const finish = async () => {
@@ -115,7 +166,13 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
         </div>
         <span className={scss.stepLabel}>{stepLabel(locale, step, totalSteps)}</span>
         <h1>
-          {isInvitation && step === 2 ? (
+          {isInvitation && step >= 3 ? (
+            <>
+              {INVITATION_STEP_HEADINGS[step].title}
+              <br />
+              <em>{INVITATION_STEP_HEADINGS[step].em}</em>
+            </>
+          ) : isInvitation && step === 2 ? (
             <>
               {t.stepTitles[2].title}
               <br />
@@ -130,9 +187,20 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           )}
         </h1>
 
-        <div className={scss.phone} style={{ background: activeTemplate.gradient }}>
-          <span>{namesLabel}</span>
-        </div>
+        {isInvitation && step >= 3 && invitationPreviewSrc ? (
+          <div className={scss.invitationFrame}>
+            <iframe
+              key={invitationSlug}
+              src={invitationPreviewSrc}
+              className={scss.invitationPreviewFrame}
+              title="Live preview"
+            />
+          </div>
+        ) : (
+          <div className={scss.phone} style={{ background: activeTemplate.gradient }}>
+            <span>{namesLabel}</span>
+          </div>
+        )}
         <p className={scss.livePreview}>{t.livePreview}</p>
       </div>
 
@@ -219,8 +287,229 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
               <button
                 className={scss.continueBtn}
                 disabled={!canContinueNames || submitting}
-                onClick={finishInvitation}
+                onClick={continueFromNames}
               >
+                {submitting ? t.creating : t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && isInvitation && (
+          <div className={scss.step}>
+            <h2>Экран «Да / Нет»</h2>
+            <p>Первый вопрос, который увидит получатель</p>
+
+            <label className={scss.field}>
+              Заголовок
+              <input
+                value={invitationContent.questionTitle}
+                onChange={(e) => patchInvitation({ questionTitle: e.target.value })}
+              />
+            </label>
+            <div className={scss.fieldRow}>
+              <label className={scss.field}>
+                Кнопка «Да»
+                <input
+                  value={invitationContent.yesLabel}
+                  onChange={(e) => patchInvitation({ yesLabel: e.target.value })}
+                />
+              </label>
+              <label className={scss.field}>
+                Кнопка «Нет»
+                <input
+                  value={invitationContent.noLabel}
+                  onChange={(e) => patchInvitation({ noLabel: e.target.value })}
+                />
+              </label>
+            </div>
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(2)}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button className={scss.continueBtn} onClick={() => setStep(4)}>
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && isInvitation && (
+          <div className={scss.step}>
+            <h2>Экран подтверждения</h2>
+            <p>Показывается сразу после «Да»</p>
+
+            <label className={scss.field}>
+              Заголовок
+              <input
+                value={invitationContent.confirmTitle}
+                onChange={(e) => patchInvitation({ confirmTitle: e.target.value })}
+              />
+            </label>
+            <label className={scss.field}>
+              Подзаголовок
+              <input
+                value={invitationContent.confirmSubtitle}
+                onChange={(e) => patchInvitation({ confirmSubtitle: e.target.value })}
+              />
+            </label>
+            <label className={scss.field}>
+              Текст кнопки
+              <input
+                value={invitationContent.confirmButtonLabel}
+                onChange={(e) => patchInvitation({ confirmButtonLabel: e.target.value })}
+              />
+            </label>
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(3)}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button className={scss.continueBtn} onClick={() => setStep(5)}>
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 5 && isInvitation && (
+          <div className={scss.step}>
+            <h2>Куда сходим</h2>
+            <p>Получатель выберет один из вариантов</p>
+
+            <label className={scss.field}>
+              Заголовок экрана
+              <input
+                value={invitationContent.activityQuestionTitle}
+                onChange={(e) => patchInvitation({ activityQuestionTitle: e.target.value })}
+              />
+            </label>
+            <label className={scss.field}>
+              Варианты
+              <TextListEditor
+                items={invitationContent.activityOptions}
+                onChange={(items) => patchInvitation({ activityOptions: items })}
+                addLabel="Добавить вариант"
+                removeLabel="Удалить вариант"
+              />
+            </label>
+            <label className={scss.field}>
+              Текст кнопки
+              <input
+                value={invitationContent.activityButtonLabel}
+                onChange={(e) => patchInvitation({ activityButtonLabel: e.target.value })}
+              />
+            </label>
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(4)}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button className={scss.continueBtn} onClick={() => setStep(6)}>
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 6 && isInvitation && (
+          <div className={scss.step}>
+            <h2>Дата и время</h2>
+            <p>Кто выбирает, когда встретиться</p>
+
+            <label className={scss.field}>
+              Кто выбирает дату и время
+              <select
+                value={invitationContent.dateMode}
+                onChange={(e) =>
+                  patchInvitation({ dateMode: e.target.value as InvitationContent['dateMode'] })
+                }
+              >
+                <option value="recipient">Пусть выберет получатель</option>
+                <option value="fixed">Укажу сам</option>
+              </select>
+            </label>
+            {invitationContent.dateMode === 'fixed' && (
+              <div className={scss.fieldRow}>
+                <label className={scss.field}>
+                  Дата
+                  <input
+                    type="date"
+                    value={invitationContent.fixedDate ?? ''}
+                    onChange={(e) => patchInvitation({ fixedDate: e.target.value })}
+                  />
+                </label>
+                <label className={scss.field}>
+                  Время
+                  <input
+                    type="time"
+                    value={invitationContent.fixedTime ?? ''}
+                    onChange={(e) => patchInvitation({ fixedTime: e.target.value })}
+                  />
+                </label>
+              </div>
+            )}
+            <label className={scss.field}>
+              Заголовок экрана
+              <input
+                value={invitationContent.dateQuestionTitle}
+                onChange={(e) => patchInvitation({ dateQuestionTitle: e.target.value })}
+              />
+            </label>
+            <label className={scss.field}>
+              Текст кнопки
+              <input
+                value={invitationContent.dateButtonLabel}
+                onChange={(e) => patchInvitation({ dateButtonLabel: e.target.value })}
+              />
+            </label>
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(5)}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button className={scss.continueBtn} onClick={() => setStep(7)}>
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 7 && isInvitation && (
+          <div className={scss.step}>
+            <h2>Финальный экран</h2>
+            <p>Покажется после ответа получателя</p>
+
+            <label className={scss.field}>
+              Заголовок
+              <input
+                value={invitationContent.finalTitle}
+                onChange={(e) => patchInvitation({ finalTitle: e.target.value })}
+              />
+            </label>
+            <label className={scss.field}>
+              Описание
+              <textarea
+                rows={2}
+                value={invitationContent.finalDescription}
+                onChange={(e) => patchInvitation({ finalDescription: e.target.value })}
+              />
+              <span>{'{date}, {time} и {activity} подставятся автоматически'}</span>
+            </label>
+
+            {error && <div className={scss.error}>{error}</div>}
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(6)} disabled={submitting}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button className={scss.continueBtn} onClick={finishInvitationContent} disabled={submitting}>
                 {submitting ? t.creating : t.openEditor}
               </button>
             </div>
@@ -313,7 +602,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           </div>
         )}
 
-        {step === 4 && (
+        {step === 4 && !isInvitation && (
           <div className={scss.step}>
             <h2>{t.coverStepTitle}</h2>
             <p>{t.coverStepDescr}</p>
