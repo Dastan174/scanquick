@@ -3,9 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Cake, Camera, CalendarHeart, Check, ChevronLeft, Heart } from 'lucide-react';
+import { Cake, Camera, CalendarHeart, Check, ChevronLeft, Heart, Send } from 'lucide-react';
 import { templates } from '@/shared/lib/mockData';
-import { createProject, updateProjectContent, updateInvitationContent } from '@/app/(admin)/projects/actions';
+import {
+  createProject,
+  updateProjectContent,
+  updateInvitationContent,
+  getMyProjectTelegramLink,
+} from '@/app/(admin)/projects/actions';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import { compressImage } from '@/shared/lib/compressImage';
 import { demoLoveStoryContent } from '@/shared/lib/loveStoryContent';
@@ -16,7 +21,7 @@ import type { Locale } from '@/shared/lib/i18n/shared';
 import { stepLabel } from '@/shared/lib/i18n/format';
 import scss from './projectWizard.module.scss';
 
-// Steps 3-7 (the invitation content screens) aren't localized — same as
+// Steps 3-8 (the invitation content screens) aren't localized — same as
 // InvitationEditor.tsx, this feature is Russian-only for now.
 const INVITATION_STEP_HEADINGS: Record<number, { title: string; em: string }> = {
   3: { title: 'Первый', em: 'вопрос' },
@@ -24,6 +29,7 @@ const INVITATION_STEP_HEADINGS: Record<number, { title: string; em: string }> = 
   5: { title: 'Куда', em: 'сходим' },
   6: { title: 'Дата', em: 'и время' },
   7: { title: 'Финальный', em: 'экран' },
+  8: { title: 'Уведомления', em: 'в Telegram' },
 };
 
 interface ProjectWizardProps {
@@ -56,12 +62,13 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const [invitationSlug, setInvitationSlug] = useState('');
   const [invitationContent, setInvitationContent] = useState<InvitationContent>(demoInvitationContent);
   const [invitationPreviewSrc, setInvitationPreviewSrc] = useState('');
+  const [telegramStatus, setTelegramStatus] = useState('');
 
   const namesLabel = yourName && partnerName ? `${yourName} & ${partnerName}` : t.namesPlaceholder;
   const activeTemplate = templates.find((tp) => tp.id === templateId) ?? templates[0];
   const canContinueNames = projectName.trim() && yourName.trim() && partnerName.trim();
   const isInvitation = siteType === INVITATION_INDEX;
-  const totalSteps = isInvitation ? 7 : 4;
+  const totalSteps = isInvitation ? 8 : 4;
 
   const patchInvitation = (fields: Partial<InvitationContent>) => setInvitationContent((c) => ({ ...c, ...fields }));
 
@@ -114,6 +121,25 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
       return;
     }
     router.push(`/projects/${invitationId}/edit`);
+  };
+
+  const connectTelegram = async () => {
+    // Open the tab synchronously, in the same tick as the click, so browsers
+    // don't treat it as an unsolicited popup — see InvitationEditor.tsx.
+    const win = window.open('', '_blank');
+    setTelegramStatus('Открываю Telegram…');
+    const result = await getMyProjectTelegramLink(invitationId);
+    if ('error' in result) {
+      setTelegramStatus(result.error);
+      win?.close();
+      return;
+    }
+    if (win) {
+      win.location.href = result.url;
+    } else {
+      window.open(result.url, '_blank', 'noopener,noreferrer');
+    }
+    setTelegramStatus('Нажмите "Start" в Telegram, затем вернитесь сюда.');
   };
 
   const finish = async () => {
@@ -502,10 +528,33 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
               <span>{'{date}, {time} и {activity} подставятся автоматически'}</span>
             </label>
 
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(6)}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button className={scss.continueBtn} onClick={() => setStep(8)}>
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 8 && isInvitation && (
+          <div className={scss.step}>
+            <h2>Уведомления в Telegram</h2>
+            <p>Когда получатель ответит, вы получите сообщение от бота</p>
+
+            <button type="button" className={scss.telegramBtn} onClick={connectTelegram}>
+              <Send size={14} />
+              Подключить Telegram
+            </button>
+            {telegramStatus && <p className={scss.hint}>{telegramStatus}</p>}
+
             {error && <div className={scss.error}>{error}</div>}
 
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(6)} disabled={submitting}>
+              <button className={scss.backBtn} onClick={() => setStep(7)} disabled={submitting}>
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
