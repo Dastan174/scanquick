@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Heart } from 'lucide-react';
+import Image from 'next/image';
 import scss from './footer.module.scss';
 import { getT } from '@/shared/lib/i18n/locale';
 
@@ -13,9 +13,9 @@ export default async function Footer() {
           <div className={scss.brand}>
             <div className={scss.logo}>
               <span className={scss.logoIcon}>
-                <Heart size={16} fill="currentColor" />
+                <Image src="/logo.png" alt="" width={36} height={36} />
               </span>
-              LoveQR
+              scanquick.kg
             </div>
             <p>{t.footer.tagline}</p>
           </div>

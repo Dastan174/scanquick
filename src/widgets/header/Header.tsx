@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Heart } from 'lucide-react';
+import Image from 'next/image';
 import scss from './header.module.scss';
 import Button from '@/shared/ui/button/Button';
 import LanguageSwitcher from '@/widgets/languageSwitcher/LanguageSwitcher';
@@ -16,9 +16,9 @@ export default async function Header() {
         <div className={scss.mainContainer}>
           <Link href="/" className={scss.logo}>
             <span className={scss.logoIcon}>
-              <Heart size={16} fill="currentColor" />
+              <Image src="/logo.png" alt="" width={36} height={36} />
             </span>
-            LoveQR
+            scanquick.kg
           </Link>
           <nav className={scss.links}>
             <Link href="/">{t.header.features}</Link>

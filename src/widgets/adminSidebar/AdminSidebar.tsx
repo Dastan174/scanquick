@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   ChevronLeft,
@@ -87,9 +88,9 @@ export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: 
         <div className={scss.top}>
           <Link href="/" className={scss.logo}>
             <span className={scss.logoIcon}>
-              <Heart size={16} fill="currentColor" />
+              <Image src="/logo.png" alt="" width={32} height={32} />
             </span>
-            {!collapsed && <span>LoveQR</span>}
+            {!collapsed && <span>scanquick.kg</span>}
           </Link>
           <button
             className={scss.closeMobile}
