@@ -46,7 +46,11 @@ function PhotoBlock({ transform }: { transform: LoveStoryContent['photos'][strin
   );
 }
 
-function PhotoDivider({ transform }: { transform: LoveStoryContent['photos'][string] | undefined }) {
+function PhotoDivider({
+  transform,
+}: {
+  transform: LoveStoryContent['photos'][string] | undefined;
+}) {
   if (!transform?.url) return <div className={scss.divider} style={{ background: '#e8dfda' }} />;
   return (
     <div className={scss.divider}>
@@ -84,6 +88,7 @@ export default function LoveStoryExperience({
 }: LoveStoryExperienceProps) {
   const [content, setContent] = useState(initialContent);
   const [opened, setOpened] = useState(Boolean(skipCover));
+  const [closing, setClosing] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -118,8 +123,14 @@ export default function LoveStoryExperience({
     return () => window.removeEventListener('message', handleMessage);
   }, [skipCover]);
 
+  // Tapping the cover doesn't swap it out for the content instantly — it
+  // slides/fades away first (like scrolling down past it), and only mounts
+  // the content once that's done. Content stays unmounted until then so
+  // section animations (typewriter, etc.) don't start playing underneath
+  // the still-visible cover.
   const handleOpen = () => {
-    setOpened(true);
+    if (opened || closing) return;
+    setClosing(true);
     const audio = audioRef.current;
     if (audio) {
       audio.muted = false;
@@ -128,6 +139,10 @@ export default function LoveStoryExperience({
         // the visitor can unmute manually once they interact again.
       });
     }
+    window.setTimeout(() => {
+      setOpened(true);
+      setClosing(false);
+    }, 550);
   };
 
   const coverStyle = content.coverPhotoUrl
@@ -143,7 +158,9 @@ export default function LoveStoryExperience({
       case 'typewriter':
         return <TypewriterText text={content.typewriterText} />;
       case 'holdHeart':
-        return <HoldHeart prompt={content.holdHeartPrompt} revealText={content.holdHeartRevealText} />;
+        return (
+          <HoldHeart prompt={content.holdHeartPrompt} revealText={content.holdHeartRevealText} />
+        );
       case 'stories':
         return <StoriesRow stories={content.stories} />;
       case 'instagram':
@@ -180,7 +197,9 @@ export default function LoveStoryExperience({
                   <Send size={18} />
                 </span>
               </div>
-              <p className={scss.likes}>{content.instagramPost.likes.toLocaleString('en-US')} likes</p>
+              <p className={scss.likes}>
+                {content.instagramPost.likes.toLocaleString('en-US')} likes
+              </p>
               <p className={scss.caption}>
                 <strong>{content.instagramPost.username}</strong> {content.instagramPost.caption}
               </p>
@@ -225,7 +244,11 @@ export default function LoveStoryExperience({
       <audio ref={audioRef} loop preload="auto" muted src={content.musicUrl || '/music.mp3'} />
 
       {!opened ? (
-        <button className={scss.cover} style={coverStyle} onClick={handleOpen}>
+        <button
+          className={`${scss.cover} ${closing ? scss.coverClosing : ''}`}
+          style={coverStyle}
+          onClick={handleOpen}
+        >
           <span className={scss.coverIcon}>
             <Heart size={40} fill="currentColor" />
           </span>

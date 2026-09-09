@@ -17,6 +17,17 @@
   border: none;
   cursor: pointer;
   color: var(--color-white);
+  transition:
+    transform 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.55s ease;
+}
+
+// Tapping to open slides the cover away downward, like scrolling past the
+// front of a postcard, instead of an instant swap — see handleOpen.
+.coverClosing {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .coverIcon {
