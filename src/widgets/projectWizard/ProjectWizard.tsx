@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Cake, Camera, CalendarHeart, Check, ChevronLeft, Heart, Send } from 'lucide-react';
+import { Cake, Camera, CalendarHeart, Check, CheckCircle2, ChevronLeft, Heart, Send } from 'lucide-react';
 import { templates } from '@/shared/lib/mockData';
 import {
   createProject,
   updateProjectContent,
   updateInvitationContent,
   getMyProjectTelegramLink,
+  getMyProjectTelegramStatus,
 } from '@/app/(admin)/projects/actions';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import { compressImage } from '@/shared/lib/compressImage';
@@ -63,6 +64,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const [invitationContent, setInvitationContent] = useState<InvitationContent>(demoInvitationContent);
   const [invitationPreviewSrc, setInvitationPreviewSrc] = useState('');
   const [telegramStatus, setTelegramStatus] = useState('');
+  const [telegramConnected, setTelegramConnected] = useState(false);
 
   const namesLabel = yourName && partnerName ? `${yourName} & ${partnerName}` : t.namesPlaceholder;
   const activeTemplate = templates.find((tp) => tp.id === templateId) ?? templates[0];
@@ -141,6 +143,22 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
     }
     setTelegramStatus('Нажмите "Start" в Telegram, затем вернитесь сюда.');
   };
+
+  // The actual linking happens inside Telegram, outside this tab, so the
+  // only way to notice it finished is to re-check when the owner comes back
+  // — window focus is a good proxy for "just switched back from Telegram".
+  useEffect(() => {
+    if (!isInvitation || !invitationId || telegramConnected) return;
+    const handleFocus = async () => {
+      const result = await getMyProjectTelegramStatus(invitationId);
+      if (result.connected) {
+        setTelegramConnected(true);
+        setTelegramStatus('');
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [isInvitation, invitationId, telegramConnected]);
 
   const finish = async () => {
     setSubmitting(true);
@@ -545,11 +563,20 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             <h2>Уведомления в Telegram</h2>
             <p>Когда получатель ответит, вы получите сообщение от бота</p>
 
-            <button type="button" className={scss.telegramBtn} onClick={connectTelegram}>
-              <Send size={14} />
-              Подключить Telegram
-            </button>
-            {telegramStatus && <p className={scss.hint}>{telegramStatus}</p>}
+            {telegramConnected ? (
+              <p className={scss.telegramConnected}>
+                <CheckCircle2 size={16} />
+                Telegram подключён
+              </p>
+            ) : (
+              <>
+                <button type="button" className={scss.telegramBtn} onClick={connectTelegram}>
+                  <Send size={14} />
+                  Подключить Telegram
+                </button>
+                {telegramStatus && <p className={scss.hint}>{telegramStatus}</p>}
+              </>
+            )}
 
             {error && <div className={scss.error}>{error}</div>}
 

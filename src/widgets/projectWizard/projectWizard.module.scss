@@ -222,6 +222,15 @@
   margin: 0 0 20px;
 }
 
+.telegramConnected {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-success);
+  font-size: var(--text-sm);
+  margin-bottom: 8px;
+}
+
 .stepActions {
   display: flex;
   gap: 12px;

@@ -162,6 +162,26 @@ export async function getMyProjectTelegramLink(id: string): Promise<{ url: strin
   return { url: `https://t.me/${botUsername}?start=${data.telegram_link_token}` };
 }
 
+// Polled after the owner comes back from Telegram (see connectTelegram in
+// InvitationEditor.tsx / ProjectWizard.tsx) to tell whether the bot's
+// webhook has since linked a chat to this project.
+export async function getMyProjectTelegramStatus(id: string): Promise<{ connected: boolean }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { connected: false };
+
+  const { data } = await supabase
+    .from('projects')
+    .select('telegram_chat_id')
+    .eq('id', id)
+    .eq('owner_id', user.id)
+    .single();
+
+  return { connected: Boolean(data?.telegram_chat_id) };
+}
+
 export async function updateProjectSlug(
   id: string,
   slug: string,

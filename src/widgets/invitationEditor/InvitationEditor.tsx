@@ -2,10 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Check, ChevronLeft, Eye, QrCode, Send, Settings as SettingsIcon } from 'lucide-react';
+import { Check, CheckCircle2, ChevronLeft, Eye, QrCode, Send, Settings as SettingsIcon } from 'lucide-react';
 import type { Project } from '@/shared/lib/mockData';
 import { demoInvitationContent, type InvitationContent } from '@/shared/lib/invitationContent';
-import { updateInvitationContent, getMyProjectTelegramLink } from '@/app/(admin)/projects/actions';
+import {
+  updateInvitationContent,
+  getMyProjectTelegramLink,
+  getMyProjectTelegramStatus,
+} from '@/app/(admin)/projects/actions';
 import PhoneFrame from '@/shared/ui/phoneFrame/PhoneFrame';
 import TextListEditor from '../projectEditor/TextListEditor';
 import scss from '../projectEditor/projectEditor.module.scss';
@@ -22,6 +26,7 @@ export default function InvitationEditor({ project, initialContent }: Invitation
   });
   const [saveState, setSaveState] = useState<'saved' | 'dirty' | 'saving'>('saved');
   const [telegramStatus, setTelegramStatus] = useState('');
+  const [telegramConnected, setTelegramConnected] = useState(Boolean(project.telegramChatId));
   const [previewSrc, setPreviewSrc] = useState(
     () => `/view/${project.slug}?preview=${encodeURIComponent(JSON.stringify(content))}&draft=1`,
   );
@@ -92,6 +97,22 @@ export default function InvitationEditor({ project, initialContent }: Invitation
     }
     setTelegramStatus('Нажмите "Start" в Telegram, затем вернитесь сюда.');
   };
+
+  // The actual linking happens inside Telegram, outside this tab, so the
+  // only way to notice it finished is to re-check when the owner comes back
+  // — window focus is a good proxy for "just switched back from Telegram".
+  useEffect(() => {
+    if (telegramConnected) return;
+    const handleFocus = async () => {
+      const result = await getMyProjectTelegramStatus(project.id);
+      if (result.connected) {
+        setTelegramConnected(true);
+        setTelegramStatus('');
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [telegramConnected, project.id]);
 
   return (
     <div className={scss.editor}>
@@ -243,13 +264,22 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           <p className={scss.hint} style={{ marginBottom: 12 }}>
             Когда получатель ответит, вы получите сообщение от бота.
           </p>
-          <button type="button" className={scss.addBtn} onClick={connectTelegram}>
-            Подключить Telegram
-          </button>
-          {telegramStatus && (
-            <p className={scss.hint} style={{ marginTop: 8 }}>
-              {telegramStatus}
+          {telegramConnected ? (
+            <p style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--color-success)' }}>
+              <CheckCircle2 size={16} />
+              Telegram подключён
             </p>
+          ) : (
+            <>
+              <button type="button" className={scss.addBtn} onClick={connectTelegram}>
+                Подключить Telegram
+              </button>
+              {telegramStatus && (
+                <p className={scss.hint} style={{ marginTop: 8 }}>
+                  {telegramStatus}
+                </p>
+              )}
+            </>
           )}
         </div>
       </aside>
