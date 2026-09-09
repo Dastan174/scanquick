@@ -12,15 +12,16 @@ interface DateInvitationExperienceProps {
   content: InvitationContent;
 }
 
-type Screen = 'question' | 'confirm' | 'date' | 'final';
+type Screen = 'question' | 'confirm' | 'activity' | 'date' | 'final';
 
-function fillTemplate(text: string, date: string, time: string): string {
-  return text.replace('{date}', date).replace('{time}', time);
+function fillTemplate(text: string, date: string, time: string, activity: string): string {
+  return text.replace('{date}', date).replace('{time}', time).replace('{activity}', activity);
 }
 
 export default function DateInvitationExperience({ projectId, content }: DateInvitationExperienceProps) {
   const [screen, setScreen] = useState<Screen>('question');
   const [noOffset, setNoOffset] = useState({ x: 0, y: 0 });
+  const [activity, setActivity] = useState('');
   const [date, setDate] = useState(content.fixedDate ?? '');
   const [time, setTime] = useState(content.fixedTime ?? '');
   const [submitting, setSubmitting] = useState(false);
@@ -32,7 +33,7 @@ export default function DateInvitationExperience({ projectId, content }: DateInv
   const confirmDate = async () => {
     if (!date || !time) return;
     setSubmitting(true);
-    await submitInvitationResponse(projectId, date, time);
+    await submitInvitationResponse(projectId, date, time, activity);
     setSubmitting(false);
     setScreen('final');
   };
@@ -69,8 +70,28 @@ export default function DateInvitationExperience({ projectId, content }: DateInv
           <>
             <h1>{content.confirmTitle}</h1>
             <p>{content.confirmSubtitle}</p>
-            <button className={scss.yesBtn} onClick={() => setScreen('date')}>
+            <button className={scss.yesBtn} onClick={() => setScreen('activity')}>
               {content.confirmButtonLabel}
+            </button>
+          </>
+        )}
+
+        {screen === 'activity' && (
+          <>
+            <h1>{content.activityQuestionTitle}</h1>
+            <div className={scss.optionsGrid}>
+              {content.activityOptions.map((option) => (
+                <button
+                  key={option}
+                  className={`${scss.optionBtn} ${activity === option ? scss.optionActive : ''}`}
+                  onClick={() => setActivity(option)}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            <button className={scss.yesBtn} disabled={!activity} onClick={() => setScreen('date')}>
+              {content.activityButtonLabel}
             </button>
           </>
         )}
@@ -108,7 +129,7 @@ export default function DateInvitationExperience({ projectId, content }: DateInv
           <>
             <Image src="/hug.png" alt="" width={160} height={160} priority />
             <h1>{content.finalTitle}</h1>
-            <p>{fillTemplate(content.finalDescription, date, time)}</p>
+            <p>{fillTemplate(content.finalDescription, date, time, activity)}</p>
           </>
         )}
       </div>

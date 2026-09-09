@@ -7,6 +7,7 @@ import type { Project } from '@/shared/lib/mockData';
 import { demoInvitationContent, type InvitationContent } from '@/shared/lib/invitationContent';
 import { updateInvitationContent, getMyProjectTelegramLink } from '@/app/(admin)/projects/actions';
 import PhoneFrame from '@/shared/ui/phoneFrame/PhoneFrame';
+import TextListEditor from '../projectEditor/TextListEditor';
 import scss from '../projectEditor/projectEditor.module.scss';
 
 interface InvitationEditorProps {
@@ -144,6 +145,33 @@ export default function InvitationEditor({ project, initialContent }: Invitation
         </div>
 
         <div className={scss.storyGroup}>
+          <strong style={{ display: 'block', marginBottom: 12 }}>Куда сходим</strong>
+          <label className={scss.field}>
+            Заголовок экрана
+            <input
+              value={content.activityQuestionTitle}
+              onChange={(e) => patch({ activityQuestionTitle: e.target.value })}
+            />
+          </label>
+          <label className={scss.field}>
+            Варианты
+            <TextListEditor
+              items={content.activityOptions}
+              onChange={(items) => patch({ activityOptions: items })}
+              addLabel="Добавить вариант"
+              removeLabel="Удалить вариант"
+            />
+          </label>
+          <label className={scss.field}>
+            Текст кнопки
+            <input
+              value={content.activityButtonLabel}
+              onChange={(e) => patch({ activityButtonLabel: e.target.value })}
+            />
+          </label>
+        </div>
+
+        <div className={scss.storyGroup}>
           <strong style={{ display: 'block', marginBottom: 12 }}>Дата и время</strong>
           <label className={scss.field}>
             Кто выбирает дату и время
@@ -204,7 +232,7 @@ export default function InvitationEditor({ project, initialContent }: Invitation
               value={content.finalDescription}
               onChange={(e) => patch({ finalDescription: e.target.value })}
             />
-            <p className={scss.hint}>{'{date} и {time} подставятся автоматически'}</p>
+            <p className={scss.hint}>{'{date}, {time} и {activity} подставятся автоматически'}</p>
           </label>
         </div>
 

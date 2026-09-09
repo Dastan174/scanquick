@@ -106,12 +106,17 @@ export async function updateInvitationContent(id: string, content: InvitationCon
 
 // Public — called by the (unauthenticated) recipient once they pick a
 // date/time. Notifies the creator on Telegram if they've linked their chat.
-export async function submitInvitationResponse(projectId: string, chosenDate: string, chosenTime: string) {
+export async function submitInvitationResponse(
+  projectId: string,
+  chosenDate: string,
+  chosenTime: string,
+  activity: string,
+) {
   const supabase = await createClient();
 
   const { error } = await supabase
     .from('invitation_responses')
-    .insert({ project_id: projectId, chosen_date: chosenDate, chosen_time: chosenTime });
+    .insert({ project_id: projectId, chosen_date: chosenDate, chosen_time: chosenTime, activity });
   if (error) return { error: error.message };
 
   const { data: project } = await supabase
@@ -123,7 +128,7 @@ export async function submitInvitationResponse(projectId: string, chosenDate: st
   if (project?.telegram_chat_id) {
     await sendTelegramMessage(
       project.telegram_chat_id,
-      `💌 «${project.name}» — получатель ответил: ${chosenDate} в ${chosenTime}`,
+      `💌 «${project.name}» — получатель ответил: ${activity}, ${chosenDate} в ${chosenTime}`,
     );
   }
 

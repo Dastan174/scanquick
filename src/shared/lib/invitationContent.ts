@@ -10,6 +10,10 @@ export interface InvitationContent {
   confirmTitle: string;
   confirmSubtitle: string;
   confirmButtonLabel: string;
+  // The recipient picks one of these before moving on to date/time.
+  activityQuestionTitle: string;
+  activityOptions: string[];
+  activityButtonLabel: string;
   // 'recipient' lets whoever opens the link pick the date/time themselves;
   // 'fixed' shows a date/time the creator already decided, just for them
   // to confirm.
@@ -18,7 +22,7 @@ export interface InvitationContent {
   fixedTime?: string;
   dateQuestionTitle: string;
   dateButtonLabel: string;
-  // {date} and {time} are replaced with the chosen (or fixed) values.
+  // {date}, {time} and {activity} are replaced with the chosen (or fixed) values.
   finalTitle: string;
   finalDescription: string;
   coverGradient: string;
@@ -31,10 +35,13 @@ export const demoInvitationContent: InvitationContent = {
   confirmTitle: 'Подожди, ты точно сказала да?',
   confirmSubtitle: 'Я был готов, что ты откажешь :)',
   confirmButtonLabel: 'Да, да, ДА',
+  activityQuestionTitle: 'Куда сходим?',
+  activityOptions: ['🚶 Прогулка', '🍽️ Покушать', '🎬 Кино', '☕ Кофе'],
+  activityButtonLabel: 'Дальше',
   dateMode: 'recipient',
   dateQuestionTitle: 'Когда тебе удобно?',
   dateButtonLabel: 'Готово',
   finalTitle: 'Ура!',
-  finalDescription: 'Жду тебя {date} в {time} — буду считать минуты.',
+  finalDescription: 'Жду тебя {date} в {time} — {activity}, буду считать минуты.',
   coverGradient: 'linear-gradient(135deg, #fdf0f3, #fce4b0, #f0a060)',
 };
