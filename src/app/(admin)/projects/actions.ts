@@ -23,6 +23,30 @@ function randomSuffix(): string {
   return Math.random().toString(36).slice(2, 8);
 }
 
+const MONTHS_RU_GENITIVE = [
+  'января',
+  'февраля',
+  'марта',
+  'апреля',
+  'мая',
+  'июня',
+  'июля',
+  'августа',
+  'сентября',
+  'октября',
+  'ноября',
+  'декабря',
+];
+
+// "2026-09-12" -> "12 сентября" — for the Telegram RSVP notification below.
+// Falls back to the raw string for anything that isn't a plain ISO date.
+function formatDateRu(iso: string): string {
+  const match = iso.match(/^\d{4}-(\d{2})-(\d{2})$/);
+  if (!match) return iso;
+  const month = MONTHS_RU_GENITIVE[Number(match[1]) - 1];
+  return month ? `${Number(match[2])} ${month}` : iso;
+}
+
 export interface CreateProjectInput {
   name: string;
   partnerA: string;
@@ -131,7 +155,7 @@ export async function submitInvitationResponse(
   if (project?.telegram_chat_id) {
     await sendTelegramMessage(
       project.telegram_chat_id,
-      `💌 «${project.name}» — получатель ответил: ${activity}, ${chosenDate} в ${chosenTime}`,
+      `💌 *${project.name}*\n\n*${activity}* — ${formatDateRu(chosenDate)} в ${chosenTime}\n\n🥰 *Приготовьтесь к встрече!*\nХорошее настроение уже обязательно 💗`,
     );
   }
 
@@ -141,7 +165,9 @@ export async function submitInvitationResponse(
 // Returns the deep link the owner sends themselves on Telegram to link
 // their chat — the bot's webhook resolves telegram_link_token back to this
 // project and fills in telegram_chat_id, see /api/telegram/webhook.
-export async function getMyProjectTelegramLink(id: string): Promise<{ url: string } | { error: string }> {
+export async function getMyProjectTelegramLink(
+  id: string,
+): Promise<{ url: string } | { error: string }> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -244,7 +270,9 @@ export async function deleteProject(id: string) {
   // the actual delete (an orphaned file is a much smaller problem than an
   // undeletable project), so this is best-effort.
   const folder = `${user.id}/${id}`;
-  const { data: files } = await supabase.storage.from('project-media').list(folder, { limit: 1000 });
+  const { data: files } = await supabase.storage
+    .from('project-media')
+    .list(folder, { limit: 1000 });
   if (files && files.length > 0) {
     const paths = files.map((f) => `${folder}/${f.name}`);
     await supabase.storage.from('project-media').remove(paths);

@@ -8,7 +8,7 @@ export async function sendTelegramMessage(chatId: string, text: string): Promise
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text }),
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' }),
     });
   } catch {
     // Notification failing shouldn't break the recipient's flow — the
