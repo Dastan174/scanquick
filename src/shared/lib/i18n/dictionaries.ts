@@ -28,6 +28,7 @@ const ru = {
     faq: 'Вопросы',
     signIn: 'Войти',
     startFree: 'Начать бесплатно',
+    profile: 'Профиль',
   },
   hero: {
     eyebrow: 'Самый романтичный подарок, который можно подарить',
@@ -626,6 +627,7 @@ const en: typeof ru = {
     faq: 'FAQ',
     signIn: 'Sign in',
     startFree: 'Start free',
+    profile: 'Profile',
   },
   hero: {
     eyebrow: 'The most romantic gift you can give',

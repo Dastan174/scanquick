@@ -12,9 +12,10 @@ import scss from './header.module.scss';
 interface HeaderMobileMenuProps {
   t: Dictionary['header'];
   locale: Locale;
+  isLoggedIn: boolean;
 }
 
-export default function HeaderMobileMenu({ t, locale }: HeaderMobileMenuProps) {
+export default function HeaderMobileMenu({ t, locale, isLoggedIn }: HeaderMobileMenuProps) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -44,12 +45,20 @@ export default function HeaderMobileMenu({ t, locale }: HeaderMobileMenuProps) {
         </Link>
         <div className={scss.mobileActions}>
           <LanguageSwitcher locale={locale} />
-          <Button variant="ghost" size="sm" href="/login">
-            {t.signIn}
-          </Button>
-          <Button size="sm" href="/signup">
-            {t.startFree}
-          </Button>
+          {isLoggedIn ? (
+            <Button size="sm" href="/profile">
+              {t.profile}
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" href="/login">
+                {t.signIn}
+              </Button>
+              <Button size="sm" href="/signup">
+                {t.startFree}
+              </Button>
+            </>
+          )}
         </div>
       </nav>
     </>

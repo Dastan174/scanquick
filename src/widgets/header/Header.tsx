@@ -5,10 +5,15 @@ import Button from '@/shared/ui/button/Button';
 import LanguageSwitcher from '@/widgets/languageSwitcher/LanguageSwitcher';
 import HeaderMobileMenu from './HeaderMobileMenu';
 import { getLocale, getDictionary } from '@/shared/lib/i18n/locale';
+import { createClient } from '@/shared/lib/supabase/server';
 
 export default async function Header() {
   const locale = await getLocale();
   const t = getDictionary(locale);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <header className={scss.container}>
@@ -28,14 +33,22 @@ export default async function Header() {
           </nav>
           <nav className={scss.actions}>
             <LanguageSwitcher locale={locale} />
-            <Button variant="ghost" size="sm" href="/login">
-              {t.header.signIn}
-            </Button>
-            <Button size="sm" href="/signup">
-              {t.header.startFree}
-            </Button>
+            {user ? (
+              <Button size="sm" href="/profile">
+                {t.header.profile}
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" href="/login">
+                  {t.header.signIn}
+                </Button>
+                <Button size="sm" href="/signup">
+                  {t.header.startFree}
+                </Button>
+              </>
+            )}
           </nav>
-          <HeaderMobileMenu t={t.header} locale={locale} />
+          <HeaderMobileMenu t={t.header} locale={locale} isLoggedIn={Boolean(user)} />
         </div>
       </div>
     </header>
