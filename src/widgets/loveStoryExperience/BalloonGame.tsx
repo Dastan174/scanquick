@@ -12,26 +12,31 @@ const COLORS = [
 ];
 
 export default function BalloonGame({ messages }: { messages: string[] }) {
-  const [popped, setPopped] = useState<boolean[]>(() => messages.map(() => false));
+  // Only one balloon's message shows at a time — popping the next one closes
+  // whichever was open, instead of letting cards pile up on screen.
+  const [poppedIndex, setPoppedIndex] = useState<number | null>(null);
 
   return (
     <div className={scss.sky}>
       <p className={scss.hint}>Лопни шарики, чтобы найти в них слова любви</p>
       <div className={scss.balloons}>
-        {messages.map((message, i) => (
-          <button
-            key={i}
-            className={`${scss.balloon} ${popped[i] ? scss.popped : ''}`}
-            style={{ background: COLORS[i % COLORS.length], animationDelay: `${i * 0.6}s` }}
-            onClick={() => setPopped((p) => p.map((v, idx) => (idx === i ? true : v)))}
-          >
-            {popped[i] ? (
-              <span className={scss.offerText}>{message}</span>
-            ) : (
-              <span className={scss.string} />
-            )}
-          </button>
-        ))}
+        {messages.map((message, i) => {
+          const popped = poppedIndex === i;
+          return (
+            <button
+              key={i}
+              className={`${scss.balloon} ${popped ? scss.popped : ''}`}
+              style={{ background: COLORS[i % COLORS.length], animationDelay: `${i * 0.6}s` }}
+              onClick={() => setPoppedIndex((current) => (current === i ? null : i))}
+            >
+              {popped ? (
+                <span className={scss.offerText}>{message}</span>
+              ) : (
+                <span className={scss.string} />
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
