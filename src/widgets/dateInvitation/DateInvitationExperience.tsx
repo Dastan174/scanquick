@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Heart } from 'lucide-react';
 import type { InvitationContent } from '@/shared/lib/invitationContent';
 import { submitInvitationResponse } from '@/app/(admin)/projects/actions';
 import scss from './dateInvitationExperience.module.scss';
@@ -47,7 +46,7 @@ export default function DateInvitationExperience({ projectId, content }: DateInv
               // eslint-disable-next-line @next/next/no-img-element
               <img src={content.questionImageUrl} alt="" className={scss.image} />
             ) : (
-              <Heart size={56} className={scss.heartIcon} fill="currentColor" />
+              <Image src="/invite.png" alt="" width={140} height={140} priority />
             )}
             <h1>{content.questionTitle}</h1>
             <div className={scss.actions}>
@@ -68,6 +67,7 @@ export default function DateInvitationExperience({ projectId, content }: DateInv
 
         {screen === 'confirm' && (
           <>
+            <Image src="/excited.png" alt="" width={140} height={140} />
             <h1>{content.confirmTitle}</h1>
             <p>{content.confirmSubtitle}</p>
             <button className={scss.yesBtn} onClick={() => setScreen('activity')}>
