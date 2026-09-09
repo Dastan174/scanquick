@@ -13,7 +13,7 @@ export default async function Pricing() {
   const t = await getT();
 
   return (
-    <section className={scss.container}>
+    <section id="pricing" className={scss.container}>
       <div className="container">
         <div className={scss.mainContainer}>
           <span>{t.pricing.eyebrow}</span>
@@ -26,7 +26,9 @@ export default async function Pricing() {
                   key={plan.name}
                   className={`${scss.card} ${meta.highlight ? scss.highlight : ''}`}
                 >
-                  {'badge' in plan && plan.badge && <span className={scss.badge}>{plan.badge}</span>}
+                  {'badge' in plan && plan.badge && (
+                    <span className={scss.badge}>{plan.badge}</span>
+                  )}
                   <span className={scss.name}>{plan.name}</span>
                   <div className={scss.price}>
                     <span className={scss.amount}>{plan.price}</span>

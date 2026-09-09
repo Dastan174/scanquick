@@ -21,10 +21,10 @@ export default async function Header() {
             scanquick.kg
           </Link>
           <nav className={scss.links}>
-            <Link href="/">{t.header.features}</Link>
-            <Link href="/">{t.header.templates}</Link>
-            <Link href="/">{t.header.pricing}</Link>
-            <Link href="/">{t.header.faq}</Link>
+            <Link href="#features">{t.header.features}</Link>
+            <Link href="#templates">{t.header.templates}</Link>
+            <Link href="#pricing">{t.header.pricing}</Link>
+            <Link href="#faq">{t.header.faq}</Link>
           </nav>
           <nav className={scss.actions}>
             <LanguageSwitcher locale={locale} />

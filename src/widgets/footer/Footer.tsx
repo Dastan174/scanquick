@@ -24,8 +24,8 @@ export default async function Footer() {
               <span className={scss.colTitle}>{col.title}</span>
               <div className={scss.colLinks}>
                 {col.links.map((link) => (
-                  <Link key={link} href="/">
-                    {link}
+                  <Link key={link.label} href={link.href}>
+                    {link.label}
                   </Link>
                 ))}
               </div>

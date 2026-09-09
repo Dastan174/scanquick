@@ -31,9 +31,9 @@ export default async function Hero() {
             </div>
             <div className={scss.social}>
               <div className={scss.avatars}>
-                <span />
-                <span />
-                <span />
+                <span style={{ background: 'linear-gradient(135deg, #f5a3b8, #e8829a)' }} />
+                <span style={{ background: 'linear-gradient(135deg, #c4866a, #a86a4e)' }} />
+                <span style={{ background: 'linear-gradient(135deg, #9b6b8a, #7a4f6c)' }} />
               </div>
               <div>
                 <div className={scss.stars}>

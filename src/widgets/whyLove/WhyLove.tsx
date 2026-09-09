@@ -10,7 +10,7 @@ export default async function WhyLove() {
   const t = await getT();
 
   return (
-    <section className={scss.container}>
+    <section id="features" className={scss.container}>
       <div className="container">
         <div className={scss.mainContainer}>
           <span>{t.whyLove.eyebrow}</span>

@@ -1,6 +1,7 @@
 .container {
   padding-block: var(--section-padding);
   background: var(--color-cream);
+  scroll-margin-top: var(--navbar-height);
 
   .mainContainer {
     display: flex;

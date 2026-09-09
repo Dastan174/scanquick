@@ -77,7 +77,7 @@ const ru = {
     steps: [
       {
         title: 'Расскажите свою историю',
-        descr: 'Добавьте имена, дату годовщины и выберите потрясающий шаблон для вашего холста.',
+        descr: 'Добавьте имена и выберите потрясающий шаблон для вашего холста.',
       },
       {
         title: 'Соберите впечатление',
@@ -189,11 +189,32 @@ const ru = {
     tagline:
       'Превращаем истории любви в моменты радости, которые можно отсканировать — один QR-код за раз.',
     columns: [
-      { title: 'Продукт', links: ['Возможности', 'Шаблоны', 'Тарифы', 'Подарочные планы'] },
-      { title: 'Компания', links: ['О нас', 'Блог', 'Пресса', 'Вакансии'] },
+      {
+        title: 'Продукт',
+        links: [
+          { label: 'Возможности', href: '/#features' },
+          { label: 'Шаблоны', href: '/#templates' },
+          { label: 'Тарифы', href: '/#pricing' },
+          { label: 'Подарочные планы', href: '/#pricing' },
+        ],
+      },
+      {
+        title: 'Компания',
+        links: [
+          { label: 'О нас', href: '/about' },
+          { label: 'Блог', href: '/blog' },
+          { label: 'Пресса', href: '/press' },
+          { label: 'Вакансии', href: '/careers' },
+        ],
+      },
       {
         title: 'Правовая информация',
-        links: ['Конфиденциальность', 'Условия', 'Cookie', 'Безопасность'],
+        links: [
+          { label: 'Конфиденциальность', href: '/privacy' },
+          { label: 'Условия', href: '/terms' },
+          { label: 'Cookie', href: '/cookies' },
+          { label: 'Безопасность', href: '/security' },
+        ],
       },
     ],
     copyright: '© 2024 scanquick.kg. Сделано с любовью',
@@ -654,7 +675,7 @@ const en: typeof ru = {
     steps: [
       {
         title: 'Tell Your Story',
-        descr: 'Add your names, anniversary date, and choose a stunning template as your canvas.',
+        descr: 'Add your names and choose a stunning template as your canvas.',
       },
       {
         title: 'Build the Experience',
@@ -765,9 +786,33 @@ const en: typeof ru = {
   footer: {
     tagline: 'Turning love stories into scannable moments of joy, one QR code at a time.',
     columns: [
-      { title: 'Product', links: ['Features', 'Templates', 'Pricing', 'Gift Plans'] },
-      { title: 'Company', links: ['About', 'Blog', 'Press', 'Careers'] },
-      { title: 'Legal', links: ['Privacy', 'Terms', 'Cookies', 'Security'] },
+      {
+        title: 'Product',
+        links: [
+          { label: 'Features', href: '/#features' },
+          { label: 'Templates', href: '/#templates' },
+          { label: 'Pricing', href: '/#pricing' },
+          { label: 'Gift Plans', href: '/#pricing' },
+        ],
+      },
+      {
+        title: 'Company',
+        links: [
+          { label: 'About', href: '/about' },
+          { label: 'Blog', href: '/blog' },
+          { label: 'Press', href: '/press' },
+          { label: 'Careers', href: '/careers' },
+        ],
+      },
+      {
+        title: 'Legal',
+        links: [
+          { label: 'Privacy', href: '/privacy' },
+          { label: 'Terms', href: '/terms' },
+          { label: 'Cookies', href: '/cookies' },
+          { label: 'Security', href: '/security' },
+        ],
+      },
     ],
     copyright: '© 2024 scanquick.kg. Made with love',
     storiesCreated: '12,847 love stories created',

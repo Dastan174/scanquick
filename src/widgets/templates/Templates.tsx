@@ -15,7 +15,7 @@ export default async function Templates() {
   const t = await getT();
 
   return (
-    <section className={scss.container}>
+    <section id="templates" className={scss.container}>
       <div className="container">
         <div className={scss.mainContainer}>
           <span>{t.templates.eyebrow}</span>
@@ -38,7 +38,7 @@ export default async function Templates() {
               </div>
             ))}
           </div>
-          <Button variant="ghost" className={scss.browseBtn}>
+          <Button variant="ghost" className={scss.browseBtn} href="/dashboard">
             {t.templates.browseAll}
           </Button>
         </div>

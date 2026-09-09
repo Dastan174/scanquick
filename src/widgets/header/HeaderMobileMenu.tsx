@@ -30,16 +30,16 @@ export default function HeaderMobileMenu({ t, locale }: HeaderMobileMenuProps) {
         {open ? <X size={20} /> : <Menu size={20} />}
       </button>
       <nav className={`${scss.mobileMenu} ${open ? scss.mobileMenuOpen : ''}`}>
-        <Link href="/" onClick={close}>
+        <Link href="#features" onClick={close}>
           {t.features}
         </Link>
-        <Link href="/" onClick={close}>
+        <Link href="#templates" onClick={close}>
           {t.templates}
         </Link>
-        <Link href="/" onClick={close}>
+        <Link href="#pricing" onClick={close}>
           {t.pricing}
         </Link>
-        <Link href="/" onClick={close}>
+        <Link href="#faq" onClick={close}>
           {t.faq}
         </Link>
         <div className={scss.mobileActions}>

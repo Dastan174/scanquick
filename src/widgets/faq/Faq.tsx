@@ -8,7 +8,7 @@ export default function Faq({ t }: { t: Dictionary['faq'] }) {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <section className={scss.container}>
+    <section id="faq" className={scss.container}>
       <div className="container">
         <div className={scss.mainContainer}>
           <span>{t.eyebrow}</span>

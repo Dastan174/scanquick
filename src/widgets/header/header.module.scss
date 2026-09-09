@@ -47,8 +47,18 @@
   display: flex;
   align-items: center;
   gap: 32px;
+  font-family: var(--font-body);
   font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   color: var(--color-text-secondary);
+
+  a {
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
 }
 
 .actions {
