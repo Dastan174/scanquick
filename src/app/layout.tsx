@@ -30,8 +30,9 @@ const marckScript = Marck_Script({
 });
 
 export const metadata: Metadata = {
-  title: 'LoveQR — Любовь, закодированная в QR-код',
-  description: 'Создайте потрясающий интерактивный сайт с вашей историей любви и подарите его в виде одного QR-кода.',
+  title: 'scanquick.kg — Любовь, закодированная в QR-код',
+  description:
+    'Создайте потрясающий интерактивный сайт с вашей историей любви и подарите его в виде одного QR-кода.',
 };
 
 export default async function RootLayout({

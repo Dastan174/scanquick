@@ -63,7 +63,7 @@ export default function ProjectSettings({ project, locale, t }: ProjectSettingsP
         <h2>{t.slugTitle}</h2>
         <p>{t.slugDescr}</p>
         <div className={scss.slugRow}>
-          <span>loveqr.co/</span>
+          <span>scanquick.kg/</span>
           <input
             value={slug}
             onChange={(e) => {
@@ -76,7 +76,7 @@ export default function ProjectSettings({ project, locale, t }: ProjectSettingsP
           <span className={scss.slugErrorText}>{slugError}</span>
         ) : (
           <span className={scss.available}>
-            {slugStatus === 'saved' ? `${t.saved}` : '● '}loveqr.co/{slug || 'your-slug'}
+            {slugStatus === 'saved' ? `${t.saved}` : '● '}scanquick.kg/{slug || 'your-slug'}
           </span>
         )}
         <button className={scss.saveBtn} onClick={saveSlug} disabled={slugStatus === 'saving'}>

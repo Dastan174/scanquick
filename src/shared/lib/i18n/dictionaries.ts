@@ -47,7 +47,7 @@ const ru = {
     floatCopyLink: 'Скопировать ссылку',
   },
   whyLove: {
-    eyebrow: 'Почему LoveQR',
+    eyebrow: 'Почему scanquick.kg',
     title: 'Всё, чего заслуживает любовь',
     subtitle: 'Больше, чем сайт. Живое любовное письмо, которое растёт вместе с вашей историей.',
     cards: [
@@ -116,7 +116,7 @@ const ru = {
           '1 проект',
           '5 фото',
           'Базовые шаблоны',
-          'Водяной знак LoveQR',
+          'Водяной знак scanquick.kg',
           'Скачивание QR-кода',
         ],
         cta: 'Начать бесплатно',
@@ -158,7 +158,7 @@ const ru = {
     title: 'Вопросы с душой',
     items: [
       {
-        q: 'Как работает LoveQR?',
+        q: 'Как работает scanquick.kg?',
         a: 'Вы создаёте красивый интерактивный сайт с вашими фото, сообщениями и воспоминаниями. Мы генерируем QR-код, который при сканировании открывает ваш сайт напрямую.',
       },
       {
@@ -196,7 +196,7 @@ const ru = {
         links: ['Конфиденциальность', 'Условия', 'Cookie', 'Безопасность'],
       },
     ],
-    copyright: '© 2024 LoveQR. Сделано с любовью',
+    copyright: '© 2024 scanquick.kg. Сделано с любовью',
     storiesCreated: '12 847 историй любви создано',
   },
   auth: {
@@ -486,7 +486,7 @@ const ru = {
   },
   adminPanel: {
     eyebrow: 'Админ-панель',
-    title: 'Панель LoveQR',
+    title: 'Панель scanquick.kg',
     subtitle: 'Обзор платформы · Обновлено только что',
     exportCsv: 'Экспорт CSV',
     tabs: ['Обзор', 'Пользователи', 'Проекты', 'Платежи', 'Шаблоны', 'Аналитика'],
@@ -624,7 +624,7 @@ const en: typeof ru = {
     floatCopyLink: 'Copy link',
   },
   whyLove: {
-    eyebrow: 'Why LoveQR',
+    eyebrow: 'Why scanquick.kg',
     title: 'Everything love deserves',
     subtitle: 'More than a website. A living love letter that grows with your story.',
     cards: [
@@ -693,7 +693,7 @@ const en: typeof ru = {
           '1 Project',
           '5 Photos',
           'Basic Templates',
-          'LoveQR Watermark',
+          'scanquick.kg Watermark',
           'QR Code Download',
         ],
         cta: 'Start Free',
@@ -735,7 +735,7 @@ const en: typeof ru = {
     title: 'Questions with heart',
     items: [
       {
-        q: 'How does LoveQR work?',
+        q: 'How does scanquick.kg work?',
         a: 'You create a beautiful interactive website with your photos, messages, and memories. We generate a QR code that opens directly to your site when scanned.',
       },
       {
@@ -769,7 +769,7 @@ const en: typeof ru = {
       { title: 'Company', links: ['About', 'Blog', 'Press', 'Careers'] },
       { title: 'Legal', links: ['Privacy', 'Terms', 'Cookies', 'Security'] },
     ],
-    copyright: '© 2024 LoveQR. Made with love',
+    copyright: '© 2024 scanquick.kg. Made with love',
     storiesCreated: '12,847 love stories created',
   },
   auth: {
@@ -1058,7 +1058,7 @@ const en: typeof ru = {
   },
   adminPanel: {
     eyebrow: 'Admin Panel',
-    title: 'LoveQR Dashboard',
+    title: 'scanquick.kg Dashboard',
     subtitle: 'Platform overview · Last updated just now',
     exportCsv: 'Export CSV',
     tabs: ['Overview', 'Users', 'Projects', 'Payments', 'Templates', 'Analytics'],

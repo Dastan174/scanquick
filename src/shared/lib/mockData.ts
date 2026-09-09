@@ -191,16 +191,36 @@ export const recentPayments = [
 ];
 
 export const invoices = [
-  { id: 'INV-2024-012', date: 'Dec 14, 2024', description: 'LoveQR Premium — Annual', amount: 84 },
+  {
+    id: 'INV-2024-012',
+    date: 'Dec 14, 2024',
+    description: 'scanquick.kg Premium — Annual',
+    amount: 84,
+  },
   {
     id: 'INV-2024-009',
     date: 'Sep 14, 2024',
-    description: 'LoveQR Gift Frame — Single',
+    description: 'scanquick.kg Gift Frame — Single',
     amount: 29,
   },
-  { id: 'INV-2024-006', date: 'Jun 14, 2024', description: 'LoveQR Premium — Upgrade', amount: 52 },
-  { id: 'INV-2024-001', date: 'Jan 14, 2024', description: 'LoveQR Premium — Monthly', amount: 12 },
-  { id: 'INV-2023-012', date: 'Dec 14, 2023', description: 'LoveQR Premium — Annual', amount: 84 },
+  {
+    id: 'INV-2024-006',
+    date: 'Jun 14, 2024',
+    description: 'scanquick.kg Premium — Upgrade',
+    amount: 52,
+  },
+  {
+    id: 'INV-2024-001',
+    date: 'Jan 14, 2024',
+    description: 'scanquick.kg Premium — Monthly',
+    amount: 12,
+  },
+  {
+    id: 'INV-2023-012',
+    date: 'Dec 14, 2023',
+    description: 'scanquick.kg Premium — Annual',
+    amount: 84,
+  },
 ];
 
 export function getProject(id: string): Project {
