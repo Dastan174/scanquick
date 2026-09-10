@@ -392,6 +392,7 @@ const ru = {
     downloadPng: 'Скачать PNG',
     downloadSvg: 'Скачать SVG',
     copyLink: 'Скопировать ссылку',
+    copied: 'Скопировано!',
     share: 'Поделиться',
     printTips: 'Советы по печати',
     printTipsBody:
@@ -990,6 +991,7 @@ const en: typeof ru = {
     downloadPng: 'Download PNG',
     downloadSvg: 'Download SVG',
     copyLink: 'Copy Link',
+    copied: 'Copied!',
     share: 'Share',
     printTips: 'Print Tips',
     printTipsBody:

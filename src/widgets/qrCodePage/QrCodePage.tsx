@@ -1,23 +1,13 @@
 import Link from 'next/link';
 import QRCode from 'qrcode';
-import {
-  ChevronLeft,
-  Clock,
-  Download,
-  Frame,
-  Globe,
-  Heart,
-  Link2,
-  Share2,
-  Sparkle,
-  TrendingUp,
-} from 'lucide-react';
+import { ChevronLeft, Clock, Frame, Globe, Heart, Link2, Sparkle, TrendingUp } from 'lucide-react';
 import StatCard from '@/shared/ui/statCard/StatCard';
 import type { Project } from '@/shared/lib/mockData';
 import { getT, getLocale } from '@/shared/lib/i18n/locale';
 import { qrSubtitle } from '@/shared/lib/i18n/format';
 import { getSiteUrl } from '@/shared/lib/siteUrl';
 import { buildQrCompositeSvg, qrCompositeToPngBuffer } from '@/shared/lib/qrComposite';
+import QrActions from './QrActions';
 import scss from './qrCodePage.module.scss';
 
 // Dark modules on a transparent background, so the white qrGrid panel shows
@@ -119,40 +109,21 @@ export default async function QrCodePage({ project }: { project: Project }) {
           )}
           <p>{t.livesAt}</p>
           <strong>{targetUrl ? targetUrl.replace(/^https?:\/\//, '') : '—'}</strong>
-          <div className={scss.downloads}>
-            {compositePngDataUrl ? (
-              <a href={compositePngDataUrl} download={`${project.slug}-qr.png`}>
-                <Download size={14} />
-                {t.downloadPng}
-              </a>
-            ) : (
-              <button disabled>
-                <Download size={14} />
-                {t.downloadPng}
-              </button>
-            )}
-            {compositeSvgDataUrl ? (
-              <a href={compositeSvgDataUrl} download={`${project.slug}-qr.svg`}>
-                <Download size={14} />
-                {t.downloadSvg}
-              </a>
-            ) : (
-              <button disabled>
-                <Download size={14} />
-                {t.downloadSvg}
-              </button>
-            )}
-          </div>
-          <div className={scss.downloads}>
-            <button>
-              <Link2 size={14} />
-              {t.copyLink}
-            </button>
-            <button>
-              <Share2 size={14} />
-              {t.share}
-            </button>
-          </div>
+          <QrActions
+            targetUrl={targetUrl ?? ''}
+            pngDataUrl={compositePngDataUrl}
+            svgDataUrl={compositeSvgDataUrl}
+            pngFilename={`${project.slug}-qr.png`}
+            svgFilename={`${project.slug}-qr.svg`}
+            shareTitle={project.name}
+            t={{
+              downloadPng: t.downloadPng,
+              downloadSvg: t.downloadSvg,
+              copyLink: t.copyLink,
+              copied: t.copied,
+              share: t.share,
+            }}
+          />
           <div className={scss.tips}>
             <strong>
               <Sparkle size={14} />
