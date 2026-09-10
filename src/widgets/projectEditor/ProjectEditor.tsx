@@ -5,7 +5,6 @@ import Link from 'next/link';
 import {
   Check,
   ChevronLeft,
-  Eye,
   GripVertical,
   Music,
   Plus,
@@ -396,21 +395,9 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
             </Badge>
           </div>
           <div className={scss.headerActions}>
-            <Link
-              href={`/projects/${project.id}/preview`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Eye size={14} />
-              {t.common.preview}
-            </Link>
             <Link href={`/projects/${project.id}/settings`}>
               <SettingsIcon size={14} />
               {t.common.settings}
-            </Link>
-            <Link href={`/projects/${project.id}/qr`} className={scss.qrBtn} onClick={handleGetQr}>
-              <QrCode size={14} />
-              {t.qrCodePage.title}
             </Link>
             <button
               className={scss.saveBtn}
@@ -425,36 +412,36 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
                   : t.common.save}
             </button>
           </div>
-        </div>
-        {/* Mobile only (see CSS) — the inline stage below turns into a
-            floating overlay there, so this trigger opens it without the
-            preview competing with the page for scroll gestures. */}
-        <button type="button" className={scss.previewFab} onClick={() => setPreviewOpen(true)}>
-          {t.common.preview}
-        </button>
-
-        {previewOpen && (
-          <div className={scss.previewBackdrop} onClick={() => setPreviewOpen(false)} />
-        )}
-
-        <div className={`${scss.stage} ${previewOpen ? scss.stageOpen : ''}`}>
-          <button
-            type="button"
-            className={scss.previewCloseBtn}
-            onClick={() => setPreviewOpen(false)}
-            aria-label={t.common.cancel}
-          >
-            <X size={18} />
+          {/* Mobile only (see CSS) — the inline stage below turns into a
+              floating overlay there, so this trigger opens it without the
+              preview competing with the page for scroll gestures. */}
+          <button type="button" className={scss.previewFab} onClick={() => setPreviewOpen(true)}>
+            {t.common.preview}
           </button>
-          <PhoneFrame>
-            <iframe
-              key={project.id}
-              ref={iframeRef}
-              src={previewSrc}
-              className={scss.previewFrame}
-              title="Live preview"
-            />
-          </PhoneFrame>
+
+          {previewOpen && (
+            <div className={scss.previewBackdrop} onClick={() => setPreviewOpen(false)} />
+          )}
+
+          <div className={`${scss.stage} ${previewOpen ? scss.stageOpen : ''}`}>
+            <button
+              type="button"
+              className={scss.previewCloseBtn}
+              onClick={() => setPreviewOpen(false)}
+              aria-label={t.common.cancel}
+            >
+              <X size={18} />
+            </button>
+            <PhoneFrame>
+              <iframe
+                key={project.id}
+                ref={iframeRef}
+                src={previewSrc}
+                className={scss.previewFrame}
+                title="Live preview"
+              />
+            </PhoneFrame>
+          </div>
         </div>
       </div>
 

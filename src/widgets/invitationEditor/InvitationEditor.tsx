@@ -6,7 +6,6 @@ import {
   Check,
   CheckCircle2,
   ChevronLeft,
-  Eye,
   QrCode,
   Send,
   Settings as SettingsIcon,
@@ -328,21 +327,9 @@ export default function InvitationEditor({ project, initialContent }: Invitation
             <h1>{project.name}</h1>
           </div>
           <div className={scss.headerActions}>
-            <Link
-              href={`/projects/${project.id}/preview`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Eye size={14} />
-              Просмотр
-            </Link>
             <Link href={`/projects/${project.id}/settings`}>
               <SettingsIcon size={14} />
               Настройки
-            </Link>
-            <Link href={`/projects/${project.id}/qr`} className={scss.qrBtn} onClick={handleGetQr}>
-              <QrCode size={14} />
-              Ваш QR-код
             </Link>
             <button className={scss.saveBtn} onClick={persist} disabled={saveState !== 'dirty'}>
               {saveState === 'saved' && <Check size={14} />}
@@ -353,17 +340,17 @@ export default function InvitationEditor({ project, initialContent }: Invitation
                   : 'Сохранить'}
             </button>
           </div>
-        </div>
-        <div className={scss.stage}>
-          <PhoneFrame>
-            <iframe
-              key={project.id}
-              src={previewSrc}
-              className={scss.previewFrame}
-              style={{ pointerEvents: 'none' }}
-              title="Live preview"
-            />
-          </PhoneFrame>
+          <div className={scss.stage}>
+            <PhoneFrame>
+              <iframe
+                key={project.id}
+                src={previewSrc}
+                className={scss.previewFrame}
+                style={{ pointerEvents: 'none' }}
+                title="Live preview"
+              />
+            </PhoneFrame>
+          </div>
         </div>
       </div>
 
