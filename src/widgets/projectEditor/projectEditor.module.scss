@@ -323,9 +323,9 @@
 
 // Hidden on desktop — the stage above is already inline there. Below
 // 1200px the stage instead becomes a floating overlay (see .stageOpen),
-// opened via this button, so the live preview never sits in the normal
-// scroll flow and fights the page for scroll/swipe gestures.
-.previewFab {
+// opened via this button, pinned top-right at the same offset as the admin
+// sidebar's mobile burger toggle (top: 16px) so the two line up.
+.stickyPreviewBtn {
   display: none;
 }
 
@@ -436,18 +436,23 @@
   // iframe between the header and the sections list fights the page for
   // scroll/swipe gestures on touch devices. Instead it opens as a floating
   // overlay on demand, via this button.
-  .previewFab {
-    display: block;
-    margin: 4px 0 4px;
-    padding: 10px 20px;
+  .stickyPreviewBtn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: var(--z-sticky);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
     border-radius: var(--radius-full);
-    border: none;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-    color: var(--color-white);
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    color: var(--color-text-secondary);
     font-family: var(--font-body);
     font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-    box-shadow: 0 8px 20px rgba(212, 96, 122, 0.3);
+    font-weight: var(--weight-medium);
+    box-shadow: var(--shadow-sm);
     cursor: pointer;
   }
 

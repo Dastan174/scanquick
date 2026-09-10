@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {
   Check,
   ChevronLeft,
+  Eye,
   GripVertical,
   Music,
   Plus,
@@ -414,10 +415,19 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
           </div>
           {/* Mobile only (see CSS) — the inline stage below turns into a
               floating overlay there, so this trigger opens it without the
-              preview competing with the page for scroll gestures. */}
-          <button type="button" className={scss.previewFab} onClick={() => setPreviewOpen(true)}>
-            {t.common.preview}
-          </button>
+              preview competing with the page for scroll gestures. Hidden
+              while the overlay itself is open so it doesn't sit under the
+              close button, which shares the same top-right corner. */}
+          {!previewOpen && (
+            <button
+              type="button"
+              className={scss.stickyPreviewBtn}
+              onClick={() => setPreviewOpen(true)}
+            >
+              <Eye size={14} />
+              {t.common.preview}
+            </button>
+          )}
 
           {previewOpen && (
             <div className={scss.previewBackdrop} onClick={() => setPreviewOpen(false)} />

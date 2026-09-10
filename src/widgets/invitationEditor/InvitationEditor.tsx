@@ -6,6 +6,7 @@ import {
   Check,
   CheckCircle2,
   ChevronLeft,
+  Eye,
   QrCode,
   Send,
   Settings as SettingsIcon,
@@ -353,6 +354,16 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           </div>
         </div>
       </div>
+
+      <Link
+        href={`/projects/${project.id}/preview`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={scss.stickyPreviewBtn}
+      >
+        <Eye size={14} />
+        Просмотр
+      </Link>
 
       <Link href={`/projects/${project.id}/qr`} className={scss.stickyQrBtn} onClick={handleGetQr}>
         <QrCode size={14} />
