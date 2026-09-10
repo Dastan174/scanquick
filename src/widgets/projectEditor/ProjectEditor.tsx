@@ -763,6 +763,11 @@ export default function ProjectEditor({ project, initialContent, locale, t }: Pr
 
         {!selected && <p className={scss.empty}>{e.selectSection}</p>}
       </aside>
+
+      <Link href={`/projects/${project.id}/qr`} className={scss.stickyQrBtn} onClick={handleGetQr}>
+        <QrCode size={14} />
+        {t.qrCodePage.title}
+      </Link>
     </div>
   );
 }

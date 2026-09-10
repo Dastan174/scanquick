@@ -360,11 +360,17 @@ export default function InvitationEditor({ project, initialContent }: Invitation
               key={project.id}
               src={previewSrc}
               className={scss.previewFrame}
+              style={{ pointerEvents: 'none' }}
               title="Live preview"
             />
           </PhoneFrame>
         </div>
       </div>
+
+      <Link href={`/projects/${project.id}/qr`} className={scss.stickyQrBtn} onClick={handleGetQr}>
+        <QrCode size={14} />
+        Ваш QR-код
+      </Link>
     </div>
   );
 }
