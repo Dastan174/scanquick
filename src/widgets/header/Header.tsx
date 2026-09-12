@@ -27,7 +27,6 @@ export default async function Header() {
           </Link>
           <nav className={scss.links}>
             <Link href="#features">{t.header.features}</Link>
-            <Link href="#templates">{t.header.templates}</Link>
             <Link href="#pricing">{t.header.pricing}</Link>
             <Link href="#faq">{t.header.faq}</Link>
           </nav>

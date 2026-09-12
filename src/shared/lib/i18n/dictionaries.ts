@@ -23,7 +23,6 @@ const ru = {
   },
   header: {
     features: 'Возможности',
-    templates: 'Шаблоны',
     pricing: 'Тарифы',
     faq: 'Вопросы',
     signIn: 'Войти',
@@ -586,7 +585,6 @@ const en: typeof ru = {
   },
   header: {
     features: 'Features',
-    templates: 'Templates',
     pricing: 'Pricing',
     faq: 'FAQ',
     signIn: 'Sign in',

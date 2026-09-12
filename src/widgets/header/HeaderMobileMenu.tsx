@@ -34,9 +34,6 @@ export default function HeaderMobileMenu({ t, locale, isLoggedIn }: HeaderMobile
         <Link href="#features" onClick={close}>
           {t.features}
         </Link>
-        <Link href="#templates" onClick={close}>
-          {t.templates}
-        </Link>
         <Link href="#pricing" onClick={close}>
           {t.pricing}
         </Link>
