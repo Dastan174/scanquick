@@ -21,6 +21,7 @@ import {
   getMyProjectTelegramLink,
   getMyProjectTelegramStatus,
   setProjectStatus,
+  deleteProject,
 } from '@/app/(admin)/projects/actions';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import { compressImage } from '@/shared/lib/compressImage';
@@ -93,6 +94,25 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   // itself changes, so a plain closure over invitationContent would still
   // see whatever it was back then — stale by the time steps 3-7 are edited.
   const invitationContentRef = useRef(invitationContent);
+  // Marks the invitation wizard as actually finished (reached the QR page),
+  // so the abandon-cleanup below knows not to delete it — see that effect.
+  const invitationFinishedRef = useRef(false);
+
+  // The invitation project is created early (right after the names step) so
+  // the remaining steps can show a real live preview — but that means
+  // leaving the wizard before finishing (closing the tab, going back to
+  // /projects) would otherwise strand an empty draft project. Deleting it
+  // on unmount only catches in-app navigation away from the wizard, not a
+  // hard tab close/refresh — there's no reliable way to run an async
+  // cleanup for that case.
+  useEffect(
+    () => () => {
+      if (invitationId && !invitationFinishedRef.current) {
+        deleteProject(invitationId);
+      }
+    },
+    [invitationId],
+  );
 
   const namesLabel = yourName && partnerName ? `${yourName} & ${partnerName}` : t.namesPlaceholder;
   const activeTemplate = templates.find((tp) => tp.id === templateId) ?? templates[0];
@@ -168,6 +188,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
       return;
     }
     await setProjectStatus(invitationId, 'published');
+    invitationFinishedRef.current = true;
     router.push(`/projects/${invitationId}/qr`);
   };
 
