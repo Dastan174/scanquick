@@ -27,7 +27,11 @@ import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import { compressImage } from '@/shared/lib/compressImage';
 import { demoLoveStoryContent } from '@/shared/lib/loveStoryContent';
 import { COVER_TEMPLATES } from '@/shared/lib/coverTemplates';
-import { demoInvitationContent, type InvitationContent } from '@/shared/lib/invitationContent';
+import {
+  demoInvitationContent,
+  ACTIVITY_CATEGORY_PRESETS,
+  type InvitationContent,
+} from '@/shared/lib/invitationContent';
 import TextListEditor from '@/widgets/projectEditor/TextListEditor';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import type { Locale } from '@/shared/lib/i18n/shared';
@@ -37,24 +41,29 @@ import scss from './projectWizard.module.scss';
 // Steps 3-8 (the invitation content screens) aren't localized — same as
 // InvitationEditor.tsx, this feature is Russian-only for now.
 const INVITATION_STEP_HEADINGS: Record<number, { title: string; em: string }> = {
-  3: { title: 'Первый', em: 'вопрос' },
-  4: { title: 'Экран', em: 'подтверждения' },
-  5: { title: 'Дата', em: 'и время' },
-  6: { title: 'Куда', em: 'сходим' },
-  7: { title: 'Финальный', em: 'экран' },
-  8: { title: 'Уведомления', em: 'в Telegram' },
+  3: { title: 'Как', em: 'открыть' },
+  4: { title: 'Первый', em: 'вопрос' },
+  5: { title: 'Экран', em: 'подтверждения' },
+  6: { title: 'Дата', em: 'и время' },
+  7: { title: 'Куда', em: 'сходим' },
+  8: { title: 'Финальный', em: 'экран' },
+  9: { title: 'Оформ', em: 'ление' },
+  10: { title: 'Уведомления', em: 'в Telegram' },
 };
 
 // Which visitor-facing screen each content step edits, so the (click-through
 // proof) preview shows that screen instead of always starting at the
-// question. Step 8 (Telegram) has no screen of its own — it stays on 'final'.
+// question. Steps 9-10 (design, Telegram) have no screen of their own — the
+// design step still benefits from seeing the question screen it themes.
 const PREVIEW_SCREEN_BY_STEP: Record<number, string> = {
-  3: 'question',
-  4: 'confirm',
-  5: 'date',
-  6: 'activity',
-  7: 'final',
+  3: 'lock',
+  4: 'question',
+  5: 'confirm',
+  6: 'date',
+  7: 'activity',
   8: 'final',
+  9: 'question',
+  10: 'final',
 };
 
 interface ProjectWizardProps {
@@ -118,7 +127,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const activeTemplate = templates.find((tp) => tp.id === templateId) ?? templates[0];
   const canContinueNames = projectName.trim() && yourName.trim() && partnerName.trim();
   const isInvitation = siteType === INVITATION_INDEX;
-  const totalSteps = isInvitation ? 8 : 4;
+  const totalSteps = isInvitation ? 10 : 4;
 
   const patchInvitation = (fields: Partial<InvitationContent>) =>
     setInvitationContent((c) => ({ ...c, ...fields }));
@@ -127,6 +136,13 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   // none of them should be skippable while blank — the fields all start
   // pre-filled from demoInvitationContent, so this only ever blocks someone
   // who cleared one out.
+  const canContinueOpenMode =
+    Boolean(
+      (invitationContent.openMode !== 'code' && invitationContent.openMode !== 'scheduled') ||
+      invitationContent.openLockedTitle.trim(),
+    ) &&
+    Boolean(invitationContent.openMode !== 'code' || invitationContent.openCode?.trim()) &&
+    Boolean(invitationContent.openMode !== 'scheduled' || invitationContent.openAt?.trim());
   const canContinueQuestion = Boolean(
     invitationContent.questionTitle.trim() &&
     invitationContent.yesLabel.trim() &&
@@ -444,6 +460,73 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
 
         {step === 3 && isInvitation && (
           <div className={scss.step}>
+            <h2>Как открыть</h2>
+            <p>Что получатель увидит первым делом</p>
+
+            <label className={scss.field}>
+              Способ открытия
+              <select
+                value={invitationContent.openMode}
+                onChange={(e) =>
+                  patchInvitation({ openMode: e.target.value as InvitationContent['openMode'] })
+                }
+              >
+                <option value="direct">Сразу к вопросу</option>
+                <option value="code">Код из цифр</option>
+                <option value="scratch">Стереть фон (скретч-карта)</option>
+                <option value="envelope">Конверт</option>
+                <option value="scheduled">Открыть в заданное время</option>
+              </select>
+            </label>
+            {(invitationContent.openMode === 'code' ||
+              invitationContent.openMode === 'scheduled') && (
+              <label className={scss.field}>
+                Заголовок экрана блокировки
+                <input
+                  value={invitationContent.openLockedTitle}
+                  onChange={(e) => patchInvitation({ openLockedTitle: e.target.value })}
+                />
+              </label>
+            )}
+            {invitationContent.openMode === 'code' && (
+              <label className={scss.field}>
+                Код (цифры, которые нужно ввести)
+                <input
+                  value={invitationContent.openCode ?? ''}
+                  onChange={(e) => patchInvitation({ openCode: e.target.value })}
+                  placeholder="1234"
+                />
+              </label>
+            )}
+            {invitationContent.openMode === 'scheduled' && (
+              <label className={scss.field}>
+                Откроется не раньше
+                <input
+                  type="datetime-local"
+                  value={invitationContent.openAt ?? ''}
+                  onChange={(e) => patchInvitation({ openAt: e.target.value })}
+                />
+              </label>
+            )}
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(2)}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button
+                className={scss.continueBtn}
+                disabled={!canContinueOpenMode}
+                onClick={() => setStep(4)}
+              >
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && isInvitation && (
+          <div className={scss.step}>
             <h2>Экран «Да / Нет»</h2>
             <p>Первый вопрос, который увидит получатель</p>
 
@@ -470,16 +553,48 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 />
               </label>
             </div>
+            <div className={scss.fieldRow}>
+              <label className={scss.field}>
+                Анимация «Да»
+                <select
+                  value={invitationContent.yesAnimation}
+                  onChange={(e) =>
+                    patchInvitation({
+                      yesAnimation: e.target.value as InvitationContent['yesAnimation'],
+                    })
+                  }
+                >
+                  <option value="none">Без анимации</option>
+                  <option value="shake">Тряска и взрыв</option>
+                </select>
+              </label>
+              <label className={scss.field}>
+                Анимация «Нет»
+                <select
+                  value={invitationContent.noAnimation}
+                  onChange={(e) =>
+                    patchInvitation({
+                      noAnimation: e.target.value as InvitationContent['noAnimation'],
+                    })
+                  }
+                >
+                  <option value="dodge">Убегает от курсора</option>
+                  <option value="kiss">Появляется поцелуй</option>
+                  <option value="shrink">Уменьшается</option>
+                  <option value="none">Без анимации</option>
+                </select>
+              </label>
+            </div>
 
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(2)}>
+              <button className={scss.backBtn} onClick={() => setStep(3)}>
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
               <button
                 className={scss.continueBtn}
                 disabled={!canContinueQuestion}
-                onClick={() => setStep(4)}
+                onClick={() => setStep(5)}
               >
                 {t.continue}
               </button>
@@ -487,7 +602,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           </div>
         )}
 
-        {step === 4 && isInvitation && (
+        {step === 5 && isInvitation && (
           <div className={scss.step}>
             <h2>Экран подтверждения</h2>
             <p>Показывается сразу после «Да»</p>
@@ -515,14 +630,14 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             </label>
 
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(3)}>
+              <button className={scss.backBtn} onClick={() => setStep(4)}>
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
               <button
                 className={scss.continueBtn}
                 disabled={!canContinueConfirm}
-                onClick={() => setStep(5)}
+                onClick={() => setStep(6)}
               >
                 {t.continue}
               </button>
@@ -530,7 +645,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           </div>
         )}
 
-        {step === 5 && isInvitation && (
+        {step === 6 && isInvitation && (
           <div className={scss.step}>
             <h2>Дата и время</h2>
             <p>Кто выбирает, когда встретиться</p>
@@ -583,14 +698,14 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             </label>
 
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(4)}>
+              <button className={scss.backBtn} onClick={() => setStep(5)}>
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
               <button
                 className={scss.continueBtn}
                 disabled={!canContinueDate}
-                onClick={() => setStep(6)}
+                onClick={() => setStep(7)}
               >
                 {t.continue}
               </button>
@@ -598,7 +713,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           </div>
         )}
 
-        {step === 6 && isInvitation && (
+        {step === 7 && isInvitation && (
           <div className={scss.step}>
             <h2>Куда сходим</h2>
             <p>Получатель выберет один из вариантов</p>
@@ -610,6 +725,21 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 onChange={(e) => patchInvitation({ activityQuestionTitle: e.target.value })}
               />
             </label>
+            <div className={scss.field}>
+              Готовые варианты
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {Object.entries(ACTIVITY_CATEGORY_PRESETS).map(([key, preset]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={scss.backBtn}
+                    onClick={() => patchInvitation({ activityOptions: preset.options })}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <label className={scss.field}>
               Варианты
               <TextListEditor
@@ -618,6 +748,17 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 addLabel="Добавить вариант"
                 removeLabel="Удалить вариант"
               />
+            </label>
+            <label
+              className={scss.field}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+            >
+              <input
+                type="checkbox"
+                checked={invitationContent.activityMultiSelect}
+                onChange={(e) => patchInvitation({ activityMultiSelect: e.target.checked })}
+              />
+              Можно выбрать несколько вариантов
             </label>
             <label className={scss.field}>
               Текст кнопки
@@ -628,14 +769,14 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             </label>
 
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(5)}>
+              <button className={scss.backBtn} onClick={() => setStep(6)}>
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
               <button
                 className={scss.continueBtn}
                 disabled={!canContinueActivity}
-                onClick={() => setStep(7)}
+                onClick={() => setStep(8)}
               >
                 {t.continue}
               </button>
@@ -643,7 +784,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           </div>
         )}
 
-        {step === 7 && isInvitation && (
+        {step === 8 && isInvitation && (
           <div className={scss.step}>
             <h2>Финальный экран</h2>
             <p>Покажется после ответа получателя</p>
@@ -666,14 +807,14 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             </label>
 
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(6)}>
+              <button className={scss.backBtn} onClick={() => setStep(7)}>
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
               <button
                 className={scss.continueBtn}
                 disabled={!canContinueFinal}
-                onClick={() => setStep(8)}
+                onClick={() => setStep(9)}
               >
                 {t.continue}
               </button>
@@ -681,7 +822,56 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
           </div>
         )}
 
-        {step === 8 && isInvitation && (
+        {step === 9 && isInvitation && (
+          <div className={scss.step}>
+            <h2>Оформление</h2>
+            <p>Форма карточки и цвет — применяются на все экраны</p>
+
+            <div className={scss.fieldRow}>
+              <label className={scss.field}>
+                Форма карточки
+                <select
+                  value={invitationContent.cardShape}
+                  onChange={(e) =>
+                    patchInvitation({ cardShape: e.target.value as InvitationContent['cardShape'] })
+                  }
+                >
+                  <option value="rounded">Скруглённая</option>
+                  <option value="wavy">Волнистая</option>
+                </select>
+              </label>
+              <label className={scss.field}>
+                Цвет
+                <select
+                  value={invitationContent.themeColor}
+                  onChange={(e) =>
+                    patchInvitation({
+                      themeColor: e.target.value as InvitationContent['themeColor'],
+                    })
+                  }
+                >
+                  <option value="pink">Розовый</option>
+                  <option value="red">Красный</option>
+                  <option value="olive">Оливковый</option>
+                  <option value="blue">Синий</option>
+                  <option value="purple">Фиолетовый</option>
+                </select>
+              </label>
+            </div>
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(8)}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button className={scss.continueBtn} onClick={() => setStep(10)}>
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 10 && isInvitation && (
           <div className={scss.step}>
             <h2>Уведомления в Telegram</h2>
             <p>Когда получатель ответит, вы получите сообщение от бота</p>
@@ -707,7 +897,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             {error && <div className={scss.error}>{error}</div>}
 
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(7)} disabled={submitting}>
+              <button className={scss.backBtn} onClick={() => setStep(9)} disabled={submitting}>
                 <ChevronLeft size={14} />
                 {t.back}
               </button>

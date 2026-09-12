@@ -7,12 +7,23 @@ export interface InvitationContent {
   questionTitle: string;
   yesLabel: string;
   noLabel: string;
+  // How the question screen first unlocks. 'direct' is today's plain behavior;
+  // the rest gate it behind a small reveal moment before the question shows.
+  openMode: 'direct' | 'code' | 'scratch' | 'envelope' | 'scheduled';
+  openCode?: string;
+  openAt?: string;
+  openLockedTitle: string;
+  // Reaction played when the recipient taps Yes/No — 'none'/'dodge' are today's
+  // exact (lack of) behavior, kept as the defaults for old content.
+  yesAnimation: 'shake' | 'none';
+  noAnimation: 'dodge' | 'kiss' | 'shrink' | 'none';
   confirmTitle: string;
   confirmSubtitle: string;
   confirmButtonLabel: string;
-  // The recipient picks one of these before moving on to date/time.
+  // The recipient picks one (or several) of these before moving on to date/time.
   activityQuestionTitle: string;
   activityOptions: string[];
+  activityMultiSelect: boolean;
   activityButtonLabel: string;
   // 'recipient' lets whoever opens the link pick the date/time themselves;
   // 'fixed' shows a date/time the creator already decided, just for them
@@ -26,17 +37,25 @@ export interface InvitationContent {
   finalTitle: string;
   finalDescription: string;
   coverGradient: string;
+  // Applies to every screen — 'rounded'/'pink' are today's exact look.
+  cardShape: 'rounded' | 'wavy';
+  themeColor: 'pink' | 'red' | 'olive' | 'blue' | 'purple';
 }
 
 export const demoInvitationContent: InvitationContent = {
   questionTitle: 'Ты пойдёшь со мной на свидание?',
   yesLabel: 'Да',
   noLabel: 'Нет',
+  openMode: 'direct',
+  openLockedTitle: 'Ещё рано! Загляни попозже',
+  yesAnimation: 'none',
+  noAnimation: 'dodge',
   confirmTitle: 'Подожди, ты точно сказала да?',
   confirmSubtitle: 'Я был готов, что ты откажешь :)',
   confirmButtonLabel: 'Да, да, ДА',
   activityQuestionTitle: 'Куда сходим?',
   activityOptions: ['🚶 Прогулка', '🍽️ Покушать', '🎬 Кино', '☕ Кофе'],
+  activityMultiSelect: false,
   activityButtonLabel: 'Дальше',
   dateMode: 'recipient',
   dateQuestionTitle: 'Когда тебе удобно?',
@@ -44,4 +63,41 @@ export const demoInvitationContent: InvitationContent = {
   finalTitle: 'Ура!',
   finalDescription: 'Жду тебя {date} в {time} — {activity}, буду считать минуты.',
   coverGradient: 'linear-gradient(135deg, #fdf0f3, #fce4b0, #f0a060)',
+  cardShape: 'rounded',
+  themeColor: 'pink',
+};
+
+// Curated preset lists for the editor's "quick fill" category buttons — not a
+// stored/runtime concept, just a convenience that overwrites activityOptions.
+export const ACTIVITY_CATEGORY_PRESETS: Record<string, { label: string; options: string[] }> = {
+  activities: {
+    label: 'Активности',
+    options: ['🚶 Прогулка', '🍽️ Покушать', '🎬 Кино', '☕ Кофе'],
+  },
+  food: {
+    label: 'Блюда',
+    options: ['🍕 Пицца', '🍣 Суши', '🍔 Бургер', '🍝 Паста'],
+  },
+  movies: {
+    label: 'Кино',
+    options: ['😂 Комедия', '😱 Ужасы', '💕 Мелодрама', '🎬 Боевик'],
+  },
+  drinks: {
+    label: 'Напитки',
+    options: ['☕ Кофе', '🍵 Чай', '🧋 Смузи', '🍹 Коктейль'],
+  },
+  places: {
+    label: 'Места',
+    options: ['🌳 Парк', '🏛️ Музей', '🌊 Набережная', '🎡 Аттракционы'],
+  },
+};
+
+// A small themeable palette — swaps out --invite-primary/--invite-primary-light
+// on the invitation experience only (see DateInvitationExperience.tsx).
+export const THEME_COLORS: Record<InvitationContent['themeColor'], [string, string]> = {
+  pink: ['#d4607a', '#e78399'],
+  red: ['#e0475a', '#f0707e'],
+  olive: ['#6b8f3f', '#94b56a'],
+  blue: ['#4a7fc7', '#7aa3dc'],
+  purple: ['#8b5fbf', '#b28ad9'],
 };

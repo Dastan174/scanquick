@@ -12,7 +12,11 @@ import {
   Settings as SettingsIcon,
 } from 'lucide-react';
 import type { Project } from '@/shared/lib/mockData';
-import { demoInvitationContent, type InvitationContent } from '@/shared/lib/invitationContent';
+import {
+  demoInvitationContent,
+  ACTIVITY_CATEGORY_PRESETS,
+  type InvitationContent,
+} from '@/shared/lib/invitationContent';
 import {
   updateInvitationContent,
   getMyProjectTelegramLink,
@@ -140,28 +144,105 @@ export default function InvitationEditor({ project, initialContent }: Invitation
       <aside className={scss.right} style={{ borderRight: '1px solid var(--color-border)' }}>
         <div className={scss.rightHeader}>
           <div>
-            <strong>Экран «Да / Нет»</strong>
-            <span>Первый вопрос, который увидит получатель</span>
+            <strong>Как открыть</strong>
+            <span>Что получатель увидит первым делом</span>
           </div>
         </div>
 
         <label className={scss.field}>
-          Заголовок
-          <textarea
-            rows={2}
-            value={content.questionTitle}
-            onChange={(e) => patch({ questionTitle: e.target.value })}
-          />
+          Способ открытия
+          <select
+            value={content.openMode}
+            onChange={(e) => patch({ openMode: e.target.value as InvitationContent['openMode'] })}
+          >
+            <option value="direct">Сразу к вопросу</option>
+            <option value="code">Код из цифр</option>
+            <option value="scratch">Стереть фон (скретч-карта)</option>
+            <option value="envelope">Конверт</option>
+            <option value="scheduled">Открыть в заданное время</option>
+          </select>
         </label>
-        <div className={scss.field} style={{ display: 'flex', gap: 12 }}>
-          <label className={scss.field} style={{ flex: 1 }}>
-            Кнопка «Да»
-            <input value={content.yesLabel} onChange={(e) => patch({ yesLabel: e.target.value })} />
+        {(content.openMode === 'code' || content.openMode === 'scheduled') && (
+          <label className={scss.field}>
+            Заголовок экрана блокировки
+            <input
+              value={content.openLockedTitle}
+              onChange={(e) => patch({ openLockedTitle: e.target.value })}
+            />
           </label>
-          <label className={scss.field} style={{ flex: 1 }}>
-            Кнопка «Нет»
-            <input value={content.noLabel} onChange={(e) => patch({ noLabel: e.target.value })} />
+        )}
+        {content.openMode === 'code' && (
+          <label className={scss.field}>
+            Код (цифры, которые нужно ввести)
+            <input
+              value={content.openCode ?? ''}
+              onChange={(e) => patch({ openCode: e.target.value })}
+              placeholder="1234"
+            />
           </label>
+        )}
+        {content.openMode === 'scheduled' && (
+          <label className={scss.field}>
+            Откроется не раньше
+            <input
+              type="datetime-local"
+              value={content.openAt ?? ''}
+              onChange={(e) => patch({ openAt: e.target.value })}
+            />
+          </label>
+        )}
+
+        <div className={scss.storyGroup}>
+          <strong style={{ display: 'block', marginBottom: 12 }}>Экран «Да / Нет»</strong>
+          <label className={scss.field}>
+            Заголовок
+            <textarea
+              rows={2}
+              value={content.questionTitle}
+              onChange={(e) => patch({ questionTitle: e.target.value })}
+            />
+          </label>
+          <div className={scss.field} style={{ display: 'flex', gap: 12 }}>
+            <label className={scss.field} style={{ flex: 1 }}>
+              Кнопка «Да»
+              <input
+                value={content.yesLabel}
+                onChange={(e) => patch({ yesLabel: e.target.value })}
+              />
+            </label>
+            <label className={scss.field} style={{ flex: 1 }}>
+              Кнопка «Нет»
+              <input value={content.noLabel} onChange={(e) => patch({ noLabel: e.target.value })} />
+            </label>
+          </div>
+          <div className={scss.field} style={{ display: 'flex', gap: 12 }}>
+            <label className={scss.field} style={{ flex: 1 }}>
+              Анимация «Да»
+              <select
+                value={content.yesAnimation}
+                onChange={(e) =>
+                  patch({ yesAnimation: e.target.value as InvitationContent['yesAnimation'] })
+                }
+              >
+                <option value="none">Без анимации</option>
+                <option value="shake">Тряска и взрыв</option>
+              </select>
+            </label>
+            <label className={scss.field} style={{ flex: 1 }}>
+              Анимация «Нет»
+              <select
+                value={content.noAnimation}
+                onChange={(e) =>
+                  patch({ noAnimation: e.target.value as InvitationContent['noAnimation'] })
+                }
+              >
+                <option value="dodge">Убегает от курсора</option>
+                <option value="kiss">Появляется поцелуй</option>
+                <option value="shrink">Уменьшается</option>
+                <option value="none">Без анимации</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <div className={scss.storyGroup}>
@@ -246,6 +327,21 @@ export default function InvitationEditor({ project, initialContent }: Invitation
               onChange={(e) => patch({ activityQuestionTitle: e.target.value })}
             />
           </label>
+          <div className={scss.field}>
+            Готовые варианты
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {Object.entries(ACTIVITY_CATEGORY_PRESETS).map(([key, preset]) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={scss.addBtn}
+                  onClick={() => patch({ activityOptions: preset.options })}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <label className={scss.field}>
             Варианты
             <TextListEditor
@@ -254,6 +350,17 @@ export default function InvitationEditor({ project, initialContent }: Invitation
               addLabel="Добавить вариант"
               removeLabel="Удалить вариант"
             />
+          </label>
+          <label
+            className={scss.field}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+          >
+            <input
+              type="checkbox"
+              checked={content.activityMultiSelect}
+              onChange={(e) => patch({ activityMultiSelect: e.target.checked })}
+            />
+            Можно выбрать несколько вариантов
           </label>
           <label className={scss.field}>
             Текст кнопки
@@ -282,6 +389,39 @@ export default function InvitationEditor({ project, initialContent }: Invitation
             />
             <p className={scss.hint}>{'{date}, {time} и {activity} подставятся автоматически'}</p>
           </label>
+        </div>
+
+        <div className={scss.storyGroup}>
+          <strong style={{ display: 'block', marginBottom: 12 }}>Оформление</strong>
+          <div className={scss.field} style={{ display: 'flex', gap: 12 }}>
+            <label className={scss.field} style={{ flex: 1 }}>
+              Форма карточки
+              <select
+                value={content.cardShape}
+                onChange={(e) =>
+                  patch({ cardShape: e.target.value as InvitationContent['cardShape'] })
+                }
+              >
+                <option value="rounded">Скруглённая</option>
+                <option value="wavy">Волнистая</option>
+              </select>
+            </label>
+            <label className={scss.field} style={{ flex: 1 }}>
+              Цвет
+              <select
+                value={content.themeColor}
+                onChange={(e) =>
+                  patch({ themeColor: e.target.value as InvitationContent['themeColor'] })
+                }
+              >
+                <option value="pink">Розовый</option>
+                <option value="red">Красный</option>
+                <option value="olive">Оливковый</option>
+                <option value="blue">Синий</option>
+                <option value="purple">Фиолетовый</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <div className={scss.storyGroup}>
