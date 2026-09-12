@@ -222,6 +222,8 @@ const ru = {
     storiesCreated: '12 847 историй любви создано',
   },
   auth: {
+    divider: 'или',
+    continueWithGoogle: 'Продолжить через Google',
     login: {
       title: 'С возвращением',
       subtitle: 'Войдите, чтобы продолжить создавать вашу историю любви.',
@@ -821,6 +823,8 @@ const en: typeof ru = {
     storiesCreated: '12,847 love stories created',
   },
   auth: {
+    divider: 'or',
+    continueWithGoogle: 'Continue with Google',
     login: {
       title: 'Welcome back',
       subtitle: 'Sign in to keep building your love story.',

@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { signUp } from '../actions';
+import { signUp, signInWithGoogle } from '../actions';
 import scss from '../auth.module.scss';
 import { getT, translateAuthError } from '@/shared/lib/i18n/locale';
+import GoogleIcon from '@/shared/ui/googleIcon/GoogleIcon';
 
 interface SignupPageProps {
   searchParams: Promise<{ error?: string }>;
@@ -40,6 +41,15 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
         </label>
         <button type="submit" className={scss.submit}>
           {t.auth.signup.submit}
+        </button>
+      </form>
+
+      <div className={scss.divider}>{t.auth.divider}</div>
+
+      <form action={signInWithGoogle}>
+        <button type="submit" className={scss.googleBtn}>
+          <GoogleIcon />
+          {t.auth.continueWithGoogle}
         </button>
       </form>
 

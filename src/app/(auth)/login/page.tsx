@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { signIn } from '../actions';
+import { signIn, signInWithGoogle } from '../actions';
 import scss from '../auth.module.scss';
 import { getT, translateAuthError } from '@/shared/lib/i18n/locale';
+import GoogleIcon from '@/shared/ui/googleIcon/GoogleIcon';
 
 interface LoginPageProps {
   searchParams: Promise<{ error?: string; message?: string }>;
@@ -31,6 +32,15 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </label>
         <button type="submit" className={scss.submit}>
           {t.auth.login.submit}
+        </button>
+      </form>
+
+      <div className={scss.divider}>{t.auth.divider}</div>
+
+      <form action={signInWithGoogle}>
+        <button type="submit" className={scss.googleBtn}>
+          <GoogleIcon />
+          {t.auth.continueWithGoogle}
         </button>
       </form>
 

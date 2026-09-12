@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createClient } from '@/shared/lib/supabase/server';
 
 export async function signIn(formData: FormData) {
@@ -43,6 +44,28 @@ export async function signUp(formData: FormData) {
   redirect(
     `/login?message=${encodeURIComponent('Проверьте почту и подтвердите регистрацию, затем войдите.')}`,
   );
+}
+
+export async function signInWithGoogle() {
+  const supabase = await createClient();
+  // Same origin the user is actually on (localhost in dev, the real domain
+  // in prod) — the client-side origin isn't available here since this runs
+  // on the server.
+  const headersList = await headers();
+  const origin = headersList.get('origin') ?? `https://${headersList.get('host')}`;
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: `${origin}/auth/callback` },
+  });
+
+  if (error || !data.url) {
+    redirect(
+      `/login?error=${encodeURIComponent(error?.message ?? 'Не удалось войти через Google.')}`,
+    );
+  }
+
+  redirect(data.url);
 }
 
 export async function signOut() {
