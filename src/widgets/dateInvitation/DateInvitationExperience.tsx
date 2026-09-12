@@ -10,7 +10,7 @@ import {
 import { submitInvitationResponse } from '@/app/(admin)/projects/actions';
 import scss from './dateInvitationExperience.module.scss';
 
-type Screen = 'lock' | 'question' | 'confirm' | 'date' | 'activity' | 'final';
+type Screen = 'lock' | 'question' | 'confirm' | 'date' | 'activity' | 'activityDetail' | 'final';
 
 interface DateInvitationExperienceProps {
   projectId: string;
@@ -25,7 +25,26 @@ interface DateInvitationExperienceProps {
   previewScreen?: string;
 }
 
-const SCREENS: Screen[] = ['lock', 'question', 'confirm', 'date', 'activity', 'final'];
+const SCREENS: Screen[] = [
+  'lock',
+  'question',
+  'confirm',
+  'date',
+  'activity',
+  'activityDetail',
+  'final',
+];
+// Locked-preview navigation only allows moving between screens that belong to
+// the same editing section — e.g. finishing a scratch/envelope/code reveal
+// still shows the question underneath (same "Как открыть" section), and
+// picking a drilldown activity still shows its follow-up question (same
+// "Куда сходим" section). Anything else (question → confirm, date →
+// activity, …) would jump into a different section's screen and stays
+// blocked — see goTo below.
+const LOCKED_PREVIEW_TRANSITIONS: Partial<Record<Screen, Screen>> = {
+  lock: 'question',
+  activity: 'activityDetail',
+};
 const SCRATCH_CLEAR_THRESHOLD = 0.55;
 
 function fillTemplate(text: string, date: string, time: string, activity: string): string {
@@ -148,10 +167,11 @@ export default function DateInvitationExperience({
   const [activity, setActivity] = useState<string[]>(
     initialScreen === 'final'
       ? content.activityOptions[0]
-        ? [content.activityOptions[0]]
+        ? [content.activityOptions[0].label]
         : []
       : [],
   );
+  const [activityDetail, setActivityDetail] = useState<string[]>([]);
   const [date, setDate] = useState(
     content.fixedDate ?? (initialScreen === 'final' ? '2026-09-20' : ''),
   );
@@ -165,7 +185,7 @@ export default function DateInvitationExperience({
   // off to a different step's screen or write a real RSVP into the DB.
   const isPreviewLocked = Boolean(previewScreen);
   const goTo = (next: Screen) => {
-    if (!isPreviewLocked) setScreen(next);
+    if (!isPreviewLocked || LOCKED_PREVIEW_TRANSITIONS[screen] === next) setScreen(next);
   };
 
   // 'scheduled' locks re-check themselves every second so an already-open tab
@@ -227,16 +247,42 @@ export default function DateInvitationExperience({
       if (!content.activityMultiSelect) return [option];
       return cur.includes(option) ? cur.filter((o) => o !== option) : [...cur, option];
     });
+    // A fresh top-level pick invalidates whatever follow-up was chosen for
+    // the previous one.
+    setActivityDetail([]);
+  };
+
+  const toggleActivityDetail = (option: string) => {
+    setActivityDetail((cur) => (cur.includes(option) ? [] : [option]));
+  };
+
+  // The follow-up screen's answer is the one that actually describes the
+  // plan (e.g. "Пицца" beats "Покушать") — it only exists once the recipient
+  // has answered it, so fall back to the top-level pick(s) otherwise.
+  const finalActivity = activityDetail.length > 0 ? activityDetail : activity;
+
+  // Single-select + the chosen option carries its own follow-up question:
+  // ask that before moving on, instead of finishing here.
+  const continueFromActivity = () => {
+    const chosen =
+      !content.activityMultiSelect && activity.length === 1
+        ? content.activityOptions.find((o) => o.label === activity[0])
+        : undefined;
+    if (chosen?.subOptions?.length) {
+      goTo('activityDetail');
+      return;
+    }
+    confirmDate();
   };
 
   const confirmDate = async () => {
-    if (!date || !time || activity.length === 0) return;
+    if (!date || !time || finalActivity.length === 0) return;
     // Locked preview: never actually write a response for the real project
     // behind this preview — there's nothing further to demo on this screen
     // anyway, since option selection already shows and highlights live.
     if (isPreviewLocked) return;
     setSubmitting(true);
-    await submitInvitationResponse(projectId, date, time, activity.join(', '));
+    await submitInvitationResponse(projectId, date, time, finalActivity.join(', '));
     setSubmitting(false);
     goTo('final');
   };
@@ -344,12 +390,7 @@ export default function DateInvitationExperience({
               className={`${scss.envelope} ${envelopeOpening ? scss.envelopeOpen : ''}`}
               onClick={() => {
                 setEnvelopeOpening(true);
-                window.setTimeout(() => {
-                  // Locked preview: reset instead of advancing, so the owner
-                  // can close and reopen the envelope to check the animation.
-                  if (isPreviewLocked) setEnvelopeOpening(false);
-                  else goTo('question');
-                }, 650);
+                window.setTimeout(() => goTo('question'), 650);
               }}
               aria-label="Открыть конверт"
             >
@@ -415,29 +456,58 @@ export default function DateInvitationExperience({
             <div className={scss.optionsGrid}>
               {content.activityOptions.map((option) => (
                 <button
-                  key={option}
-                  className={`${scss.optionBtn} ${activity.includes(option) ? scss.optionActive : ''}`}
-                  onClick={() => toggleActivity(option)}
+                  key={option.label}
+                  className={`${scss.optionBtn} ${activity.includes(option.label) ? scss.optionActive : ''}`}
+                  onClick={() => toggleActivity(option.label)}
                 >
-                  {option}
+                  {option.label}
                 </button>
               ))}
             </div>
             <button
               className={scss.yesBtn}
               disabled={activity.length === 0 || submitting}
-              onClick={confirmDate}
+              onClick={continueFromActivity}
             >
               {submitting ? '…' : content.activityButtonLabel}
             </button>
           </>
         )}
 
+        {screen === 'activityDetail' &&
+          (() => {
+            const chosen = content.activityOptions.find((o) => o.label === activity[0]);
+            const subOptions = chosen?.subOptions ?? [];
+            return (
+              <>
+                <h1>{chosen?.subQuestion || content.activityQuestionTitle}</h1>
+                <div className={scss.optionsGrid}>
+                  {subOptions.map((option) => (
+                    <button
+                      key={option}
+                      className={`${scss.optionBtn} ${activityDetail.includes(option) ? scss.optionActive : ''}`}
+                      onClick={() => toggleActivityDetail(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className={scss.yesBtn}
+                  disabled={activityDetail.length === 0 || submitting}
+                  onClick={confirmDate}
+                >
+                  {submitting ? '…' : content.activityButtonLabel}
+                </button>
+              </>
+            );
+          })()}
+
         {screen === 'final' && (
           <>
             <Image src="/hug.webp" alt="" width={160} height={160} priority />
             <h1>{content.finalTitle}</h1>
-            <p>{fillTemplate(content.finalDescription, date, time, activity.join(', '))}</p>
+            <p>{fillTemplate(content.finalDescription, date, time, finalActivity.join(', '))}</p>
           </>
         )}
       </div>

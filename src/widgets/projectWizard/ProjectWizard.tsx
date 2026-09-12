@@ -32,7 +32,7 @@ import {
   ACTIVITY_CATEGORY_PRESETS,
   type InvitationContent,
 } from '@/shared/lib/invitationContent';
-import TextListEditor from '@/widgets/projectEditor/TextListEditor';
+import ActivityOptionsEditor from '@/widgets/projectEditor/ActivityOptionsEditor';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import type { Locale } from '@/shared/lib/i18n/shared';
 import { stepLabel } from '@/shared/lib/i18n/format';
@@ -156,7 +156,9 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const canContinueActivity = Boolean(
     invitationContent.activityQuestionTitle.trim() &&
     invitationContent.activityOptions.length > 0 &&
-    invitationContent.activityOptions.every((o) => o.trim()) &&
+    invitationContent.activityOptions.every(
+      (o) => o.label.trim() && (!o.subOptions || o.subOptions.every((s) => s.trim())),
+    ) &&
     invitationContent.activityButtonLabel.trim(),
   );
   // Only "Укажу сам" needs a date/time value — when the recipient picks,
@@ -734,7 +736,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                     className={scss.backBtn}
                     onClick={() =>
                       patchInvitation({
-                        activityOptions: preset.options,
+                        activityOptions: preset.options.map((label) => ({ label })),
                         activityQuestionTitle: preset.question,
                       })
                     }
@@ -746,11 +748,9 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             </div>
             <label className={scss.field}>
               Варианты
-              <TextListEditor
-                items={invitationContent.activityOptions}
-                onChange={(items) => patchInvitation({ activityOptions: items })}
-                addLabel="Добавить вариант"
-                removeLabel="Удалить вариант"
+              <ActivityOptionsEditor
+                options={invitationContent.activityOptions}
+                onChange={(options) => patchInvitation({ activityOptions: options })}
               />
             </label>
             <label
@@ -764,6 +764,11 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
               />
               Можно выбрать несколько вариантов
             </label>
+            {invitationContent.activityMultiSelect && (
+              <p className={scss.hint}>
+                Уточняющий вопрос сработает только если получатель выберет ровно один вариант.
+              </p>
+            )}
             <label className={scss.field}>
               Текст кнопки
               <input

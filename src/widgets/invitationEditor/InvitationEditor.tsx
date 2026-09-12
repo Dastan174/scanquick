@@ -16,6 +16,7 @@ import {
   demoInvitationContent,
   ACTIVITY_CATEGORY_PRESETS,
   BURST_PARTICLES,
+  normalizeActivityOptions,
   type InvitationContent,
 } from '@/shared/lib/invitationContent';
 import {
@@ -25,7 +26,7 @@ import {
   setProjectStatus,
 } from '@/app/(admin)/projects/actions';
 import PhoneFrame from '@/shared/ui/phoneFrame/PhoneFrame';
-import TextListEditor from '../projectEditor/TextListEditor';
+import ActivityOptionsEditor from '../projectEditor/ActivityOptionsEditor';
 import inviteScss from '../dateInvitation/dateInvitationExperience.module.scss';
 import scss from '../projectEditor/projectEditor.module.scss';
 
@@ -107,9 +108,12 @@ function NoAnimationPreview({ mode }: { mode: InvitationContent['noAnimation'] }
 }
 
 export default function InvitationEditor({ project, initialContent }: InvitationEditorProps) {
-  const [content, setContent] = useState<InvitationContent>({
-    ...demoInvitationContent,
-    ...(initialContent ?? {}),
+  const [content, setContent] = useState<InvitationContent>(() => {
+    const merged: InvitationContent = { ...demoInvitationContent, ...(initialContent ?? {}) };
+    // A project saved before ActivityOption existed has activityOptions as
+    // plain strings — normalize on load so the rest of the editor can always
+    // assume the current shape.
+    return { ...merged, activityOptions: normalizeActivityOptions(merged.activityOptions) };
   });
   const [saveState, setSaveState] = useState<'saved' | 'dirty' | 'saving'>('saved');
   const [status, setStatus] = useState(project.status);
@@ -439,7 +443,7 @@ export default function InvitationEditor({ project, initialContent }: Invitation
                   className={scss.addBtn}
                   onClick={() =>
                     patch({
-                      activityOptions: preset.options,
+                      activityOptions: preset.options.map((label) => ({ label })),
                       activityQuestionTitle: preset.question,
                     })
                   }
@@ -451,11 +455,9 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           </div>
           <label className={scss.field}>
             Варианты
-            <TextListEditor
-              items={content.activityOptions}
-              onChange={(items) => patch({ activityOptions: items })}
-              addLabel="Добавить вариант"
-              removeLabel="Удалить вариант"
+            <ActivityOptionsEditor
+              options={content.activityOptions}
+              onChange={(options) => patch({ activityOptions: options })}
             />
           </label>
           <label
@@ -469,6 +471,11 @@ export default function InvitationEditor({ project, initialContent }: Invitation
             />
             Можно выбрать несколько вариантов
           </label>
+          {content.activityMultiSelect && (
+            <p className={scss.hint}>
+              Уточняющий вопрос сработает только если получатель выберет ровно один вариант.
+            </p>
+          )}
           <label className={scss.field}>
             Текст кнопки
             <input

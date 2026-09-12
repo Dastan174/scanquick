@@ -6,7 +6,11 @@ import {
   getProjectBySlugAnyStatus,
 } from '@/shared/lib/supabase/projects';
 import { demoLoveStoryContent, type LoveStoryContent } from '@/shared/lib/loveStoryContent';
-import { demoInvitationContent, type InvitationContent } from '@/shared/lib/invitationContent';
+import {
+  demoInvitationContent,
+  normalizeActivityOptions,
+  type InvitationContent,
+} from '@/shared/lib/invitationContent';
 import { getT } from '@/shared/lib/i18n/locale';
 
 interface ViewProjectPageProps {
@@ -64,6 +68,10 @@ export default async function ViewProjectPage({ params, searchParams }: ViewProj
         // Malformed draft — fall back to the saved/demo content instead of crashing.
       }
     }
+    invitationContent = {
+      ...invitationContent,
+      activityOptions: normalizeActivityOptions(invitationContent.activityOptions),
+    };
     return (
       <DateInvitationExperience
         projectId={project.id}

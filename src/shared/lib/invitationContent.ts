@@ -2,6 +2,15 @@
 // RSVP flow, distinct from the love-story template (see loveStoryContent.ts).
 // Stored in the same `projects.content` JSONB column.
 
+// A top-level "where to go" choice. When it carries subOptions, picking it
+// (in single-select mode) opens one more screen asking that follow-up
+// question before moving on — e.g. "Покушать" → "Что будем есть?".
+export interface ActivityOption {
+  label: string;
+  subQuestion?: string;
+  subOptions?: string[];
+}
+
 export interface InvitationContent {
   questionImageUrl?: string;
   questionTitle: string;
@@ -22,7 +31,7 @@ export interface InvitationContent {
   confirmButtonLabel: string;
   // The recipient picks one (or several) of these before moving on to date/time.
   activityQuestionTitle: string;
-  activityOptions: string[];
+  activityOptions: ActivityOption[];
   activityMultiSelect: boolean;
   activityButtonLabel: string;
   // 'recipient' lets whoever opens the link pick the date/time themselves;
@@ -54,7 +63,28 @@ export const demoInvitationContent: InvitationContent = {
   confirmSubtitle: 'Я был готов, что ты откажешь :)',
   confirmButtonLabel: 'Да, да, ДА',
   activityQuestionTitle: 'Куда сходим?',
-  activityOptions: ['🚶 Прогулка', '🍽️ Покушать', '🎬 Кино', '☕ Кофе'],
+  activityOptions: [
+    {
+      label: '🚶 Прогулка',
+      subQuestion: 'Куда пойдём гулять?',
+      subOptions: ['🌳 Парк', '🏛️ Музей', '🌊 Набережная', '🎡 Аттракционы'],
+    },
+    {
+      label: '🍽️ Покушать',
+      subQuestion: 'Что будем есть?',
+      subOptions: ['🍕 Пицца', '🍣 Суши', '🍔 Бургер', '🍝 Паста'],
+    },
+    {
+      label: '🎬 Кино',
+      subQuestion: 'Какой фильм посмотрим?',
+      subOptions: ['😂 Комедия', '😱 Ужасы', '💕 Мелодрама', '🎬 Боевик'],
+    },
+    {
+      label: '☕ Кофе',
+      subQuestion: 'Что будем пить?',
+      subOptions: ['☕ Кофе', '🍵 Чай', '🧋 Смузи', '🍹 Коктейль'],
+    },
+  ],
   activityMultiSelect: false,
   activityButtonLabel: 'Дальше',
   dateMode: 'recipient',
@@ -66,6 +96,15 @@ export const demoInvitationContent: InvitationContent = {
   cardShape: 'rounded',
   themeColor: 'pink',
 };
+
+// Invitations saved before ActivityOption existed have activityOptions as a
+// plain string[] in their JSONB content — the merge in /view/[slug] and the
+// editor's initial state can't tell that apart from the new shape at compile
+// time, so normalize whatever comes back from the DB into ActivityOption[].
+export function normalizeActivityOptions(raw: unknown): ActivityOption[] {
+  if (!Array.isArray(raw)) return demoInvitationContent.activityOptions;
+  return raw.map((item) => (typeof item === 'string' ? { label: item } : (item as ActivityOption)));
+}
 
 // Curated preset lists for the editor's "quick fill" category buttons — not a
 // stored/runtime concept, just a convenience that overwrites activityOptions.
