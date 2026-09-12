@@ -90,20 +90,6 @@ const ru = {
       },
     ],
   },
-  templates: {
-    eyebrow: 'Шаблоны',
-    title: 'Начните с настроения',
-    subtitle: 'Шесть подобранных шаблонов — у каждого своя история любви',
-    browseAll: 'Смотреть все шаблоны →',
-    items: [
-      { name: 'Starlit Romance', mood: 'Тёмный и волшебный' },
-      { name: 'Garden of Love', mood: 'Нежный и цветочный' },
-      { name: 'Parisian Dream', mood: 'Классический и роскошный' },
-      { name: 'Golden Hour', mood: 'Тёплый и золотой' },
-      { name: 'Northern Lights', mood: 'Магия сияния' },
-      { name: 'Cherry Blossom', mood: 'Утончённый и чистый' },
-    ],
-  },
   pricing: {
     eyebrow: 'Тарифы',
     title: 'Выберите ваш план любви',
@@ -193,7 +179,6 @@ const ru = {
         title: 'Продукт',
         links: [
           { label: 'Возможности', href: '/#features' },
-          { label: 'Шаблоны', href: '/#templates' },
           { label: 'Тарифы', href: '/#pricing' },
           { label: 'Подарочные планы', href: '/#pricing' },
         ],
@@ -652,20 +637,6 @@ const en: typeof ru = {
       },
     ],
   },
-  templates: {
-    eyebrow: 'Templates',
-    title: 'Start with a mood',
-    subtitle: 'Six curated templates, each a different love story',
-    browseAll: 'Browse All Templates →',
-    items: [
-      { name: 'Starlit Romance', mood: 'Dark & Magical' },
-      { name: 'Garden of Love', mood: 'Soft & Floral' },
-      { name: 'Parisian Dream', mood: 'Classic & Rich' },
-      { name: 'Golden Hour', mood: 'Warm & Golden' },
-      { name: 'Northern Lights', mood: 'Aurora Magic' },
-      { name: 'Cherry Blossom', mood: 'Delicate & Pure' },
-    ],
-  },
   pricing: {
     eyebrow: 'Pricing',
     title: 'Choose your love plan',
@@ -754,7 +725,6 @@ const en: typeof ru = {
         title: 'Product',
         links: [
           { label: 'Features', href: '/#features' },
-          { label: 'Templates', href: '/#templates' },
           { label: 'Pricing', href: '/#pricing' },
           { label: 'Gift Plans', href: '/#pricing' },
         ],
