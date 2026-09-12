@@ -39,8 +39,8 @@ import scss from './projectWizard.module.scss';
 const INVITATION_STEP_HEADINGS: Record<number, { title: string; em: string }> = {
   3: { title: 'Первый', em: 'вопрос' },
   4: { title: 'Экран', em: 'подтверждения' },
-  5: { title: 'Куда', em: 'сходим' },
-  6: { title: 'Дата', em: 'и время' },
+  5: { title: 'Дата', em: 'и время' },
+  6: { title: 'Куда', em: 'сходим' },
   7: { title: 'Финальный', em: 'экран' },
   8: { title: 'Уведомления', em: 'в Telegram' },
 };
@@ -51,8 +51,8 @@ const INVITATION_STEP_HEADINGS: Record<number, { title: string; em: string }> = 
 const PREVIEW_SCREEN_BY_STEP: Record<number, string> = {
   3: 'question',
   4: 'confirm',
-  5: 'activity',
-  6: 'date',
+  5: 'date',
+  6: 'activity',
   7: 'final',
   8: 'final',
 };
@@ -532,51 +532,6 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
 
         {step === 5 && isInvitation && (
           <div className={scss.step}>
-            <h2>Куда сходим</h2>
-            <p>Получатель выберет один из вариантов</p>
-
-            <label className={scss.field}>
-              Заголовок экрана
-              <input
-                value={invitationContent.activityQuestionTitle}
-                onChange={(e) => patchInvitation({ activityQuestionTitle: e.target.value })}
-              />
-            </label>
-            <label className={scss.field}>
-              Варианты
-              <TextListEditor
-                items={invitationContent.activityOptions}
-                onChange={(items) => patchInvitation({ activityOptions: items })}
-                addLabel="Добавить вариант"
-                removeLabel="Удалить вариант"
-              />
-            </label>
-            <label className={scss.field}>
-              Текст кнопки
-              <input
-                value={invitationContent.activityButtonLabel}
-                onChange={(e) => patchInvitation({ activityButtonLabel: e.target.value })}
-              />
-            </label>
-
-            <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(4)}>
-                <ChevronLeft size={14} />
-                {t.back}
-              </button>
-              <button
-                className={scss.continueBtn}
-                disabled={!canContinueActivity}
-                onClick={() => setStep(6)}
-              >
-                {t.continue}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {step === 6 && isInvitation && (
-          <div className={scss.step}>
             <h2>Дата и время</h2>
             <p>Кто выбирает, когда встретиться</p>
 
@@ -628,13 +583,58 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             </label>
 
             <div className={scss.stepActions}>
-              <button className={scss.backBtn} onClick={() => setStep(5)}>
+              <button className={scss.backBtn} onClick={() => setStep(4)}>
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
               <button
                 className={scss.continueBtn}
                 disabled={!canContinueDate}
+                onClick={() => setStep(6)}
+              >
+                {t.continue}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 6 && isInvitation && (
+          <div className={scss.step}>
+            <h2>Куда сходим</h2>
+            <p>Получатель выберет один из вариантов</p>
+
+            <label className={scss.field}>
+              Заголовок экрана
+              <input
+                value={invitationContent.activityQuestionTitle}
+                onChange={(e) => patchInvitation({ activityQuestionTitle: e.target.value })}
+              />
+            </label>
+            <label className={scss.field}>
+              Варианты
+              <TextListEditor
+                items={invitationContent.activityOptions}
+                onChange={(items) => patchInvitation({ activityOptions: items })}
+                addLabel="Добавить вариант"
+                removeLabel="Удалить вариант"
+              />
+            </label>
+            <label className={scss.field}>
+              Текст кнопки
+              <input
+                value={invitationContent.activityButtonLabel}
+                onChange={(e) => patchInvitation({ activityButtonLabel: e.target.value })}
+              />
+            </label>
+
+            <div className={scss.stepActions}>
+              <button className={scss.backBtn} onClick={() => setStep(5)}>
+                <ChevronLeft size={14} />
+                {t.back}
+              </button>
+              <button
+                className={scss.continueBtn}
+                disabled={!canContinueActivity}
                 onClick={() => setStep(7)}
               >
                 {t.continue}

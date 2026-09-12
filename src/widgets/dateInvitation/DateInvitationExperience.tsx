@@ -6,7 +6,7 @@ import type { InvitationContent } from '@/shared/lib/invitationContent';
 import { submitInvitationResponse } from '@/app/(admin)/projects/actions';
 import scss from './dateInvitationExperience.module.scss';
 
-type Screen = 'question' | 'confirm' | 'activity' | 'date' | 'final';
+type Screen = 'question' | 'confirm' | 'date' | 'activity' | 'final';
 
 interface DateInvitationExperienceProps {
   projectId: string;
@@ -18,7 +18,7 @@ interface DateInvitationExperienceProps {
   previewScreen?: string;
 }
 
-const SCREENS: Screen[] = ['question', 'confirm', 'activity', 'date', 'final'];
+const SCREENS: Screen[] = ['question', 'confirm', 'date', 'activity', 'final'];
 
 function fillTemplate(text: string, date: string, time: string, activity: string): string {
   return text.replace('{date}', date).replace('{time}', time).replace('{activity}', activity);
@@ -90,28 +90,8 @@ export default function DateInvitationExperience({
             <Image src="/excited.webp" alt="" width={140} height={140} />
             <h1>{content.confirmTitle}</h1>
             <p>{content.confirmSubtitle}</p>
-            <button className={scss.yesBtn} onClick={() => setScreen('activity')}>
+            <button className={scss.yesBtn} onClick={() => setScreen('date')}>
               {content.confirmButtonLabel}
-            </button>
-          </>
-        )}
-
-        {screen === 'activity' && (
-          <>
-            <h1>{content.activityQuestionTitle}</h1>
-            <div className={scss.optionsGrid}>
-              {content.activityOptions.map((option) => (
-                <button
-                  key={option}
-                  className={`${scss.optionBtn} ${activity === option ? scss.optionActive : ''}`}
-                  onClick={() => setActivity(option)}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-            <button className={scss.yesBtn} disabled={!activity} onClick={() => setScreen('date')}>
-              {content.activityButtonLabel}
             </button>
           </>
         )}
@@ -137,10 +117,34 @@ export default function DateInvitationExperience({
             )}
             <button
               className={scss.yesBtn}
-              disabled={!date || !time || submitting}
+              disabled={!date || !time}
+              onClick={() => setScreen('activity')}
+            >
+              {content.dateButtonLabel}
+            </button>
+          </>
+        )}
+
+        {screen === 'activity' && (
+          <>
+            <h1>{content.activityQuestionTitle}</h1>
+            <div className={scss.optionsGrid}>
+              {content.activityOptions.map((option) => (
+                <button
+                  key={option}
+                  className={`${scss.optionBtn} ${activity === option ? scss.optionActive : ''}`}
+                  onClick={() => setActivity(option)}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            <button
+              className={scss.yesBtn}
+              disabled={!activity || submitting}
               onClick={confirmDate}
             >
-              {submitting ? '…' : content.dateButtonLabel}
+              {submitting ? '…' : content.activityButtonLabel}
             </button>
           </>
         )}

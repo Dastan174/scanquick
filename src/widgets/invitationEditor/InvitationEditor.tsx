@@ -190,33 +190,6 @@ export default function InvitationEditor({ project, initialContent }: Invitation
         </div>
 
         <div className={scss.storyGroup}>
-          <strong style={{ display: 'block', marginBottom: 12 }}>Куда сходим</strong>
-          <label className={scss.field}>
-            Заголовок экрана
-            <input
-              value={content.activityQuestionTitle}
-              onChange={(e) => patch({ activityQuestionTitle: e.target.value })}
-            />
-          </label>
-          <label className={scss.field}>
-            Варианты
-            <TextListEditor
-              items={content.activityOptions}
-              onChange={(items) => patch({ activityOptions: items })}
-              addLabel="Добавить вариант"
-              removeLabel="Удалить вариант"
-            />
-          </label>
-          <label className={scss.field}>
-            Текст кнопки
-            <input
-              value={content.activityButtonLabel}
-              onChange={(e) => patch({ activityButtonLabel: e.target.value })}
-            />
-          </label>
-        </div>
-
-        <div className={scss.storyGroup}>
           <strong style={{ display: 'block', marginBottom: 12 }}>Дата и время</strong>
           <label className={scss.field}>
             Кто выбирает дату и время
@@ -260,6 +233,33 @@ export default function InvitationEditor({ project, initialContent }: Invitation
             <input
               value={content.dateButtonLabel}
               onChange={(e) => patch({ dateButtonLabel: e.target.value })}
+            />
+          </label>
+        </div>
+
+        <div className={scss.storyGroup}>
+          <strong style={{ display: 'block', marginBottom: 12 }}>Куда сходим</strong>
+          <label className={scss.field}>
+            Заголовок экрана
+            <input
+              value={content.activityQuestionTitle}
+              onChange={(e) => patch({ activityQuestionTitle: e.target.value })}
+            />
+          </label>
+          <label className={scss.field}>
+            Варианты
+            <TextListEditor
+              items={content.activityOptions}
+              onChange={(items) => patch({ activityOptions: items })}
+              addLabel="Добавить вариант"
+              removeLabel="Удалить вариант"
+            />
+          </label>
+          <label className={scss.field}>
+            Текст кнопки
+            <input
+              value={content.activityButtonLabel}
+              onChange={(e) => patch({ activityButtonLabel: e.target.value })}
             />
           </label>
         </div>
