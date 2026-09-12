@@ -20,6 +20,7 @@ import {
   updateInvitationContent,
   getMyProjectTelegramLink,
   getMyProjectTelegramStatus,
+  setProjectStatus,
 } from '@/app/(admin)/projects/actions';
 import { uploadSectionPhoto } from '@/app/(admin)/projects/media-actions';
 import { compressImage } from '@/shared/lib/compressImage';
@@ -88,6 +89,10 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const [invitationPreviewSrc, setInvitationPreviewSrc] = useState('');
   const [telegramStatus, setTelegramStatus] = useState('');
   const [telegramConnected, setTelegramConnected] = useState(false);
+  // The focus listener below is only (re)attached when telegramConnected
+  // itself changes, so a plain closure over invitationContent would still
+  // see whatever it was back then — stale by the time steps 3-7 are edited.
+  const invitationContentRef = useRef(invitationContent);
 
   const namesLabel = yourName && partnerName ? `${yourName} & ${partnerName}` : t.namesPlaceholder;
   const activeTemplate = templates.find((tp) => tp.id === templateId) ?? templates[0];
@@ -97,6 +102,12 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
 
   const patchInvitation = (fields: Partial<InvitationContent>) =>
     setInvitationContent((c) => ({ ...c, ...fields }));
+
+  // Only "Укажу сам" needs a value here — when the recipient picks, there's
+  // nothing to fill in on this step yet.
+  const canContinueDate =
+    invitationContent.dateMode !== 'fixed' ||
+    Boolean(invitationContent.fixedDate?.trim() && invitationContent.fixedTime?.trim());
 
   // Once the recipient's name step is done we create the project right away
   // (draft, empty content) so the remaining steps can show a real live
@@ -138,16 +149,26 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
     return () => window.clearTimeout(timer);
   }, [invitationContent, invitationSlug, step]);
 
-  const finishInvitationContent = async () => {
+  useEffect(() => {
+    invitationContentRef.current = invitationContent;
+  }, [invitationContent]);
+
+  // Telegram connected is the last thing required — from here the invitation
+  // is done, so this saves, publishes (same as the editor's "Get QR" button),
+  // and drops the owner straight on the QR page instead of back in the
+  // editor. Any further tweaks happen from there, via "Edit project". Reads
+  // the ref rather than the closed-over state — see invitationContentRef.
+  const finishInvitationToQr = async () => {
     setSubmitting(true);
     setError('');
-    const result = await updateInvitationContent(invitationId, invitationContent);
-    setSubmitting(false);
+    const result = await updateInvitationContent(invitationId, invitationContentRef.current);
     if ('error' in result) {
+      setSubmitting(false);
       setError(result.error ?? t.errorFallback);
       return;
     }
-    router.push(`/projects/${invitationId}/edit`);
+    await setProjectStatus(invitationId, 'published');
+    router.push(`/projects/${invitationId}/qr`);
   };
 
   const connectTelegram = async () => {
@@ -179,10 +200,12 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
       if (result.connected) {
         setTelegramConnected(true);
         setTelegramStatus('');
+        finishInvitationToQr();
       }
     };
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInvitation, invitationId, telegramConnected]);
 
   const finish = async () => {
@@ -550,7 +573,11 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
-              <button className={scss.continueBtn} onClick={() => setStep(7)}>
+              <button
+                className={scss.continueBtn}
+                disabled={!canContinueDate}
+                onClick={() => setStep(7)}
+              >
                 {t.continue}
               </button>
             </div>
@@ -599,7 +626,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
             {telegramConnected ? (
               <p className={scss.telegramConnected}>
                 <CheckCircle2 size={16} />
-                Telegram подключён
+                Telegram подключён — открываем QR-код…
               </p>
             ) : (
               <>
@@ -607,7 +634,10 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                   <Send size={14} />
                   Подключить Telegram
                 </button>
-                {telegramStatus && <p className={scss.hint}>{telegramStatus}</p>}
+                <p className={scss.hint}>
+                  {telegramStatus ||
+                    'Нужно подключить Telegram, чтобы получать ответы на приглашение.'}
+                </p>
               </>
             )}
 
@@ -620,10 +650,10 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
               </button>
               <button
                 className={scss.continueBtn}
-                onClick={finishInvitationContent}
-                disabled={submitting}
+                onClick={finishInvitationToQr}
+                disabled={submitting || !telegramConnected}
               >
-                {submitting ? t.creating : t.openEditor}
+                {submitting ? t.creating : 'Получить QR-код →'}
               </button>
             </div>
           </div>
