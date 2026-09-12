@@ -15,6 +15,7 @@ import type { Project } from '@/shared/lib/mockData';
 import {
   demoInvitationContent,
   ACTIVITY_CATEGORY_PRESETS,
+  BURST_PARTICLES,
   type InvitationContent,
 } from '@/shared/lib/invitationContent';
 import {
@@ -25,11 +26,84 @@ import {
 } from '@/app/(admin)/projects/actions';
 import PhoneFrame from '@/shared/ui/phoneFrame/PhoneFrame';
 import TextListEditor from '../projectEditor/TextListEditor';
+import inviteScss from '../dateInvitation/dateInvitationExperience.module.scss';
 import scss from '../projectEditor/projectEditor.module.scss';
 
 interface InvitationEditorProps {
   project: Project;
   initialContent: Record<string, unknown> | null;
+}
+
+// Small standalone demos, reusing the real invitation's own CSS classes, so
+// picking an animation from the select shows exactly what it looks like
+// right there without hunting for the right screen in the big phone preview.
+function YesAnimationPreview({ mode }: { mode: InvitationContent['yesAnimation'] }) {
+  const [playing, setPlaying] = useState(false);
+  return (
+    <button
+      type="button"
+      className={`${inviteScss.yesBtn} ${playing ? inviteScss.yesShake : ''}`}
+      style={{ fontSize: 13, padding: '8px 22px' }}
+      onClick={() => {
+        if (mode !== 'shake') return;
+        setPlaying(true);
+        window.setTimeout(() => setPlaying(false), 650);
+      }}
+    >
+      Да
+      {playing && (
+        <span className={inviteScss.burstWrap}>
+          {BURST_PARTICLES.map((particle, i) => (
+            <span
+              key={i}
+              className={inviteScss.burst}
+              style={
+                { '--tx': `${particle.tx}px`, '--ty': `${particle.ty}px` } as React.CSSProperties
+              }
+            >
+              {particle.emoji}
+            </span>
+          ))}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function NoAnimationPreview({ mode }: { mode: InvitationContent['noAnimation'] }) {
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [scale, setScale] = useState(1);
+  const [kissVisible, setKissVisible] = useState(false);
+
+  const play = () => {
+    if (mode === 'dodge') {
+      setOffset({ x: (Math.random() - 0.5) * 100, y: (Math.random() - 0.5) * 30 });
+    } else if (mode === 'kiss') {
+      setKissVisible(true);
+      window.setTimeout(() => setKissVisible(false), 700);
+    } else if (mode === 'shrink') {
+      setScale((s) => (s <= 0.55 ? 1 : s - 0.15));
+    }
+  };
+
+  return (
+    <div className={inviteScss.noWrap} style={{ display: 'inline-block' }}>
+      <button
+        type="button"
+        className={inviteScss.noBtn}
+        style={{
+          fontSize: 13,
+          padding: '8px 18px',
+          transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+        }}
+        onPointerEnter={mode === 'dodge' ? play : undefined}
+        onClick={play}
+      >
+        Нет
+      </button>
+      {kissVisible && <span className={inviteScss.kiss}>💋</span>}
+    </div>
+  );
 }
 
 export default function InvitationEditor({ project, initialContent }: InvitationEditorProps) {
@@ -41,9 +115,19 @@ export default function InvitationEditor({ project, initialContent }: Invitation
   const [status, setStatus] = useState(project.status);
   const [telegramStatus, setTelegramStatus] = useState('');
   const [telegramConnected, setTelegramConnected] = useState(Boolean(project.telegramChatId));
-  const [previewSrc, setPreviewSrc] = useState(
-    () => `/view/${project.slug}?preview=${encodeURIComponent(JSON.stringify(content))}&draft=1`,
+  // Which screen the phone preview shows — follows whichever section the
+  // owner is currently editing (see the onFocus handlers below) instead of
+  // always sitting on the natural entry screen, so e.g. picking a "Нет"
+  // animation is checked against the actual question screen, not the lock
+  // screen. The preview is interactive (see DateInvitationExperience's
+  // isPreviewLocked), so this also doubles as the guard that keeps clicking
+  // "Да"/"Нет" there from ever leaving this screen or writing a real RSVP.
+  const [previewScreenChoice, setPreviewScreenChoice] = useState<string>(() =>
+    content.openMode === 'direct' ? 'question' : 'lock',
   );
+  const buildPreviewSrc = (c: InvitationContent, screenName: string) =>
+    `/view/${project.slug}?preview=${encodeURIComponent(JSON.stringify(c))}&draft=1&screen=${encodeURIComponent(screenName)}`;
+  const [previewSrc, setPreviewSrc] = useState(() => buildPreviewSrc(content, previewScreenChoice));
   const contentRef = useRef(content);
   const savingRef = useRef(false);
   const pendingRef = useRef(false);
@@ -86,12 +170,11 @@ export default function InvitationEditor({ project, initialContent }: Invitation
   // instead of the admin page's — same reasoning as ProjectEditor's preview.
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setPreviewSrc(
-        `/view/${project.slug}?preview=${encodeURIComponent(JSON.stringify(content))}&draft=1`,
-      );
+      setPreviewSrc(buildPreviewSrc(content, previewScreenChoice));
     }, 500);
     return () => window.clearTimeout(timer);
-  }, [content, project.slug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content, previewScreenChoice, project.slug]);
 
   // Getting the QR code only makes sense once the site is actually live for
   // whoever scans it, so publish it right away instead of making the owner
@@ -149,50 +232,52 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           </div>
         </div>
 
-        <label className={scss.field}>
-          Способ открытия
-          <select
-            value={content.openMode}
-            onChange={(e) => patch({ openMode: e.target.value as InvitationContent['openMode'] })}
-          >
-            <option value="direct">Сразу к вопросу</option>
-            <option value="code">Код из цифр</option>
-            <option value="scratch">Стереть фон (скретч-карта)</option>
-            <option value="envelope">Конверт</option>
-            <option value="scheduled">Открыть в заданное время</option>
-          </select>
-        </label>
-        {(content.openMode === 'code' || content.openMode === 'scheduled') && (
+        <div onFocus={() => setPreviewScreenChoice('lock')}>
           <label className={scss.field}>
-            Заголовок экрана блокировки
-            <input
-              value={content.openLockedTitle}
-              onChange={(e) => patch({ openLockedTitle: e.target.value })}
-            />
+            Способ открытия
+            <select
+              value={content.openMode}
+              onChange={(e) => patch({ openMode: e.target.value as InvitationContent['openMode'] })}
+            >
+              <option value="direct">Сразу к вопросу</option>
+              <option value="code">Код из цифр</option>
+              <option value="scratch">Стереть фон (скретч-карта)</option>
+              <option value="envelope">Конверт</option>
+              <option value="scheduled">Открыть в заданное время</option>
+            </select>
           </label>
-        )}
-        {content.openMode === 'code' && (
-          <label className={scss.field}>
-            Код (цифры, которые нужно ввести)
-            <input
-              value={content.openCode ?? ''}
-              onChange={(e) => patch({ openCode: e.target.value })}
-              placeholder="1234"
-            />
-          </label>
-        )}
-        {content.openMode === 'scheduled' && (
-          <label className={scss.field}>
-            Откроется не раньше
-            <input
-              type="datetime-local"
-              value={content.openAt ?? ''}
-              onChange={(e) => patch({ openAt: e.target.value })}
-            />
-          </label>
-        )}
+          {(content.openMode === 'code' || content.openMode === 'scheduled') && (
+            <label className={scss.field}>
+              Заголовок экрана блокировки
+              <input
+                value={content.openLockedTitle}
+                onChange={(e) => patch({ openLockedTitle: e.target.value })}
+              />
+            </label>
+          )}
+          {content.openMode === 'code' && (
+            <label className={scss.field}>
+              Код (цифры, которые нужно ввести)
+              <input
+                value={content.openCode ?? ''}
+                onChange={(e) => patch({ openCode: e.target.value })}
+                placeholder="1234"
+              />
+            </label>
+          )}
+          {content.openMode === 'scheduled' && (
+            <label className={scss.field}>
+              Откроется не раньше
+              <input
+                type="datetime-local"
+                value={content.openAt ?? ''}
+                onChange={(e) => patch({ openAt: e.target.value })}
+              />
+            </label>
+          )}
+        </div>
 
-        <div className={scss.storyGroup}>
+        <div className={scss.storyGroup} onFocus={() => setPreviewScreenChoice('question')}>
           <strong style={{ display: 'block', marginBottom: 12 }}>Экран «Да / Нет»</strong>
           <label className={scss.field}>
             Заголовок
@@ -243,9 +328,26 @@ export default function InvitationEditor({ project, initialContent }: Invitation
               </select>
             </label>
           </div>
+          <div
+            className={scss.field}
+            style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}
+          >
+            <div style={{ flex: 1 }}>
+              <span className={scss.hint}>Пример — нажмите:</span>
+              <div style={{ marginTop: 6 }}>
+                <YesAnimationPreview mode={content.yesAnimation} />
+              </div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <span className={scss.hint}>Пример — нажмите:</span>
+              <div style={{ marginTop: 6 }}>
+                <NoAnimationPreview mode={content.noAnimation} />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className={scss.storyGroup}>
+        <div className={scss.storyGroup} onFocus={() => setPreviewScreenChoice('confirm')}>
           <strong style={{ display: 'block', marginBottom: 12 }}>Экран подтверждения</strong>
           <label className={scss.field}>
             Заголовок
@@ -270,7 +372,7 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           </label>
         </div>
 
-        <div className={scss.storyGroup}>
+        <div className={scss.storyGroup} onFocus={() => setPreviewScreenChoice('date')}>
           <strong style={{ display: 'block', marginBottom: 12 }}>Дата и время</strong>
           <label className={scss.field}>
             Кто выбирает дату и время
@@ -318,7 +420,7 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           </label>
         </div>
 
-        <div className={scss.storyGroup}>
+        <div className={scss.storyGroup} onFocus={() => setPreviewScreenChoice('activity')}>
           <strong style={{ display: 'block', marginBottom: 12 }}>Куда сходим</strong>
           <label className={scss.field}>
             Заголовок экрана
@@ -376,7 +478,7 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           </label>
         </div>
 
-        <div className={scss.storyGroup}>
+        <div className={scss.storyGroup} onFocus={() => setPreviewScreenChoice('final')}>
           <strong style={{ display: 'block', marginBottom: 12 }}>Финальный экран</strong>
           <label className={scss.field}>
             Заголовок
@@ -396,7 +498,7 @@ export default function InvitationEditor({ project, initialContent }: Invitation
           </label>
         </div>
 
-        <div className={scss.storyGroup}>
+        <div className={scss.storyGroup} onFocus={() => setPreviewScreenChoice('question')}>
           <strong style={{ display: 'block', marginBottom: 12 }}>Оформление</strong>
           <div className={scss.field} style={{ display: 'flex', gap: 12 }}>
             <label className={scss.field} style={{ flex: 1 }}>
@@ -492,7 +594,6 @@ export default function InvitationEditor({ project, initialContent }: Invitation
                 key={project.id}
                 src={previewSrc}
                 className={scss.previewFrame}
-                style={{ pointerEvents: 'none' }}
                 title="Live preview"
               />
             </PhoneFrame>

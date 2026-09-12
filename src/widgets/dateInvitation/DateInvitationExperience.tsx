@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { THEME_COLORS, type InvitationContent } from '@/shared/lib/invitationContent';
+import {
+  THEME_COLORS,
+  BURST_PARTICLES,
+  type InvitationContent,
+} from '@/shared/lib/invitationContent';
 import { submitInvitationResponse } from '@/app/(admin)/projects/actions';
 import scss from './dateInvitationExperience.module.scss';
 
@@ -11,24 +15,18 @@ type Screen = 'lock' | 'question' | 'confirm' | 'date' | 'activity' | 'final';
 interface DateInvitationExperienceProps {
   projectId: string;
   content: InvitationContent;
-  // Pins the preview to a specific screen instead of always starting at the
-  // question — the editor/wizard preview is click-through-proof (see
-  // InvitationEditor.tsx), so without this it could never show anything
-  // past the first screen. Real visitors never pass this.
+  // Pins which screen is shown instead of always starting at the natural
+  // entry screen — the editor/wizard preview passes this to follow whichever
+  // section the owner is currently editing (see InvitationEditor.tsx /
+  // ProjectWizard.tsx). Its mere presence also locks navigation: every
+  // reaction/animation still plays, but nothing here ever calls goTo to
+  // move to a different screen or hits the network — see isPreviewLocked
+  // below. Real visitors never pass this.
   previewScreen?: string;
 }
 
 const SCREENS: Screen[] = ['lock', 'question', 'confirm', 'date', 'activity', 'final'];
 const SCRATCH_CLEAR_THRESHOLD = 0.55;
-// A small fan of particles flying outward from the button reads as an actual
-// "explosion" — a single static emoji next to a shaking button just looked
-// like the button shaking.
-const BURST_PARTICLES: { emoji: string; tx: number; ty: number }[] = [
-  { emoji: '💥', tx: -46, ty: -30 },
-  { emoji: '💋', tx: -16, ty: -50 },
-  { emoji: '💖', tx: 16, ty: -50 },
-  { emoji: '✨', tx: 46, ty: -30 },
-];
 
 function fillTemplate(text: string, date: string, time: string, activity: string): string {
   return text.replace('{date}', date).replace('{time}', time).replace('{activity}', activity);
@@ -160,14 +158,25 @@ export default function DateInvitationExperience({
   const [time, setTime] = useState(content.fixedTime ?? (initialScreen === 'final' ? '18:00' : ''));
   const [submitting, setSubmitting] = useState(false);
 
+  // The editor/wizard preview passes previewScreen to pin which step's screen
+  // is showing — a real visitor never does. Reusing that same flag to lock
+  // navigation lets the preview stay fully interactive (every reaction and
+  // animation actually plays) without ever letting a click carry the owner
+  // off to a different step's screen or write a real RSVP into the DB.
+  const isPreviewLocked = Boolean(previewScreen);
+  const goTo = (next: Screen) => {
+    if (!isPreviewLocked) setScreen(next);
+  };
+
   // 'scheduled' locks re-check themselves every second so an already-open tab
   // reveals itself right at the target moment, without needing a refresh.
   useEffect(() => {
     if (screen !== 'lock' || content.openMode !== 'scheduled' || !content.openAt) return;
     const id = window.setInterval(() => {
-      if (!isScheduledLocked(content)) setScreen('question');
+      if (!isScheduledLocked(content)) goTo('question');
     }, 1000);
     return () => window.clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, content]);
 
   const [primary, primaryLight] = THEME_COLORS[content.themeColor] ?? THEME_COLORS.pink;
@@ -202,9 +211,14 @@ export default function DateInvitationExperience({
   const handleYesClick = () => {
     if (content.yesAnimation === 'shake') {
       setYesAnimating(true);
-      window.setTimeout(() => setScreen('confirm'), 650);
+      window.setTimeout(() => {
+        // Locked preview: reset instead of advancing, so clicking again
+        // replays the shake+burst for the owner to check.
+        if (isPreviewLocked) setYesAnimating(false);
+        else goTo('confirm');
+      }, 650);
     } else {
-      setScreen('confirm');
+      goTo('confirm');
     }
   };
 
@@ -217,15 +231,19 @@ export default function DateInvitationExperience({
 
   const confirmDate = async () => {
     if (!date || !time || activity.length === 0) return;
+    // Locked preview: never actually write a response for the real project
+    // behind this preview — there's nothing further to demo on this screen
+    // anyway, since option selection already shows and highlights live.
+    if (isPreviewLocked) return;
     setSubmitting(true);
     await submitInvitationResponse(projectId, date, time, activity.join(', '));
     setSubmitting(false);
-    setScreen('final');
+    goTo('final');
   };
 
   const checkCode = () => {
     if (codeInput.trim() === (content.openCode ?? '').trim() && codeInput.trim() !== '') {
-      setScreen('question');
+      goTo('question');
       return;
     }
     setCodeError(true);
@@ -326,7 +344,12 @@ export default function DateInvitationExperience({
               className={`${scss.envelope} ${envelopeOpening ? scss.envelopeOpen : ''}`}
               onClick={() => {
                 setEnvelopeOpening(true);
-                window.setTimeout(() => setScreen('question'), 650);
+                window.setTimeout(() => {
+                  // Locked preview: reset instead of advancing, so the owner
+                  // can close and reopen the envelope to check the animation.
+                  if (isPreviewLocked) setEnvelopeOpening(false);
+                  else goTo('question');
+                }, 650);
               }}
               aria-label="Открыть конверт"
             >
@@ -340,7 +363,7 @@ export default function DateInvitationExperience({
         {screen === 'lock' && content.openMode === 'scratch' && (
           <div className={scss.scratchWrap}>
             {questionContent}
-            <ScratchOverlay onCleared={() => setScreen('question')} />
+            <ScratchOverlay onCleared={() => goTo('question')} />
           </div>
         )}
 
@@ -351,7 +374,7 @@ export default function DateInvitationExperience({
             <Image src="/excited.webp" alt="" width={140} height={140} />
             <h1>{content.confirmTitle}</h1>
             <p>{content.confirmSubtitle}</p>
-            <button className={scss.yesBtn} onClick={() => setScreen('date')}>
+            <button className={scss.yesBtn} onClick={() => goTo('date')}>
               {content.confirmButtonLabel}
             </button>
           </>
@@ -379,7 +402,7 @@ export default function DateInvitationExperience({
             <button
               className={scss.yesBtn}
               disabled={!date || !time}
-              onClick={() => setScreen('activity')}
+              onClick={() => goTo('activity')}
             >
               {content.dateButtonLabel}
             </button>

@@ -112,3 +112,13 @@ export const THEME_COLORS: Record<InvitationContent['themeColor'], [string, stri
   blue: ['#4a7fc7', '#7aa3dc'],
   purple: ['#8b5fbf', '#b28ad9'],
 };
+
+// A small fan of particles flying outward from the "Да" button for the
+// 'shake' yesAnimation — shared between the real invitation experience and
+// the editor's inline animation-preview button so they look identical.
+export const BURST_PARTICLES: { emoji: string; tx: number; ty: number }[] = [
+  { emoji: '💥', tx: -46, ty: -30 },
+  { emoji: '💋', tx: -16, ty: -50 },
+  { emoji: '💖', tx: 16, ty: -50 },
+  { emoji: '✨', tx: 46, ty: -30 },
+];
