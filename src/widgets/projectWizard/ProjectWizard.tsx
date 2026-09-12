@@ -123,11 +123,37 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
   const patchInvitation = (fields: Partial<InvitationContent>) =>
     setInvitationContent((c) => ({ ...c, ...fields }));
 
-  // Only "Укажу сам" needs a value here — when the recipient picks, there's
-  // nothing to fill in on this step yet.
-  const canContinueDate =
-    invitationContent.dateMode !== 'fixed' ||
-    Boolean(invitationContent.fixedDate?.trim() && invitationContent.fixedTime?.trim());
+  // Every field on these steps ends up on the visitor's actual screen, so
+  // none of them should be skippable while blank — the fields all start
+  // pre-filled from demoInvitationContent, so this only ever blocks someone
+  // who cleared one out.
+  const canContinueQuestion = Boolean(
+    invitationContent.questionTitle.trim() &&
+    invitationContent.yesLabel.trim() &&
+    invitationContent.noLabel.trim(),
+  );
+  const canContinueConfirm = Boolean(
+    invitationContent.confirmTitle.trim() &&
+    invitationContent.confirmSubtitle.trim() &&
+    invitationContent.confirmButtonLabel.trim(),
+  );
+  const canContinueActivity = Boolean(
+    invitationContent.activityQuestionTitle.trim() &&
+    invitationContent.activityOptions.length > 0 &&
+    invitationContent.activityOptions.every((o) => o.trim()) &&
+    invitationContent.activityButtonLabel.trim(),
+  );
+  // Only "Укажу сам" needs a date/time value — when the recipient picks,
+  // there's nothing to fill in for that part on this step yet.
+  const canContinueDate = Boolean(
+    invitationContent.dateQuestionTitle.trim() &&
+    invitationContent.dateButtonLabel.trim() &&
+    (invitationContent.dateMode !== 'fixed' ||
+      (invitationContent.fixedDate?.trim() && invitationContent.fixedTime?.trim())),
+  );
+  const canContinueFinal = Boolean(
+    invitationContent.finalTitle.trim() && invitationContent.finalDescription.trim(),
+  );
 
   // Once the recipient's name step is done we create the project right away
   // (draft, empty content) so the remaining steps can show a real live
@@ -450,7 +476,11 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
-              <button className={scss.continueBtn} onClick={() => setStep(4)}>
+              <button
+                className={scss.continueBtn}
+                disabled={!canContinueQuestion}
+                onClick={() => setStep(4)}
+              >
                 {t.continue}
               </button>
             </div>
@@ -489,7 +519,11 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
-              <button className={scss.continueBtn} onClick={() => setStep(5)}>
+              <button
+                className={scss.continueBtn}
+                disabled={!canContinueConfirm}
+                onClick={() => setStep(5)}
+              >
                 {t.continue}
               </button>
             </div>
@@ -530,7 +564,11 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
-              <button className={scss.continueBtn} onClick={() => setStep(6)}>
+              <button
+                className={scss.continueBtn}
+                disabled={!canContinueActivity}
+                onClick={() => setStep(6)}
+              >
                 {t.continue}
               </button>
             </div>
@@ -632,7 +670,11 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                 <ChevronLeft size={14} />
                 {t.back}
               </button>
-              <button className={scss.continueBtn} onClick={() => setStep(8)}>
+              <button
+                className={scss.continueBtn}
+                disabled={!canContinueFinal}
+                onClick={() => setStep(8)}
+              >
                 {t.continue}
               </button>
             </div>
