@@ -4,7 +4,6 @@
 // from the thin Route Handler in src/app/api/telegram/webhook/route.ts.
 import { createAdminClient } from '@/shared/lib/supabase/admin';
 import { sendTelegramMessage } from '@/shared/lib/telegram';
-import { getSiteUrl } from '@/shared/lib/siteUrl';
 
 export async function verifyTelegramSecret(provided: string | null): Promise<boolean> {
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
@@ -19,18 +18,18 @@ export async function linkTelegramChat(startToken: string, chatId: string): Prom
     .from('projects')
     .update({ telegram_chat_id: chatId })
     .eq('telegram_link_token', startToken)
-    .select('id, name')
+    .select('name')
     .single();
 
   if (project) {
-    // The owner is left sitting in Telegram after tapping Start — hand them
-    // a one-tap way back instead of relying on them to switch tabs
-    // themselves (the editor/wizard also polls on window focus, but only
-    // once they're actually back).
+    // No link back to the site here on purpose — Telegram opens tapped
+    // links in its own in-app browser, which is a separate, logged-out
+    // context that breaks Google sign-in entirely. The editor/wizard
+    // already detects the connection the moment the owner switches back to
+    // their browser tab on its own, no tap needed.
     await sendTelegramMessage(
       chatId,
-      `Готово! Теперь сюда будут приходить ответы по «${project.name}» 💌`,
-      [{ text: '← Вернуться на сайт', url: `${getSiteUrl()}/projects/${project.id}/edit` }],
+      `Готово! Теперь сюда будут приходить ответы по «${project.name}» 💌\n\nМожете вернуться на сайт — там уже всё готово.`,
     );
   }
 }
