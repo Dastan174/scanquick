@@ -66,10 +66,7 @@ export default function DateInvitationExperience({
               // eslint-disable-next-line @next/next/no-img-element
               <img src={content.questionImageUrl} alt="" className={scss.image} />
             ) : (
-              // GIF, not next/image — Next's optimizer re-encodes images to a
-              // static frame, which would freeze the animation.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src="/invite.gif" alt="" width={140} height={140} />
+              <Image src="/invite.webp" alt="" width={140} height={140} priority />
             )}
             <h1>{content.questionTitle}</h1>
             <div className={scss.actions}>
