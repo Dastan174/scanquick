@@ -733,7 +733,12 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                     key={key}
                     type="button"
                     className={scss.backBtn}
-                    onClick={() => patchInvitation({ activityOptions: preset.options })}
+                    onClick={() =>
+                      patchInvitation({
+                        activityOptions: preset.options,
+                        activityQuestionTitle: preset.question,
+                      })
+                    }
                   >
                     {preset.label}
                   </button>

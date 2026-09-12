@@ -69,25 +69,36 @@ export const demoInvitationContent: InvitationContent = {
 
 // Curated preset lists for the editor's "quick fill" category buttons — not a
 // stored/runtime concept, just a convenience that overwrites activityOptions.
-export const ACTIVITY_CATEGORY_PRESETS: Record<string, { label: string; options: string[] }> = {
+// `question` is applied together with `options` so the screen the recipient
+// sees stays coherent (e.g. genre names alone read as gibberish under a
+// leftover "Куда сходим?" heading).
+export const ACTIVITY_CATEGORY_PRESETS: Record<
+  string,
+  { label: string; question: string; options: string[] }
+> = {
   activities: {
     label: 'Активности',
+    question: 'Куда сходим?',
     options: ['🚶 Прогулка', '🍽️ Покушать', '🎬 Кино', '☕ Кофе'],
   },
   food: {
     label: 'Блюда',
+    question: 'Что закажем?',
     options: ['🍕 Пицца', '🍣 Суши', '🍔 Бургер', '🍝 Паста'],
   },
   movies: {
     label: 'Кино',
+    question: 'Какой фильм посмотрим?',
     options: ['😂 Комедия', '😱 Ужасы', '💕 Мелодрама', '🎬 Боевик'],
   },
   drinks: {
     label: 'Напитки',
+    question: 'Что будем пить?',
     options: ['☕ Кофе', '🍵 Чай', '🧋 Смузи', '🍹 Коктейль'],
   },
   places: {
     label: 'Места',
+    question: 'Куда пойдём?',
     options: ['🌳 Парк', '🏛️ Музей', '🌊 Набережная', '🎡 Аттракционы'],
   },
 };

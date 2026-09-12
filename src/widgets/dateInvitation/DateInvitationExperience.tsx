@@ -20,6 +20,15 @@ interface DateInvitationExperienceProps {
 
 const SCREENS: Screen[] = ['lock', 'question', 'confirm', 'date', 'activity', 'final'];
 const SCRATCH_CLEAR_THRESHOLD = 0.55;
+// A small fan of particles flying outward from the button reads as an actual
+// "explosion" — a single static emoji next to a shaking button just looked
+// like the button shaking.
+const BURST_PARTICLES: { emoji: string; tx: number; ty: number }[] = [
+  { emoji: '💥', tx: -46, ty: -30 },
+  { emoji: '💋', tx: -16, ty: -50 },
+  { emoji: '💖', tx: 16, ty: -50 },
+  { emoji: '✨', tx: 46, ty: -30 },
+];
 
 function fillTemplate(text: string, date: string, time: string, activity: string): string {
   return text.replace('{date}', date).replace('{time}', time).replace('{activity}', activity);
@@ -172,7 +181,15 @@ export default function DateInvitationExperience({
     setNoOffset({ x: (Math.random() - 0.5) * 160, y: (Math.random() - 0.5) * 60 });
   };
 
-  const handleNoInteract = () => {
+  // Hover only drives 'dodge' (the button has to run before the cursor can
+  // land a click) — kiss/shrink are reactions to an actual tap, so triggering
+  // them on hover too made them fire (and, for kiss, finish fading) before the
+  // click itself, which read as the button vanishing for no reason.
+  const handleNoHover = () => {
+    if (content.noAnimation === 'dodge') dodgeNo();
+  };
+
+  const handleNoClick = () => {
     if (content.noAnimation === 'dodge') dodgeNo();
     else if (content.noAnimation === 'kiss') {
       setKissVisible(true);
@@ -185,7 +202,7 @@ export default function DateInvitationExperience({
   const handleYesClick = () => {
     if (content.yesAnimation === 'shake') {
       setYesAnimating(true);
-      window.setTimeout(() => setScreen('confirm'), 550);
+      window.setTimeout(() => setScreen('confirm'), 650);
     } else {
       setScreen('confirm');
     }
@@ -230,7 +247,24 @@ export default function DateInvitationExperience({
           onClick={handleYesClick}
         >
           {content.yesLabel}
-          {yesAnimating && <span className={scss.burst}>💥</span>}
+          {yesAnimating && (
+            <span className={scss.burstWrap}>
+              {BURST_PARTICLES.map((particle, i) => (
+                <span
+                  key={i}
+                  className={scss.burst}
+                  style={
+                    {
+                      '--tx': `${particle.tx}px`,
+                      '--ty': `${particle.ty}px`,
+                    } as React.CSSProperties
+                  }
+                >
+                  {particle.emoji}
+                </span>
+              ))}
+            </span>
+          )}
         </button>
         <div className={scss.noWrap}>
           <button
@@ -238,8 +272,8 @@ export default function DateInvitationExperience({
             style={{
               transform: `translate(${noOffset.x}px, ${noOffset.y}px) scale(${noScale})`,
             }}
-            onPointerEnter={handleNoInteract}
-            onClick={handleNoInteract}
+            onPointerEnter={handleNoHover}
+            onClick={handleNoClick}
           >
             {content.noLabel}
           </button>

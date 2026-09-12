@@ -335,7 +335,12 @@ export default function InvitationEditor({ project, initialContent }: Invitation
                   key={key}
                   type="button"
                   className={scss.addBtn}
-                  onClick={() => patch({ activityOptions: preset.options })}
+                  onClick={() =>
+                    patch({
+                      activityOptions: preset.options,
+                      activityQuestionTitle: preset.question,
+                    })
+                  }
                 >
                   {preset.label}
                 </button>

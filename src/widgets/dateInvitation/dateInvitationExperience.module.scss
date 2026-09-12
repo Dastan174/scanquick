@@ -72,7 +72,7 @@
 }
 
 .yesShake {
-  animation: yesShake 0.5s ease;
+  animation: yesShake 0.45s ease;
 }
 
 @keyframes yesShake {
@@ -81,38 +81,45 @@
     transform: translateX(0);
   }
   20% {
-    transform: translateX(-6px) rotate(-3deg);
-  }
-  40% {
-    transform: translateX(6px) rotate(3deg);
-  }
-  60% {
     transform: translateX(-4px) rotate(-2deg);
   }
-  80% {
+  40% {
     transform: translateX(4px) rotate(2deg);
   }
+  60% {
+    transform: translateX(-3px) rotate(-1deg);
+  }
+  80% {
+    transform: translateX(3px) rotate(1deg);
+  }
+}
+
+.burstWrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .burst {
   position: absolute;
-  top: -10px;
-  right: -6px;
-  font-size: 22px;
-  animation: burstPop 0.5s ease forwards;
+  top: 50%;
+  left: 50%;
+  font-size: 20px;
+  transform: translate(-50%, -50%) scale(0.4);
+  opacity: 0;
+  animation: burstFly 0.6s ease-out forwards;
 }
 
-@keyframes burstPop {
+@keyframes burstFly {
   0% {
-    transform: scale(0.3);
+    transform: translate(-50%, -50%) scale(0.4);
     opacity: 0;
   }
-  50% {
-    transform: scale(1.3);
+  25% {
     opacity: 1;
   }
   100% {
-    transform: scale(1) translateY(-14px);
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.1);
     opacity: 0;
   }
 }
