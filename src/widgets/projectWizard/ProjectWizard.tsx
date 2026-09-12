@@ -33,6 +33,10 @@ import {
   type InvitationContent,
 } from '@/shared/lib/invitationContent';
 import ActivityOptionsEditor from '@/widgets/projectEditor/ActivityOptionsEditor';
+import {
+  YesAnimationPreview,
+  NoAnimationPreview,
+} from '@/widgets/dateInvitation/AnimationPreviewButtons';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import type { Locale } from '@/shared/lib/i18n/shared';
 import { stepLabel } from '@/shared/lib/i18n/format';
@@ -585,6 +589,20 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
                   <option value="none">Без анимации</option>
                 </select>
               </label>
+            </div>
+            <div className={scss.fieldRow}>
+              <div className={scss.field}>
+                Пример — нажмите:
+                <div style={{ marginTop: 6 }}>
+                  <YesAnimationPreview mode={invitationContent.yesAnimation} />
+                </div>
+              </div>
+              <div className={scss.field}>
+                Пример — нажмите:
+                <div style={{ marginTop: 6 }}>
+                  <NoAnimationPreview mode={invitationContent.noAnimation} />
+                </div>
+              </div>
             </div>
 
             <div className={scss.stepActions}>

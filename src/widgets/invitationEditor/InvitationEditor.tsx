@@ -15,7 +15,6 @@ import type { Project } from '@/shared/lib/mockData';
 import {
   demoInvitationContent,
   ACTIVITY_CATEGORY_PRESETS,
-  BURST_PARTICLES,
   normalizeActivityOptions,
   type InvitationContent,
 } from '@/shared/lib/invitationContent';
@@ -27,84 +26,12 @@ import {
 } from '@/app/(admin)/projects/actions';
 import PhoneFrame from '@/shared/ui/phoneFrame/PhoneFrame';
 import ActivityOptionsEditor from '../projectEditor/ActivityOptionsEditor';
-import inviteScss from '../dateInvitation/dateInvitationExperience.module.scss';
+import { YesAnimationPreview, NoAnimationPreview } from '../dateInvitation/AnimationPreviewButtons';
 import scss from '../projectEditor/projectEditor.module.scss';
 
 interface InvitationEditorProps {
   project: Project;
   initialContent: Record<string, unknown> | null;
-}
-
-// Small standalone demos, reusing the real invitation's own CSS classes, so
-// picking an animation from the select shows exactly what it looks like
-// right there without hunting for the right screen in the big phone preview.
-function YesAnimationPreview({ mode }: { mode: InvitationContent['yesAnimation'] }) {
-  const [playing, setPlaying] = useState(false);
-  return (
-    <button
-      type="button"
-      className={`${inviteScss.yesBtn} ${playing ? inviteScss.yesShake : ''}`}
-      style={{ fontSize: 13, padding: '8px 22px' }}
-      onClick={() => {
-        if (mode !== 'shake') return;
-        setPlaying(true);
-        window.setTimeout(() => setPlaying(false), 650);
-      }}
-    >
-      Да
-      {playing && (
-        <span className={inviteScss.burstWrap}>
-          {BURST_PARTICLES.map((particle, i) => (
-            <span
-              key={i}
-              className={inviteScss.burst}
-              style={
-                { '--tx': `${particle.tx}px`, '--ty': `${particle.ty}px` } as React.CSSProperties
-              }
-            >
-              {particle.emoji}
-            </span>
-          ))}
-        </span>
-      )}
-    </button>
-  );
-}
-
-function NoAnimationPreview({ mode }: { mode: InvitationContent['noAnimation'] }) {
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(1);
-  const [kissVisible, setKissVisible] = useState(false);
-
-  const play = () => {
-    if (mode === 'dodge') {
-      setOffset({ x: (Math.random() - 0.5) * 100, y: (Math.random() - 0.5) * 30 });
-    } else if (mode === 'kiss') {
-      setKissVisible(true);
-      window.setTimeout(() => setKissVisible(false), 700);
-    } else if (mode === 'shrink') {
-      setScale((s) => (s <= 0.55 ? 1 : s - 0.15));
-    }
-  };
-
-  return (
-    <div className={inviteScss.noWrap} style={{ display: 'inline-block' }}>
-      <button
-        type="button"
-        className={inviteScss.noBtn}
-        style={{
-          fontSize: 13,
-          padding: '8px 18px',
-          transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-        }}
-        onPointerEnter={mode === 'dodge' ? play : undefined}
-        onClick={play}
-      >
-        Нет
-      </button>
-      {kissVisible && <span className={inviteScss.kiss}>💋</span>}
-    </div>
-  );
 }
 
 export default function InvitationEditor({ project, initialContent }: InvitationEditorProps) {
