@@ -4,6 +4,7 @@
 // from the thin Route Handler in src/app/api/telegram/webhook/route.ts.
 import { createAdminClient } from '@/shared/lib/supabase/admin';
 import { sendTelegramMessage } from '@/shared/lib/telegram';
+import { getSiteUrl } from '@/shared/lib/siteUrl';
 
 export async function verifyTelegramSecret(provided: string | null): Promise<boolean> {
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
@@ -18,10 +19,18 @@ export async function linkTelegramChat(startToken: string, chatId: string): Prom
     .from('projects')
     .update({ telegram_chat_id: chatId })
     .eq('telegram_link_token', startToken)
-    .select('name')
+    .select('id, name')
     .single();
 
   if (project) {
-    await sendTelegramMessage(chatId, `Готово! Теперь сюда будут приходить ответы по «${project.name}» 💌`);
+    // The owner is left sitting in Telegram after tapping Start — hand them
+    // a one-tap way back instead of relying on them to switch tabs
+    // themselves (the editor/wizard also polls on window focus, but only
+    // once they're actually back).
+    await sendTelegramMessage(
+      chatId,
+      `Готово! Теперь сюда будут приходить ответы по «${project.name}» 💌`,
+      [{ text: '← Вернуться на сайт', url: `${getSiteUrl()}/projects/${project.id}/edit` }],
+    );
   }
 }
