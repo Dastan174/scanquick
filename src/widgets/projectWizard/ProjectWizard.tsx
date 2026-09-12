@@ -43,6 +43,18 @@ const INVITATION_STEP_HEADINGS: Record<number, { title: string; em: string }> = 
   8: { title: 'Уведомления', em: 'в Telegram' },
 };
 
+// Which visitor-facing screen each content step edits, so the (click-through
+// proof) preview shows that screen instead of always starting at the
+// question. Step 8 (Telegram) has no screen of its own — it stays on 'final'.
+const PREVIEW_SCREEN_BY_STEP: Record<number, string> = {
+  3: 'question',
+  4: 'confirm',
+  5: 'activity',
+  6: 'date',
+  7: 'final',
+  8: 'final',
+};
+
 interface ProjectWizardProps {
   locale: Locale;
   t: Dictionary['projectWizard'];
@@ -117,13 +129,14 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
 
   useEffect(() => {
     if (!invitationSlug) return;
+    const previewScreen = PREVIEW_SCREEN_BY_STEP[step] ?? 'question';
     const timer = window.setTimeout(() => {
       setInvitationPreviewSrc(
-        `/view/${invitationSlug}?preview=${encodeURIComponent(JSON.stringify(invitationContent))}&draft=1`,
+        `/view/${invitationSlug}?preview=${encodeURIComponent(JSON.stringify(invitationContent))}&draft=1&screen=${previewScreen}`,
       );
     }, 400);
     return () => window.clearTimeout(timer);
-  }, [invitationContent, invitationSlug]);
+  }, [invitationContent, invitationSlug, step]);
 
   const finishInvitationContent = async () => {
     setSubmitting(true);

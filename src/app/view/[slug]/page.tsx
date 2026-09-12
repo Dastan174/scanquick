@@ -14,13 +14,16 @@ interface ViewProjectPageProps {
   // `preview` lets the Editor's live preview iframe pass draft edits without
   // a database round-trip — see ProjectEditor.tsx. `draft` lets the owner's
   // "Preview" button open an unpublished project as the real, unwrapped
-  // site. Real visitors never carry either param.
-  searchParams: Promise<{ preview?: string; draft?: string }>;
+  // site. `screen` pins the invitation preview to whichever step the editor
+  // or wizard is currently on, instead of always starting at the question
+  // screen (the preview iframe can't be clicked through to get there — see
+  // InvitationEditor.tsx). Real visitors never carry any of these params.
+  searchParams: Promise<{ preview?: string; draft?: string; screen?: string }>;
 }
 
 export default async function ViewProjectPage({ params, searchParams }: ViewProjectPageProps) {
   const { slug } = await params;
-  const { preview, draft } = await searchParams;
+  const { preview, draft, screen } = await searchParams;
 
   const result =
     preview || draft
@@ -61,7 +64,13 @@ export default async function ViewProjectPage({ params, searchParams }: ViewProj
         // Malformed draft — fall back to the saved/demo content instead of crashing.
       }
     }
-    return <DateInvitationExperience projectId={project.id} content={invitationContent} />;
+    return (
+      <DateInvitationExperience
+        projectId={project.id}
+        content={invitationContent}
+        previewScreen={screen}
+      />
+    );
   }
 
   // The saved content only overrides the fields it actually holds — a

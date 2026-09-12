@@ -6,12 +6,19 @@ import type { InvitationContent } from '@/shared/lib/invitationContent';
 import { submitInvitationResponse } from '@/app/(admin)/projects/actions';
 import scss from './dateInvitationExperience.module.scss';
 
+type Screen = 'question' | 'confirm' | 'activity' | 'date' | 'final';
+
 interface DateInvitationExperienceProps {
   projectId: string;
   content: InvitationContent;
+  // Pins the preview to a specific screen instead of always starting at the
+  // question — the editor/wizard preview is click-through-proof (see
+  // InvitationEditor.tsx), so without this it could never show anything
+  // past the first screen. Real visitors never pass this.
+  previewScreen?: string;
 }
 
-type Screen = 'question' | 'confirm' | 'activity' | 'date' | 'final';
+const SCREENS: Screen[] = ['question', 'confirm', 'activity', 'date', 'final'];
 
 function fillTemplate(text: string, date: string, time: string, activity: string): string {
   return text.replace('{date}', date).replace('{time}', time).replace('{activity}', activity);
@@ -20,12 +27,22 @@ function fillTemplate(text: string, date: string, time: string, activity: string
 export default function DateInvitationExperience({
   projectId,
   content,
+  previewScreen,
 }: DateInvitationExperienceProps) {
-  const [screen, setScreen] = useState<Screen>('question');
+  const initialScreen = SCREENS.includes(previewScreen as Screen)
+    ? (previewScreen as Screen)
+    : 'question';
+  const [screen, setScreen] = useState<Screen>(initialScreen);
   const [noOffset, setNoOffset] = useState({ x: 0, y: 0 });
-  const [activity, setActivity] = useState('');
-  const [date, setDate] = useState(content.fixedDate ?? '');
-  const [time, setTime] = useState(content.fixedTime ?? '');
+  // Previewing the final screen directly (no real answers to fill it with)
+  // — show a sample so it doesn't render with blank date/time/activity.
+  const [activity, setActivity] = useState(
+    initialScreen === 'final' ? (content.activityOptions[0] ?? '') : '',
+  );
+  const [date, setDate] = useState(
+    content.fixedDate ?? (initialScreen === 'final' ? '2026-09-20' : ''),
+  );
+  const [time, setTime] = useState(content.fixedTime ?? (initialScreen === 'final' ? '18:00' : ''));
   const [submitting, setSubmitting] = useState(false);
 
   const dodgeNo = () => {
