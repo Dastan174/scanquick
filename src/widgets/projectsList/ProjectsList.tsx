@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Settings as SettingsIcon } from 'lucide-react';
 import Badge from '@/shared/ui/badge/Badge';
 import type { Project } from '@/shared/lib/mockData';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
@@ -125,6 +126,13 @@ export default function ProjectsList({ projects, locale, t }: ProjectsListProps)
                     rel="noopener noreferrer"
                   >
                     {p.preview}
+                  </Link>
+                  <Link
+                    href={`/projects/${proj.id}/settings`}
+                    className={scss.settingsBtn}
+                    aria-label={t.common.settings}
+                  >
+                    <SettingsIcon size={14} />
                   </Link>
                   <Link href={`/projects/${proj.id}/qr`} className={scss.qrBtn}>
                     ⊞

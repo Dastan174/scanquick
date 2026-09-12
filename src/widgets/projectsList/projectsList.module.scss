@@ -162,9 +162,13 @@
   border-color: transparent !important;
 }
 
-.qrBtn {
+.qrBtn,
+.settingsBtn {
   flex: 0 0 auto !important;
   padding: 8px 12px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .createCard {
