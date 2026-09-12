@@ -18,7 +18,6 @@ import {
   QrCode,
   Receipt,
   Settings,
-  Shield,
   User,
   X,
 } from 'lucide-react';
@@ -62,7 +61,6 @@ export default function AdminSidebar({ userEmail, latestProjectId, locale, t }: 
     { href: projectHref('settings'), icon: Settings, label: t.settings },
     { href: '/billing', icon: Receipt, label: t.billing },
     { href: '/profile', icon: User, label: t.profile },
-    { href: '/admin', icon: Shield, label: t.admin },
   ];
 
   const isActive = (href: string) => {

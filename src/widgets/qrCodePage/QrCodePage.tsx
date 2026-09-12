@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import QRCode from 'qrcode';
-import { ChevronLeft, Clock, Frame, Globe, Heart, Link2, Sparkle, TrendingUp } from 'lucide-react';
-import StatCard from '@/shared/ui/statCard/StatCard';
+import { ChevronLeft, Frame, Heart, Sparkle } from 'lucide-react';
 import type { Project } from '@/shared/lib/mockData';
 import { getT, getLocale } from '@/shared/lib/i18n/locale';
 import { qrSubtitle } from '@/shared/lib/i18n/format';
@@ -134,34 +133,6 @@ export default async function QrCodePage({ project }: { project: Project }) {
         </div>
 
         <div className={scss.side}>
-          <div className={scss.analyticsCard}>
-            <h2>{t.scanAnalytics}</h2>
-            <div className={scss.statsGrid}>
-              <StatCard
-                label={t.statTotalScans}
-                icon={Link2}
-                value={String(project.scans)}
-                delta=""
-              />
-              <StatCard label={t.statThisWeek} icon={TrendingUp} value="42" delta="" />
-              <StatCard label={t.statCountries} icon={Globe} value="8" delta="" />
-              <StatCard label={t.statAvgTime} icon={Clock} value="4:32" delta="" />
-            </div>
-          </div>
-
-          <div className={scss.scansCard}>
-            <h2>{t.recentScans}</h2>
-            {t.scanRows.map((s) => (
-              <div key={s.place} className={scss.scanRow}>
-                <div>
-                  <strong>{s.place}</strong>
-                  <span>{s.device}</span>
-                </div>
-                <span className={scss.when}>{s.when}</span>
-              </div>
-            ))}
-          </div>
-
           <div className={scss.frameUpsell}>
             <span>
               <Frame size={28} />

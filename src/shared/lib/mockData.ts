@@ -174,22 +174,6 @@ export const currentUser = {
 
 export const scansByMonth = [30, 45, 38, 52, 60, 55, 70, 65, 80, 90, 85, 100];
 
-export const recentUsers = [
-  { name: 'Sofia Martinez', projects: 7, plan: 'PREMIUM', when: '2 hours ago' },
-  { name: 'Marco Ricci', projects: 3, plan: 'PREMIUM', when: 'Yesterday' },
-  { name: 'Yuki Tanaka', projects: 1, plan: 'FREE', when: '3 days ago' },
-  { name: 'Emma Wilson', projects: 2, plan: 'GIFT', when: '1 week ago' },
-  { name: 'David Zhao', projects: 12, plan: 'PREMIUM', when: '1 week ago' },
-];
-
-export const recentPayments = [
-  { name: 'Sofia M.', plan: 'Annual Premium', amount: 84, status: 'SUCCESS' },
-  { name: 'Marco R.', plan: 'Gift Plan', amount: 29, status: 'SUCCESS' },
-  { name: 'Yuki T.', plan: 'Monthly Premium', amount: 12, status: 'SUCCESS' },
-  { name: 'Emma W.', plan: 'Annual Premium', amount: 84, status: 'REFUNDED' },
-  { name: 'David Z.', plan: 'Monthly Premium', amount: 12, status: 'SUCCESS' },
-];
-
 export const invoices = [
   {
     id: 'INV-2024-012',

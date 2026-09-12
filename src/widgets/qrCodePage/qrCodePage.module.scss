@@ -264,61 +264,12 @@
   gap: 20px;
 }
 
-.analyticsCard,
-.scansCard,
 .frameUpsell {
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
+  background: linear-gradient(135deg, rgba(212, 96, 122, 0.05), rgba(253, 240, 243, 0.5));
+  border: 1px solid rgba(212, 96, 122, 0.15);
   border-radius: var(--card-radius);
   padding: 24px;
   box-shadow: 0 4px 20px rgba(212, 96, 122, 0.06);
-}
-
-.frameUpsell {
-  background: linear-gradient(135deg, rgba(212, 96, 122, 0.05), rgba(253, 240, 243, 0.5));
-  border-color: rgba(212, 96, 122, 0.15);
-}
-
-.analyticsCard h2,
-.scansCard h2 {
-  font-size: var(--text-lg);
-  margin-bottom: 16px;
-}
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.scanRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--color-divider);
-  font-size: var(--text-sm);
-
-  strong {
-    display: block;
-  }
-
-  span {
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.when {
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-}
-
-.frameUpsell {
   text-align: center;
 
   span {
@@ -346,12 +297,6 @@
 
 @media (max-width: 900px) {
   .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .statsGrid {
     grid-template-columns: 1fr;
   }
 }
