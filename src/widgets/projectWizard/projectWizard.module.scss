@@ -442,6 +442,21 @@
     padding: 76px 20px 32px;
   }
 
+  // Stacked on top of the actual form below, a full-size preview pushed the
+  // fields almost a full screen down before you could reach them — shrink
+  // it so there's less to scroll past.
+  .phone {
+    width: 140px;
+    height: 220px;
+    padding: 12px;
+  }
+
+  .invitationFrame {
+    width: 160px;
+    height: 300px;
+    border-width: 6px;
+  }
+
   .right {
     padding: 32px 20px;
     max-width: none;
