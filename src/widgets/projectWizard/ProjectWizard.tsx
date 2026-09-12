@@ -256,6 +256,7 @@ export default function ProjectWizard({ locale, t }: ProjectWizardProps) {
               key={invitationSlug}
               src={invitationPreviewSrc}
               className={scss.invitationPreviewFrame}
+              style={{ pointerEvents: 'none' }}
               title="Live preview"
             />
           </div>
