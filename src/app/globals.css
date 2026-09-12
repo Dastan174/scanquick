@@ -48,6 +48,21 @@ button {
   color: inherit;
 }
 
+/* iOS Safari auto-zooms the page on focus for any input/select/textarea
+   whose font-size is under 16px — most of our fields use --text-sm (14px)
+   for a compact desktop look. Forcing 16px here (only below the phone
+   breakpoint, so desktop keeps its look) stops that zoom on iPhone.
+   !important is needed since every component's own `.field input`-style
+   rule is more specific than a bare element selector and would otherwise
+   win regardless of media query order. */
+@media (max-width: 900px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 .container {
   max-width: 1240px;
   width: 100%;
