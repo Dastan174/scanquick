@@ -26,6 +26,20 @@ interface ProjectRow {
   updated_at: string;
 }
 
+// A pleasant, romance-toned gradient per project — picked deterministically
+// from its id instead of the (now largely unused) template concept, so
+// every project gets its own distinct look instead of the same one or two
+// gradients repeating for everyone.
+const PROJECT_GRADIENTS = templates.map((t) => t.gradient);
+
+function pickGradient(id: string): string {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  }
+  return PROJECT_GRADIENTS[hash % PROJECT_GRADIENTS.length];
+}
+
 function formatRelativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const minutes = Math.round(diffMs / 60000);
@@ -50,7 +64,7 @@ function toProject(row: ProjectRow): Project {
     partnerA: row.partner_a,
     partnerB: row.partner_b,
     template: template.name,
-    gradient: template.gradient,
+    gradient: pickGradient(row.id),
     status: row.status,
     type: row.type,
     scans: 0,
