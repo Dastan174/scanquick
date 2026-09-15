@@ -113,14 +113,20 @@ interface ProjectWithContent {
   content: Record<string, unknown>;
 }
 
+// Tag every actions.ts mutation that touches a published project's content
+// or status revalidates so an edit shows up on the real link right away
+// instead of waiting out the window below.
+export const PUBLISHED_PROJECT_CACHE_TAG = 'published-projects';
+
 // Cached for 45s so a viral QR (many anonymous scans of the same project in
 // a short window) doesn't hit the database on every single view. Uses the
 // cookie-free public client (see public.ts) since unstable_cache can't call
 // cookies()/headers() — fine here, published projects are publicly
 // readable regardless of who's asking. Owners see their own edits
 // immediately in the editor's live preview either way, which bypasses this
-// path entirely (see getProjectBySlugAnyStatus below); only the real
-// public page can lag behind a save by up to 45s.
+// path entirely (see getProjectBySlugAnyStatus below); a save is only ever
+// stale on the real public page for the (rare) window between an edit and
+// the next request after it, since actions.ts revalidates the tag on save.
 const getCachedPublishedProjectRow = unstable_cache(
   async (slug: string): Promise<ProjectRow | null> => {
     const supabase = createPublicClient();
@@ -133,7 +139,7 @@ const getCachedPublishedProjectRow = unstable_cache(
     return data ?? null;
   },
   ['published-project-by-slug'],
-  { revalidate: 45 },
+  { revalidate: 45, tags: [PUBLISHED_PROJECT_CACHE_TAG] },
 );
 
 export async function getPublishedProjectBySlug(slug: string): Promise<ProjectWithContent | null> {

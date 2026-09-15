@@ -1,8 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { createClient } from '@/shared/lib/supabase/server';
+import { PUBLISHED_PROJECT_CACHE_TAG } from '@/shared/lib/supabase/projects';
 import type { LoveStoryContent } from '@/shared/lib/loveStoryContent';
 import type { InvitationContent } from '@/shared/lib/invitationContent';
 import type { ProjectType } from '@/shared/lib/mockData';
@@ -110,6 +111,7 @@ export async function updateProjectContent(id: string, content: LoveStoryContent
 
   if (error) return { error: error.message };
   revalidatePath(`/projects/${id}`);
+  updateTag(PUBLISHED_PROJECT_CACHE_TAG);
   return { ok: true };
 }
 
@@ -128,6 +130,12 @@ export async function updateInvitationContent(id: string, content: InvitationCon
 
   if (error) return { error: error.message };
   revalidatePath(`/projects/${id}`);
+  // The 45s cache behind the real /view/[slug] link is keyed by slug, but
+  // unstable_cache tags apply to the whole cache function — revalidating
+  // every published project on any single save is a bit broad, but it's the
+  // only way to make an edit show up right away without also plumbing the
+  // slug through every caller of this action.
+  updateTag(PUBLISHED_PROJECT_CACHE_TAG);
   return { ok: true };
 }
 
@@ -254,6 +262,7 @@ export async function setProjectStatus(id: string, status: 'draft' | 'published'
   revalidatePath('/dashboard');
   revalidatePath('/projects');
   revalidatePath(`/projects/${id}/settings`);
+  updateTag(PUBLISHED_PROJECT_CACHE_TAG);
   return { ok: true };
 }
 

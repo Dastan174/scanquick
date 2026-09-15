@@ -271,13 +271,15 @@ export default function DateInvitationExperience({
   const finalActivity = activityDetail.length > 0 ? activityDetail : activity;
 
   // Single-select + the chosen option carries its own follow-up question:
-  // ask that before moving on, instead of finishing here.
+  // ask that before moving on, instead of finishing here. Blank rows left
+  // over from checking "Уточнить" without filling anything in don't count —
+  // otherwise the recipient would land on a screen with nothing to tap.
   const continueFromActivity = () => {
     const chosen =
       !content.activityMultiSelect && activity.length === 1
         ? content.activityOptions.find((o) => o.label === activity[0])
         : undefined;
-    if (chosen?.subOptions?.length) {
+    if (chosen?.subOptions?.some((o) => o.trim())) {
       goTo('activityDetail');
       return;
     }
@@ -486,7 +488,7 @@ export default function DateInvitationExperience({
         {screen === 'activityDetail' &&
           (() => {
             const chosen = content.activityOptions.find((o) => o.label === activity[0]);
-            const subOptions = chosen?.subOptions ?? [];
+            const subOptions = (chosen?.subOptions ?? []).filter((o) => o.trim());
             return (
               <>
                 <h1>{chosen?.subQuestion || content.activityQuestionTitle}</h1>
