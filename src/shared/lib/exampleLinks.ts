@@ -12,4 +12,9 @@ export const EXAMPLE_LINKS: ExampleLink[] = [
     description: 'Плеер с фото и песней-посвящением',
     url: 'https://elmir-present-two.vercel.app/',
   },
+  {
+    label: 'Открытка-письмо',
+    description: 'Фото и тёплые строки с подписью',
+    url: 'https://aidar-present.vercel.app/',
+  },
 ];
