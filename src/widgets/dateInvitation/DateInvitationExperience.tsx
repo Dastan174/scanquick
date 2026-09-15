@@ -51,6 +51,15 @@ function fillTemplate(text: string, date: string, time: string, activity: string
   return text.replace('{date}', date).replace('{time}', time).replace('{activity}', activity);
 }
 
+// <input type="date"> (and the fixed-date field) always store "YYYY-MM-DD" —
+// shown raw, it read like a form validation error instead of an invitation.
+function formatNiceDate(dateStr: string): string {
+  if (!dateStr) return dateStr;
+  const parsed = new Date(`${dateStr}T00:00`);
+  if (Number.isNaN(parsed.getTime())) return dateStr;
+  return parsed.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+}
+
 function isScheduledLocked(content: InvitationContent): boolean {
   if (content.openMode !== 'scheduled' || !content.openAt) return false;
   return Date.now() < new Date(content.openAt).getTime();
@@ -426,7 +435,7 @@ export default function DateInvitationExperience({
             <h1>{content.dateQuestionTitle}</h1>
             {content.dateMode === 'fixed' ? (
               <p className={scss.fixedDate}>
-                {content.fixedDate} · {content.fixedTime}
+                {formatNiceDate(content.fixedDate ?? '')} · {content.fixedTime}
               </p>
             ) : (
               <div className={scss.dateFields}>
@@ -507,7 +516,14 @@ export default function DateInvitationExperience({
           <>
             <Image src="/hug.webp" alt="" width={160} height={160} priority />
             <h1>{content.finalTitle}</h1>
-            <p>{fillTemplate(content.finalDescription, date, time, finalActivity.join(', '))}</p>
+            <p>
+              {fillTemplate(
+                content.finalDescription,
+                formatNiceDate(date),
+                time,
+                finalActivity.join(', '),
+              )}
+            </p>
           </>
         )}
       </div>

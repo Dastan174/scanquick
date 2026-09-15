@@ -203,10 +203,16 @@
   color: var(--color-white);
 }
 
-.fixedDate {
+// Extra ".screen" prefix is deliberate: ".screen p" (above) already sets
+// font-size/color on every <p>, and as a class+type selector it out-specifies
+// a bare ".fixedDate" class — this element was quietly rendering at the tiny
+// muted body-text size instead of the styling below.
+.screen .fixedDate {
   font-family: var(--font-heading);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
   color: var(--invite-primary, var(--color-primary));
+  letter-spacing: 0.01em;
 }
 
 .dateFields {
