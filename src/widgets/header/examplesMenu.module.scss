@@ -1,0 +1,130 @@
+.root {
+  position: relative;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-primary);
+  }
+
+  svg {
+    transition: transform var(--transition-fast);
+  }
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border-radius: var(--card-radius);
+  background: var(--color-white);
+  border: 1px solid rgba(212, 96, 122, 0.1);
+  box-shadow: var(--shadow-lg);
+  animation: panelIn 0.15s ease-out;
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-bottom-color: var(--color-white);
+  }
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+
+  &:hover {
+    background: rgba(212, 96, 122, 0.06);
+
+    .itemIcon {
+      color: var(--color-primary);
+      transform: translate(2px, -2px);
+    }
+  }
+}
+
+.itemText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+
+  strong {
+    font-family: var(--font-heading);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+  }
+
+  span {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+}
+
+.itemIcon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition:
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+@media (max-width: 900px) {
+  .panel {
+    position: static;
+    transform: none;
+    width: auto;
+    margin-top: 8px;
+    box-shadow: none;
+    border-color: rgba(212, 96, 122, 0.08);
+    animation: none;
+
+    &::before {
+      display: none;
+    }
+  }
+}

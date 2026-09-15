@@ -3,6 +3,7 @@ import Image from 'next/image';
 import scss from './header.module.scss';
 import Button from '@/shared/ui/button/Button';
 import LanguageSwitcher from '@/widgets/languageSwitcher/LanguageSwitcher';
+import ExamplesMenu from './ExamplesMenu';
 import HeaderMobileMenu from './HeaderMobileMenu';
 import { getLocale, getDictionary } from '@/shared/lib/i18n/locale';
 import { createClient } from '@/shared/lib/supabase/server';
@@ -29,6 +30,7 @@ export default async function Header() {
             <Link href="#features">{t.header.features}</Link>
             <Link href="#pricing">{t.header.pricing}</Link>
             <Link href="#faq">{t.header.faq}</Link>
+            <ExamplesMenu label={t.header.examples} />
           </nav>
           <nav className={scss.actions}>
             <LanguageSwitcher locale={locale} />

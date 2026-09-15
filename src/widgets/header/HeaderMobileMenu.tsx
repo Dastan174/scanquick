@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import Button from '@/shared/ui/button/Button';
 import LanguageSwitcher from '@/widgets/languageSwitcher/LanguageSwitcher';
+import ExamplesMenu from './ExamplesMenu';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import type { Locale } from '@/shared/lib/i18n/shared';
 import scss from './header.module.scss';
@@ -40,6 +41,7 @@ export default function HeaderMobileMenu({ t, locale, isLoggedIn }: HeaderMobile
         <Link href="#faq" onClick={close}>
           {t.faq}
         </Link>
+        <ExamplesMenu label={t.examples} />
         <div className={scss.mobileActions}>
           <LanguageSwitcher locale={locale} />
           {isLoggedIn ? (
