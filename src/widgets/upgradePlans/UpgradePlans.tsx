@@ -6,14 +6,13 @@ import { Check, ChevronLeft, Heart } from 'lucide-react';
 import type { Dictionary } from '@/shared/lib/i18n/dictionaries';
 import scss from './upgradePlans.module.scss';
 
-const planMeta = [
-  { id: 'premium', monthly: 990, yearly: 700 },
-  { id: 'gift', monthly: 2490, yearly: 2490 },
-];
+const planMeta = [{ id: 'premium', monthly: 990, yearly: 700 }];
 
 export default function UpgradePlans({ t }: { t: Dictionary['upgradePlans'] }) {
   const [billing, setBilling] = useState<'Monthly' | 'Yearly'>('Yearly');
-  const [selected, setSelected] = useState<string | null>(null);
+  // Only one plan exists now, so it's pre-selected — no reason to make
+  // someone click the single card before they can see the checkout form.
+  const [selected, setSelected] = useState<string | null>('premium');
 
   const plans = t.plans.map((p, i) => ({ ...p, ...planMeta[i] }));
   const activePlan = plans.find((p) => p.id === selected);
@@ -55,15 +54,14 @@ export default function UpgradePlans({ t }: { t: Dictionary['upgradePlans'] }) {
               onClick={() => setSelected(p.id)}
               onKeyDown={(e) => e.key === 'Enter' && setSelected(p.id)}
             >
-              {'tag' in p && p.tag && <span className={scss.bestValue}>{p.tag}</span>}
               <strong>{p.name}</strong>
               <div className={scss.price}>
-                <span className={scss.amount}>{billing === 'Monthly' ? p.monthly : p.yearly} ₽</span>
-                <span>{p.id === 'gift' ? t.oneTime : t.perMonth}</span>
+                <span className={scss.amount}>
+                  {billing === 'Monthly' ? p.monthly : p.yearly} ₽
+                </span>
+                <span>{t.perMonth}</span>
               </div>
-              {p.id !== 'gift' && billing === 'Yearly' && (
-                <span className={scss.billedNote}>{p.yearlyNote}</span>
-              )}
+              {billing === 'Yearly' && <span className={scss.billedNote}>{p.yearlyNote}</span>}
               <div className={scss.features}>
                 {p.features.map((f) => (
                   <div key={f}>
@@ -112,7 +110,7 @@ export default function UpgradePlans({ t }: { t: Dictionary['upgradePlans'] }) {
               </div>
               <button className={scss.payBtn}>
                 {t.pay} {billing === 'Monthly' ? activePlan.monthly : activePlan.yearly} ₽
-                {activePlan.id !== 'gift' ? t.perMonth : ''} →
+                {t.perMonth} →
               </button>
             </div>
           )}

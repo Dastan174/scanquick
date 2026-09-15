@@ -6,7 +6,6 @@ import { getT } from '@/shared/lib/i18n/locale';
 const planMeta = [
   { href: '/projects/new', highlight: false },
   { href: '/upgrade', highlight: true },
-  { href: '/upgrade', highlight: false },
 ];
 
 export default async function Pricing() {

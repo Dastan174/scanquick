@@ -124,19 +124,6 @@ const ru = {
         ],
         cta: 'Получить Премиум',
       },
-      {
-        name: 'Подарок',
-        price: '2 490 ₽',
-        features: [
-          'Всё из Премиум',
-          'Печатная QR-рамка',
-          'Подарочная упаковка',
-          'Открытка от руки',
-          'Пожизненный доступ',
-          'Индивидуальная настройка',
-        ],
-        cta: 'Отправить подарок',
-      },
     ],
   },
   faq: {
@@ -159,10 +146,6 @@ const ru = {
         q: 'Можно ли защитить сайт паролем?',
         a: 'Пользователи Премиум могут добавить пароль, чтобы доступ к сайту был только у особенного человека.',
       },
-      {
-        q: 'Вы предлагаете печатные QR-рамки?',
-        a: 'Да! Тариф «Подарок» включает профессионально напечатанную рамку и подарочную упаковку, чтобы момент вручения стал особенным.',
-      },
     ],
   },
   cta: {
@@ -180,7 +163,6 @@ const ru = {
         links: [
           { label: 'Возможности', href: '/#features' },
           { label: 'Тарифы', href: '/#pricing' },
-          { label: 'Подарочные планы', href: '/#pricing' },
         ],
       },
       {
@@ -456,7 +438,6 @@ const ru = {
     plans: [
       {
         name: 'Премиум',
-        tag: 'ЛУЧШАЯ ЦЕНА',
         yearlyNote: 'Оплата за год (8 400 ₽/год, экономия 6 000 ₽)',
         features: [
           'Неограниченно проектов',
@@ -465,17 +446,6 @@ const ru = {
           'Свой адрес',
           'Загрузка музыки',
           'Приоритетная поддержка',
-        ],
-      },
-      {
-        name: 'Подарок',
-        yearlyNote: 'разовый платёж',
-        features: [
-          'Всё из Премиум',
-          'Печатная QR-рамка',
-          'Подарочная коробка',
-          'Открытка от руки',
-          'Пожизненный доступ',
         ],
       },
     ],
@@ -671,19 +641,6 @@ const en: typeof ru = {
         ],
         cta: 'Get Premium',
       },
-      {
-        name: 'Gift',
-        price: '$29',
-        features: [
-          'Everything in Premium',
-          'Printed QR Frame',
-          'Gift Box Packaging',
-          'Handwritten Card',
-          'Lifetime Access',
-          'White-glove Setup',
-        ],
-        cta: 'Send a Gift',
-      },
     ],
   },
   faq: {
@@ -706,10 +663,6 @@ const en: typeof ru = {
         q: 'Can I password-protect my site?',
         a: 'Premium users can add a password so only your special person can access the site.',
       },
-      {
-        q: 'Do you offer printed QR frames?',
-        a: 'Yes! Our Gift plan includes a professionally printed frame and gift packaging to make the reveal extra special.',
-      },
     ],
   },
   cta: {
@@ -726,7 +679,6 @@ const en: typeof ru = {
         links: [
           { label: 'Features', href: '/#features' },
           { label: 'Pricing', href: '/#pricing' },
-          { label: 'Gift Plans', href: '/#pricing' },
         ],
       },
       {
@@ -1001,7 +953,6 @@ const en: typeof ru = {
     plans: [
       {
         name: 'Premium',
-        tag: 'BEST VALUE',
         yearlyNote: 'Billed yearly ($84/year, save $60)',
         features: [
           'Unlimited Projects',
@@ -1010,17 +961,6 @@ const en: typeof ru = {
           'Custom Slug',
           'Music Upload',
           'Priority Support',
-        ],
-      },
-      {
-        name: 'Gift Plan',
-        yearlyNote: 'one-time',
-        features: [
-          'Everything in Premium',
-          'Printed QR Frame',
-          'Gift Box',
-          'Handwritten Card',
-          'Lifetime Access',
         ],
       },
     ],

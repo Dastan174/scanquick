@@ -24,7 +24,7 @@ export default async function Hero() {
             <p>{t.hero.description}</p>
             <div className={scss.actions}>
               <Button href="/projects/new">{t.hero.ctaPrimary}</Button>
-              <Button variant="ghost" href="/dashboard">
+              <Button variant="ghost" href="/example" target="_blank">
                 <Play size={16} />
                 {t.hero.ctaSecondary}
               </Button>
